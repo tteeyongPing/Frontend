@@ -11,7 +11,7 @@
 | Leader, BE | 유수민 | 컴퓨터공학전공 | 2021111954@dgu.ac.kr |
 | Member, BE | 안소희 | 컴퓨터공학전공 | 02thgml02@naver.com |
 | Member, FE | 남민주 | 컴퓨터공학전공 | nampink2300@gmail.com |
-| Member, FE | 이효 | 컴퓨터공학전공 | hyojungkin@naver.com |
+| Member, FE | 이효정 | 컴퓨터공학전공 | hyojungkin@naver.com |
 
 <h1>🧑🏻‍💻 Skills</h1>
 
