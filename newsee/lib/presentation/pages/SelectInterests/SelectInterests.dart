@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:newsee/presentation/pages/Main/Main.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart'; // 패키지 임포트
 
 class SelectInterests extends StatefulWidget {
   @override
@@ -13,17 +14,24 @@ class _SelectInterestsState extends State<SelectInterests> {
     {'icon': Icons.how_to_vote_outlined, 'text': '정치'},
     {'icon': Icons.trending_up_outlined, 'text': '경제'},
     {'icon': Icons.groups_outlined, 'text': '사회'},
-    {'icon': Icons.public, 'text': '국제'},
-    {'icon': Icons.sports_soccer_outlined, 'text': '스포츠'},
+    {'icon': Ionicons.earth_sharp, 'text': '국제'},
+    {'icon': Icons.sports_basketball_outlined, 'text': '스포츠'},
     {'icon': Icons.palette_outlined, 'text': '문화/예술'},
     {'icon': Icons.science_outlined, 'text': '과학/기술'},
-    {'icon': FontAwesomeIcons.heartPulse, 'text': '건강/의료'},
+    {'icon': Ionicons.fitness_outline, 'text': '건강/의료'},
     {'icon': Icons.mic_external_on_outlined, 'text': '연예/오락'},
-    {'icon': Icons.forest_outlined, 'text': '환경'},
+    {'icon': Icons.eco_outlined, 'text': '환경'},
   ];
 
   // 선택된 항목을 관리하는 리스트
-  List<bool> selectedInterests = List.filled(10, false);
+  late List<bool> selectedInterests;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedInterests =
+        List.filled(interests.length, false); // interests의 개수에 맞게 초기화
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +47,21 @@ class _SelectInterestsState extends State<SelectInterests> {
             Text(
               '당신의 관심 분야를 선택해주세요.',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: screenWidth * 0.045,
               ),
             ),
             SizedBox(height: 16),
             Expanded(
               child: Center(
                 child: Container(
-                  width: screenWidth * 0.88,
+                  width: screenWidth * 0.84,
                   child: GridView.builder(
-                    itemCount: interests.length,
+                    itemCount: interests.length, // interests의 항목 개수만큼 표시
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, // 한 줄에 3개
                       childAspectRatio: 1,
                     ),
-                    padding: EdgeInsets.all(8.0),
+
                     itemBuilder: (context, index) {
                       bool isSelected = selectedInterests[index];
                       return GestureDetector(
@@ -75,33 +82,25 @@ class _SelectInterestsState extends State<SelectInterests> {
                                     width: 2.0,
                                   )
                                 : null,
-                            borderRadius: BorderRadius.circular(24), // 원형 크기 20
+                            borderRadius: BorderRadius.circular(24),
                           ),
-                          margin: EdgeInsets.all(8.0),
+                          margin: EdgeInsets.all(6.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              index == 9
-                                  ? FaIcon(
-                                      FontAwesomeIcons.seedling,
-                                      size: 40,
-                                      color: isSelected
-                                          ? Color(0xFF0038FF)
-                                          : Color(0xFF000000),
-                                    )
-                                  : Icon(
-                                      interests[index]['icon'],
-                                      size: screenWidth * 0.11,
-                                      color: isSelected
-                                          ? Color(0xFF0038FF)
-                                          : Color(0xFF000000),
-                                    ),
+                              Icon(
+                                interests[index]['icon'],
+                                size: screenWidth * 0.11,
+                                color: isSelected
+                                    ? Color(0xFF0038FF)
+                                    : Color(0xFF000000),
+                              ),
                               SizedBox(height: 8),
                               Text(
                                 interests[index]['text'],
                                 style: TextStyle(
-                                  fontSize: screenWidth * 0.032,
+                                  fontSize: screenWidth * 0.035,
                                   color: isSelected
                                       ? Color(0xFF0038FF)
                                       : Colors.black,
@@ -118,7 +117,7 @@ class _SelectInterestsState extends State<SelectInterests> {
             ),
             SizedBox(height: 16),
             Container(
-              width: screenWidth * 0.88,
+              width: screenWidth * 0.84,
               height: screenWidth * 0.14,
               child: ElevatedButton(
                 onPressed: () {
@@ -140,7 +139,7 @@ class _SelectInterestsState extends State<SelectInterests> {
                 ),
               ),
             ),
-            SizedBox(height: 60),
+            SizedBox(height: screenWidth * 0.1),
           ],
         ),
       ),
