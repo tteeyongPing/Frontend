@@ -35,14 +35,6 @@ class Header extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          width: screenWidth * 0.92, // 밑줄의 너비 설정
-          child: Divider(
-            thickness: 1, // 두께 설정
-            color: Color(0xFFD3D3D3), // 밑줄 색상 설정
-          ),
-        ),
-        SizedBox(height: 0), // Divider 아래의 공간을 없애기 위해 SizedBox 추가 (0으로 설정)
       ],
     );
   }
