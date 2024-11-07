@@ -130,7 +130,7 @@ class _NewsPageState extends State<NewsPage> {
       _isLoading = true;
     });
 
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(Duration(seconds: 1), () {
       setState(() {
         if (_displayedNews.length < allNewsData.length) {
           _displayedNews.addAll(allNewsData.sublist(
