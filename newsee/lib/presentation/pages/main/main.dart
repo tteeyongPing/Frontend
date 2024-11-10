@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:newsee/presentation/widgets/header/header.dart';
 import 'package:newsee/presentation/widgets/footer/footer.dart';
 import 'package:newsee/presentation/pages/homePage/homePage.dart';
-import 'package:newsee/presentation/pages/NewsPage/NewsPage.dart';
+import 'package:newsee/presentation/pages/NewsPage/NewsListPage.dart';
 import 'package:newsee/presentation/pages/BookmarkPage/BookmarkPage.dart';
 import 'package:newsee/presentation/pages/PlaylistPage/PlaylistPage.dart';
 import 'package:newsee/presentation/pages/MyPage/MyPage.dart';
@@ -25,7 +25,7 @@ class _MainPageState extends State<MainPage> {
     // `initState`에서 `_pages` 초기화
     _pages = [
       HomePage(),
-      NewsPage(),
+      NewsListPage(),
       BookmarkPage(),
       PlaylistPage(),
       MyPage(
