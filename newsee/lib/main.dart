@@ -11,8 +11,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch:
-            createMaterialColor(Color(0xFF0038FF)), // Custom MaterialColor
+        primarySwatch: createMaterialColor(
+            Color.fromARGB(255, 13, 20, 45)), // Custom MaterialColor
         scaffoldBackgroundColor: Colors.white, // 모든 페이지의 배경색을 하얀색으로 설정
       ),
       home: LoginPage(),
