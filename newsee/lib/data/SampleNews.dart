@@ -24,11 +24,10 @@ List<News> allNewsData = [
 - 기타: 응답자 중 10명 중 6명은 추석에 대한 기대감이 없다고 응답하며, 차례를 치르는 가정은 40%에 불과함.
 ''',
     newspaper: '이데일리',
-    summary:
-        'SK텔레콤이 T 멤버십 고객 1021명을 대상으로 한 추석 연휴 소비자 인식 조사 결과를 발표했다.',
+    summary: 'SK텔레콤이 T 멤버십 고객 1021명을 대상으로 한 추석 연휴 소비자 인식 조사 결과를 발표했다.',
     reporter: '홍길동 기자',
   ),
-News(
+  News(
     newsId: 2,
     categoryId: 1, // 정치
     title: '집에서 조용히 쉴래요',
@@ -81,14 +80,11 @@ News(
   ),
 ];
 
-List<News> politicsNewsData = allNewsData
-    .where((news) => news.categoryId == 1)
-    .toList();
+List<News> politicsNewsData =
+    allNewsData.where((news) => news.categoryId == 1).toList();
 
-List<News> societyNewsData = allNewsData
-    .where((news) => news.categoryId == 2)
-    .toList();
+List<News> societyNewsData =
+    allNewsData.where((news) => news.categoryId == 2).toList();
 
-List<News> economyNewsData = allNewsData
-    .where((news) => news.categoryId == 3)
-    .toList();
+List<News> economyNewsData =
+    allNewsData.where((news) => news.categoryId == 3).toList();
