@@ -1,4 +1,3 @@
-// MainPage.dart
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/widgets/header/header.dart';
 import 'package:newsee/presentation/widgets/footer/footer.dart';
@@ -16,21 +15,20 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
 
-  // `late`를 사용하여 나중에 초기화하도록 선언
   late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    // `initState`에서 `_pages` 초기화
     _pages = [
       HomePage(),
       NewsPage(),
       BookmarkPage(),
       PlaylistPage(),
       MyPage(
-          onNavigateToNews: () => _onItemTapped(1),
-          onNavigateToBookmark: () => _onItemTapped(2)), // 콜백 전달
+        onNavigateToNews: () => _onItemTapped(1),
+        onNavigateToBookmark: () => _onItemTapped(2),
+      ),
     ];
   }
 
@@ -43,15 +41,24 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white, // 색상 고정
+        elevation: 0, // 그림자 효과 없애기
+        leading: SizedBox.shrink(), // 왼쪽 아이콘 제거
+        flexibleSpace: Header(), // Header 위젯을 배치
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1.0), // Divider의 높이 설정
+          child: Divider(
+            color: Colors.grey, // Divider 색상 설정
+            thickness: 1.0, // Divider 두께 설정
+            height: 1.0, // Divider가 차지할 높이 설정
+          ),
+        ),
+      ),
       body: Column(
         children: [
-          Header(),
-          Divider(
-            thickness: 1,
-            color: Color(0xFFD3D3D3),
-          ),
           Expanded(
-            child: _pages[_selectedIndex],
+            child: _pages[_selectedIndex], // 선택된 페이지 표시
           ),
         ],
       ),

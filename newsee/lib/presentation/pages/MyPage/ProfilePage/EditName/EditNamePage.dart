@@ -24,7 +24,7 @@ class _EditNamePageState extends State<EditNamePage> {
         title: null, // 기본 title을 null로 설정
         flexibleSpace: Center(
           child: Text(
-            '홍길동님의 정보',
+            '닉네임 변경',
             style: TextStyle(
               color: Colors.black,
               fontSize: 18,
