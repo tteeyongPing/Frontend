@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:newsee/presentation/pages/SearchPage/SearchPage.dart'; // SetAlert import 추가
 
 class Header extends StatelessWidget {
   const Header({
@@ -27,10 +28,19 @@ class Header extends StatelessWidget {
               ),
               Spacer(), // 로고와 메뉴 아이콘 사이에 공간 추가
               // 오른쪽 메뉴 아이콘
-              Icon(
-                Icons.search,
-                color: Color(0xFF0038FF),
-                size: screenWidth * 0.06,
+              GestureDetector(
+                onTap: () {
+                  // search 아이콘 클릭 시 SearchPage로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchPage()),
+                  );
+                },
+                child: Icon(
+                  Icons.search,
+                  color: Color(0xFF0038FF),
+                  size: screenWidth * 0.06,
+                ),
               ),
             ],
           ),

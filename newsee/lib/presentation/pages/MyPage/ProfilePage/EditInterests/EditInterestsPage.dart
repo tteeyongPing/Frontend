@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/MyPage/MyPage.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart'; // 패키지 임포트
+import 'package:typicons_flutter/typicons_flutter.dart';
 
 class EditInterestsPage extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
   TextEditingController _controller = TextEditingController();
 
   // 관심 분야 목록
+// 관심 분야 목록
   final List<Map<String, dynamic>> interests = [
     {'icon': Icons.how_to_vote_outlined, 'text': '정치'},
     {'icon': Icons.trending_up_outlined, 'text': '경제'},
@@ -21,7 +23,7 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
     {'icon': Icons.science_outlined, 'text': '과학/기술'},
     {'icon': Ionicons.fitness_outline, 'text': '건강/의료'},
     {'icon': Icons.mic_external_on_outlined, 'text': '연예/오락'},
-    {'icon': Icons.eco_outlined, 'text': '환경'},
+    {'icon': Typicons.leaf, 'text': '환경'}, // 환경 아이콘 추가
   ];
 
   List<bool> selectedInterests =

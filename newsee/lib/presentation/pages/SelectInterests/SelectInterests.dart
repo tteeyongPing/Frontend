@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:newsee/presentation/pages/Main/Main.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart'; // 패키지 임포트
+import 'package:typicons_flutter/typicons_flutter.dart';
 
 class SelectInterests extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _SelectInterestsState extends State<SelectInterests> {
     {'icon': Icons.science_outlined, 'text': '과학/기술'},
     {'icon': Ionicons.fitness_outline, 'text': '건강/의료'},
     {'icon': Icons.mic_external_on_outlined, 'text': '연예/오락'},
-    {'icon': Icons.eco_outlined, 'text': '환경'},
+    {'icon': Typicons.leaf, 'text': '환경'},
   ];
 
   // 선택된 항목을 관리하는 리스트
