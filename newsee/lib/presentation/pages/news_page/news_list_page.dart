@@ -4,6 +4,8 @@ import 'package:newsee/models/News.dart';
 import 'package:newsee/data/SampleNews.dart';
 
 class NewsListPage extends StatefulWidget {
+  const NewsListPage({super.key});
+
   @override
   _NewsListPageState createState() => _NewsListPageState();
 }
@@ -17,10 +19,9 @@ class _NewsListPageState extends State<NewsListPage> {
     {'icon': Icons.add, 'text': '추가하기'},
   ];
 
-  List<News> _displayedNews = [];
+  final List<News> _displayedNews = [];
   bool _isLoading = false;
   late ScrollController _scrollController;
-  String _selectedInterest = '전체';
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _NewsListPageState extends State<NewsListPage> {
       _isLoading = true;
     });
 
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         if (_displayedNews.length < allNewsData.length) {
           _displayedNews.addAll(
@@ -57,32 +58,6 @@ class _NewsListPageState extends State<NewsListPage> {
         }
         _isLoading = false;
       });
-    });
-  }
-
-  void _onInterestTap(String text) {
-    print('$text 클릭됨');
-
-    setState(() {
-      _selectedInterest = text;
-
-      if (text == '전체') {
-        _displayedNews = List.from(allNewsData);
-      } else if (text == '정치') {
-        _displayedNews = allNewsData
-            .where((news) => news.categoryId == 1)
-            .toList();
-      } else if (text == '경제') {
-        _displayedNews = allNewsData
-            .where((news) => news.categoryId == 3)
-            .toList();
-      } else if (text == '사회') {
-        _displayedNews = allNewsData
-            .where((news) => news.categoryId == 2)
-            .toList();
-      } else {
-        _displayedNews = [];
-      }
     });
   }
 
@@ -104,7 +79,7 @@ class _NewsListPageState extends State<NewsListPage> {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           // 관심사 선택 위젯 (기존 코드 유지)
@@ -116,7 +91,7 @@ class _NewsListPageState extends State<NewsListPage> {
               child: Column(
                 children: [
                   ClipRect(
-                    child: Container(
+                    child: SizedBox(
                       width: screenWidth,
                       child: Column(
                         children: _displayedNews.map(
@@ -143,7 +118,7 @@ class _NewsListPageState extends State<NewsListPage> {
                                       color: Colors.black.withOpacity(0.1),
                                       spreadRadius: 0,
                                       blurRadius: 8,
-                                      offset: Offset(0, 4),
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
@@ -166,19 +141,19 @@ class _NewsListPageState extends State<NewsListPage> {
                                           _getCategoryName(news.categoryId),
                                           style: TextStyle(
                                             fontSize: screenWidth * 0.03,
-                                            color: Color(0xFF0038FF),
+                                            color: const Color(0xFF0038FF),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       news.title,
                                       style: TextStyle(
                                         fontSize: screenWidth * 0.05,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       news.summary.length > 43
                                           ? '${news.summary.substring(0, 43)}...'
@@ -198,9 +173,9 @@ class _NewsListPageState extends State<NewsListPage> {
                     ),
                   ),
                   if (_isLoading)
-                    Padding(
+                    const Padding(
                       padding:
-                          const EdgeInsets.symmetric(vertical: 20),
+                          EdgeInsets.symmetric(vertical: 20),
                       child: CircularProgressIndicator(),
                     ),
                 ],

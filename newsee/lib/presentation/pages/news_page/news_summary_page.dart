@@ -1,23 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
+import 'NewsOriginPage.dart';
 
 class NewsSummaryPage extends StatelessWidget {
   final News news;
 
-  NewsSummaryPage({required this.news});
-
-  String _getCategoryName(int categoryId) {
-    switch (categoryId) {
-      case 1:
-        return '정치';
-      case 2:
-        return '사회';
-      case 3:
-        return '경제';
-      default:
-        return '기타';
-    }
-  }
+  const NewsSummaryPage({super.key, required this.news});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +27,7 @@ class NewsSummaryPage extends StatelessWidget {
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
@@ -65,8 +53,9 @@ class NewsSummaryPage extends StatelessWidget {
                     // Newspaper, Title, and Info Section
                     Container(
                       width: screenWidth,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
+                      padding:
+                          const EdgeInsets.only(left: 20, right: 20, bottom: 4),
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                       ),
                       child: Column(
@@ -81,7 +70,7 @@ class NewsSummaryPage extends StatelessWidget {
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
 
                           // Title
                           Text(
@@ -98,9 +87,9 @@ class NewsSummaryPage extends StatelessWidget {
                     // Date, Reporter, and Buttons Row with Full-Width Bottom Border
                     Container(
                       width: screenWidth,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 8),
-                      decoration: BoxDecoration(
+                      padding: const EdgeInsets.only(
+                          left: 24, right: 24, top: 4, bottom: 16),
+                      decoration: const BoxDecoration(
                         border: Border(
                           bottom: BorderSide(
                             color: Colors.grey, // Color of the border
@@ -133,7 +122,6 @@ class NewsSummaryPage extends StatelessWidget {
                                     color: Colors.black,
                                   ),
                                 ),
-                                SizedBox(height: 4),
                               ],
                             ),
                           ),
@@ -141,19 +129,19 @@ class NewsSummaryPage extends StatelessWidget {
                           Row(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.share),
+                                icon: const Icon(Icons.share),
                                 onPressed: () {
                                   // Add share functionality here
                                 },
                               ),
                               IconButton(
-                                icon: Icon(Icons.bookmark_border),
+                                icon: const Icon(Icons.bookmark_border),
                                 onPressed: () {
                                   // Add favorite functionality here
                                 },
                               ),
                               IconButton(
-                                icon: Icon(Icons.more_vert),
+                                icon: const Icon(Icons.more_vert),
                                 onPressed: () {
                                   // Add more options functionality here
                                 },
@@ -168,14 +156,12 @@ class NewsSummaryPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 16),
-                      // margin: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                        color: Colors
-                            .white, // Background color for the content frame
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        news.content,
+                        news.summary,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: screenWidth * 0.04,
@@ -183,31 +169,57 @@ class NewsSummaryPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
 
-            // Bottom Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implement action for "원본 보기"
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0XFF0038FF),
-                  minimumSize: Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  '원본 보기',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.045,
-                    color: Colors.white,
-                  ),
+                    // Increased spacing between the news summary and the button
+                    SizedBox(
+                        height:
+                            screenWidth * 0.08), // Adjusted for tighter spacing
+
+                    // Button to navigate to News Origin Page
+                    Center(
+                      child: Container(
+                        width: screenWidth * 0.84,
+                        height: screenWidth * 0.14,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black
+                                  .withOpacity(0.25), // 25% opacity for #000000
+                              offset: const Offset(0, 4), // x: 0, y: 4
+                              blurRadius: 4, // blur radius of 4
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    NewsOriginPage(news: news),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF333333),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                          ),
+                          child: Text(
+                            '원본 보기',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: screenWidth * 0.032,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Additional bottom spacing for scroll padding
+                    SizedBox(height: screenWidth * 0.1),
+                  ],
                 ),
               ),
             ),
