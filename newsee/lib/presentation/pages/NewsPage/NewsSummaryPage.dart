@@ -62,7 +62,7 @@ class NewsSummaryPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Newspaper, Title, and Info Section
+                    // company, Title, and Info Section
                     Container(
                       width: screenWidth,
                       padding: const EdgeInsets.all(20),
@@ -72,9 +72,9 @@ class NewsSummaryPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Newspaper
+                          // company
                           Text(
-                            news.newspaper,
+                            news.company,
                             style: TextStyle(
                               fontSize: screenWidth * 0.035,
                               color: Colors.black,

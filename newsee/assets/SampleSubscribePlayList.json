@@ -1,0 +1,53 @@
+{
+	"code": 200,
+	"result": "SUCCESS",
+	"message": "내 플레이리스트를 가지고 왔습니다.",
+	"data": [
+	  {
+		"playlistId": 1,
+		"userId": 4,
+		"playlistName": "구독 플레이리스트이름",
+		"description": "플레이리스트설명",
+		"news": [
+		  {
+			"newsId": 1,
+			"categoryId": 3,
+			"title": "구독 뉴스제목1",
+			"date": "2024-10-05",
+			"content": "뉴스 원문",
+			"company": "신문사",
+			"shorts": "뉴스 요약",
+			"reporter": "기자 이름"
+		  }, {
+			"newsId": 2,
+			"categoryId": 3,
+			"title": "구독 뉴스제목1",
+			"date": "2024-10-05",
+			"content": "뉴스 원문",
+			"company": "신문사",
+			"shorts": "뉴스 요약",
+			"reporter": "기자 이름"
+		  }
+		]
+	  },
+	  {
+		"playlistId": 2,
+		"userId": 4,
+		"playlistName": "구독 플레이리스트이름",
+		"description": "플레이리스트설명",
+		"news": [
+		  {
+			"newsId": 1,
+			"categoryId": 3,
+			"title": "뉴스제목",
+			"date": "2024-10-05",
+			"content": "뉴스 원문",
+			"company": "신문사",
+			"shorts": "뉴스 요약",
+			"reporter": "기자 이름"
+		  }
+		]
+	  }
+	]
+  }
+  
