@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:newsee/presentation/widgets/header/header.dart';
 import 'package:newsee/presentation/widgets/footer/footer.dart';
 import 'package:newsee/presentation/pages/homePage/homePage.dart';
-import 'package:newsee/presentation/pages/NewsPage/NewsListPage.dart';
+import 'package:newsee/presentation/pages/news_page/news_list_page.dart';
 import 'package:newsee/presentation/pages/BookmarkPage/BookmarkPage.dart';
 import 'package:newsee/presentation/pages/PlaylistPage/PlaylistPage.dart';
 import 'package:newsee/presentation/pages/MyPage/MyPage.dart';

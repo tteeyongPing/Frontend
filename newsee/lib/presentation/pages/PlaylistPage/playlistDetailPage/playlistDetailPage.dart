@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
-import 'package:newsee/presentation/pages/NewsPage/NewsSummaryPage.dart';
+import 'package:newsee/presentation/pages/news_page/news_summary_page.dart';
 
 class NewsListPage extends StatelessWidget {
   final List<News> news;

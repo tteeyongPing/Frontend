@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'NewsSummaryPage.dart';
+import './news_summary_page.dart';
 import 'package:newsee/models/News.dart';
 import 'package:newsee/data/SampleNews.dart';
 

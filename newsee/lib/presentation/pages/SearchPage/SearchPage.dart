@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/data/SampleNews.dart';
 import 'package:newsee/models/News.dart';
-import 'package:newsee/presentation/pages/NewsPage/NewsSummaryPage.dart';
+import 'package:newsee/presentation/pages/news_page/news_summary_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
