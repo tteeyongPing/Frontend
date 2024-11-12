@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
 import './news_summary_page.dart';
+
+import 'NewsSummaryPage.dart';
+
 import 'package:newsee/models/News.dart';
 import 'package:newsee/data/SampleNews.dart';
 
@@ -123,7 +127,10 @@ class _NewsListPageState extends State<NewsListPage> {
                                   ],
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+
                                   children: [
                                     // 뉴스 아이템 UI
                                     Row(
@@ -131,7 +138,9 @@ class _NewsListPageState extends State<NewsListPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
+
                                           news.company,
+
                                           style: TextStyle(
                                             fontSize: screenWidth * 0.03,
                                           ),
@@ -154,9 +163,11 @@ class _NewsListPageState extends State<NewsListPage> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
+
                                       news.shorts.length > 43
                                           ? '${news.shorts.substring(0, 43)}...'
                                           : news.shorts,
+
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: screenWidth * 0.025,
@@ -173,7 +184,10 @@ class _NewsListPageState extends State<NewsListPage> {
                   ),
                   if (_isLoading)
                     const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20),
+
                       child: CircularProgressIndicator(),
                     ),
                 ],

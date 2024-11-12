@@ -49,7 +49,9 @@ class NewsOriginPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     // company, Title, and Info Section
+
                     Container(
                       width: screenWidth,
                       padding:
@@ -60,9 +62,11 @@ class NewsOriginPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
                           // company
                           Text(
                             news.company,
+
                             style: TextStyle(
                               fontSize: screenWidth * 0.035,
                               color: Colors.black,
