@@ -76,7 +76,7 @@ class NewsSummaryPage extends StatelessWidget {
                             children: [
                               // Newspaper
                               Text(
-                                news.newspaper,
+                                news.company,
                                 style: TextStyle(
                                   fontSize: screenWidth * 0.035,
                                   color: Colors.black,
@@ -174,7 +174,7 @@ class NewsSummaryPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            news.summary,
+                            news.shorts,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: screenWidth * 0.04,

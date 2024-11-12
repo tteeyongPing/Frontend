@@ -1,0 +1,94 @@
+{
+	"code": 200,
+	"result": "SUCCESS",
+	"message": "내 플레이리스트를 가지고 왔습니다.",
+	"data": [
+	  {
+		"playlistId": 1,
+		"userId": 4,
+		"playlistName": "내 플레이리스트이름",
+		"description": "내 플레이리스트설명",
+		"news": [
+		  {
+			"newsId": 1,
+			"categoryId": 3,
+			"title": "뉴스제목1",
+			"date": "2024-10-05",
+			"content": "뉴스 원문 내용 1",
+			"company": "신문사 A",
+			"shorts": "뉴스 요약 1",
+			"reporter": "기자 이름 1"
+		  },
+		  {
+			"newsId": 2,
+			"categoryId": 3,
+			"title": "뉴스제목2",
+			"date": "2024-10-06",
+			"content": "뉴스 원문 내용 2",
+			"company": "신문사 B",
+			"shorts": "뉴스 요약 2",
+			"reporter": "기자 이름 2"
+		  },
+		  {
+			"newsId": 3,
+			"categoryId": 2,
+			"title": "뉴스제목3",
+			"date": "2024-10-07",
+			"content": "뉴스 원문 내용 3",
+			"company": "신문사 C",
+			"shorts": "뉴스 요약 3",
+			"reporter": "기자 이름 3"
+		  },
+		  {
+			"newsId": 4,
+			"categoryId": 1,
+			"title": "뉴스제목4",
+			"date": "2024-10-08",
+			"content": "뉴스 원문 내용 4",
+			"company": "신문사 D",
+			"shorts": "뉴스 요약 4",
+			"reporter": "기자 이름 4"
+		  },
+		  {
+			"newsId": 5,
+			"categoryId": 5,
+			"title": "뉴스제목5",
+			"date": "2024-10-09",
+			"content": "뉴스 원문 내용 5",
+			"company": "신문사 E",
+			"shorts": "뉴스 요약 5",
+			"reporter": "기자 이름 5"
+		  },
+		  {
+			"newsId": 6,
+			"categoryId": 4,
+			"title": "뉴스제목6",
+			"date": "2024-10-10",
+			"content": "뉴스 원문 내용 6",
+			"company": "신문사 F",
+			"shorts": "뉴스 요약 6",
+			"reporter": "기자 이름 6"
+		  }
+		]
+	  },
+	  {
+		"playlistId": 2,
+		"userId": 4,
+		"playlistName": "내 플레이리스트이름",
+		"description": "내 플레이리스트설명",
+		"news": [
+		  {
+			"newsId": 1,
+			"categoryId": 3,
+			"title": "뉴스제목1",
+			"date": "2024-10-05",
+			"content": "뉴스 원문 내용 1",
+			"company": "신문사 A",
+			"shorts": "뉴스 요약 1",
+			"reporter": "기자 이름 1"
+		  }
+		]
+	  }
+	]
+  }
+  

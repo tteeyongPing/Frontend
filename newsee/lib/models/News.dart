@@ -6,8 +6,8 @@ class News {
   final String title;
   final String date;
   final String content;
-  final String newspaper;
-  final String summary;
+  final String company;
+  final String shorts;
   final String reporter;
 
   News({
@@ -16,8 +16,8 @@ class News {
     required this.title,
     required this.date,
     required this.content,
-    required this.newspaper,
-    required this.summary,
+    required this.company,
+    required this.shorts,
     required this.reporter,
   });
 
@@ -29,8 +29,8 @@ class News {
       title: json['title'] ?? '',
       date: json['date'] ?? '',
       content: json['content'] ?? '',
-      newspaper: json['newspaper'] ?? '',
-      summary: json['summary'] ?? '',
+      company: json['company'] ?? '',
+      shorts: json['shorts'] ?? '',
       reporter: json['reporter'] ?? '',
     );
   }
@@ -43,8 +43,8 @@ class News {
       'title': title,
       'date': date,
       'content': content,
-      'newspaper': newspaper,
-      'summary': summary,
+      'company': company,
+      'shorts': shorts,
       'reporter': reporter,
     };
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/data/SampleNews.dart';
 import 'package:newsee/models/News.dart';
-import 'package:newsee/presentation/pages/NewsPage/NewsSummaryPage.dart';
+import 'package:newsee/presentation/pages/news_page/news_summary_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -45,7 +45,7 @@ class _SearchPageState extends State<SearchPage> {
         _searchResults = _allNewsData
             .where((news) =>
                 news.title.toLowerCase().contains(query.toLowerCase()) ||
-                news.summary.toLowerCase().contains(query.toLowerCase()))
+                news.shorts.toLowerCase().contains(query.toLowerCase()))
             .toList();
       } else {
         // 플레이리스트에 대한 검색 로직 추가 (가정)
@@ -306,14 +306,14 @@ class _SearchPageState extends State<SearchPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          news.newspaper, // 신문사
+                                          news.company, // 신문사
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Color(0xFF0038FF),
                                           ),
                                         ),
                                         Text(
-                                          news.newspaper,
+                                          news.company,
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Color(0xFF707070),
@@ -331,7 +331,7 @@ class _SearchPageState extends State<SearchPage> {
                                     ),
                                     SizedBox(height: 5),
                                     Text(
-                                      news.summary,
+                                      news.shorts,
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Color(0xFF707070),

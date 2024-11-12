@@ -107,7 +107,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        news.newspaper,
+                                        news.company,
                                         style: TextStyle(
                                           fontSize: screenWidth * 0.03,
                                         ),
@@ -130,9 +130,9 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    news.summary.length > 43
-                                        ? '${news.summary.substring(0, 43)}...'
-                                        : news.summary,
+                                    news.shorts.length > 43
+                                        ? '${news.shorts.substring(0, 43)}...'
+                                        : news.shorts,
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: screenWidth * 0.025,
