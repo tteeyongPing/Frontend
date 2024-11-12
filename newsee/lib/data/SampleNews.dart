@@ -44,7 +44,7 @@ List<News> allNewsData = [
     title: '제목 3',
     date: '2023년 10월 3일',
     content: '이것은 세 번째 슬라이드의 내용입니다.',
-    company: '농민신문생활',
+    company: '농민신문생활', 
     shorts: '세 번째 뉴스의 요약본입니다.',
     reporter: '김철수 기자',
   ),
