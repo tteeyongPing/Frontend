@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
-import 'package:newsee/presentation/pages/news_page/news_summary_page.dart';
+import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
 
 class NewsListPage extends StatelessWidget {
   final List<News> news;
@@ -35,7 +35,7 @@ class NewsListPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => NewsSummaryPage(
+                    builder: (context) => NewsShortsPage(
                         news: item), // Pass the selected news item
                   ),
                 );
