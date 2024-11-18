@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart'; // 패키지 임포트
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,24 +8,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Map<dynamic, dynamic>> sliderData = [
+  final List<Map<String, dynamic>> sliderData = [
     {
       'newspaper': '농민신문생활',
-      'image': 'assets/logo.png', // 이미지 경로 (적절한 경로로 변경)
+      'image': 'assets/logo.png', // 적절한 경로로 수정
       'title': '보름달 보며 소원 빌기 좋은 곳은 어디?… ‘달맞이 명소’ 6곳',
       'description':
           '경기관광공사, ‘달맞이 명소’ 6곳 추천 \n가평 별빛정원, SNS서 별의 성지로 입소문\n수원화성 서장대, 성곽의 운치와 야경 일품',
     },
     {
       'newspaper': '농민신문생활',
-      'image': 'assets/logo.png', // 이미지 경로 (적절한 경로로 변경)
+      'image': 'assets/logo.png',
       'title': '집에서 조용히 쉴래요',
       'description':
           '경기관광공사, ‘달맞이 명소’ 6곳 추천 \n가평 별빛정원, SNS서 별의 성지로 입소문\n수원화성 서장대, 성곽의 운치와 야경 일품',
     },
     {
       'newspaper': '농민신문생활',
-      'image': 'assets/logo.png', // 이미지 경로 (적절한 경로로 변경)
+      'image': 'assets/logo.png',
       'title': '제목 3',
       'description': '이것은 세 번째 슬라이드의 내용입니다.',
     },
@@ -35,11 +35,11 @@ class _HomePageState extends State<HomePage> {
     {'icon': Icons.how_to_vote_outlined, 'text': '정치'},
     {'icon': Icons.trending_up_outlined, 'text': '경제'},
     {'icon': Icons.groups_outlined, 'text': '사회'},
-    {'icon': Ionicons.earth_sharp, 'text': '국제'}, // Ionicons 아이콘 확인 필요
+    {'icon': Ionicons.earth_sharp, 'text': '국제'},
     {'icon': Icons.add, 'text': '추가하기'},
   ];
 
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentIndex = 0;
 
   @override
@@ -59,14 +59,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onInterestTap(String text) {
-    // 페이지 이동 로직을 여기에 추가
-    print('$text 클릭됨');
+    // print('$text 클릭됨');
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double sliderHeight = screenWidth * 0.6; // 슬라이드 높이 비율 설정 (가로의 60%)
+    double sliderHeight = screenWidth * 0.6;
 
     return Scaffold(
       body: Column(
@@ -75,8 +74,9 @@ class _HomePageState extends State<HomePage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // 슬라이더
                   SizedBox(
-                    height: sliderHeight, // 슬라이드 높이 사용
+                    height: sliderHeight,
                     child: PageView.builder(
                       controller: _pageController,
                       itemCount: sliderData.length,
@@ -99,71 +99,39 @@ class _HomePageState extends State<HomePage> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24),
-                                    child: Container(
-                                      width: double.infinity,
-                                      child: Text(
-                                        sliderData[index]['newspaper']!,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                        ),
-                                        textAlign: TextAlign.left,
+                                    child: Text(
+                                      sliderData[index]['newspaper']!,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
                                       ),
+                                      textAlign: TextAlign.left,
                                     ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24),
-                                    child: Container(
-                                      width: double.infinity,
-                                      child: Text(
-                                        sliderData[index]
-                                            ['title']!, // 'text' -> 'title' 수정
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 19,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        textAlign: TextAlign.left,
+                                    child: Text(
+                                      sliderData[index]['title']!,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 19,
                                       ),
+                                      textAlign: TextAlign.left,
                                     ),
                                   ),
-                                  SizedBox(height: 8),
+                                  const SizedBox(height: 8),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24),
-                                    child: Container(
-                                      width: double.infinity,
-                                      child: Text(
-                                        sliderData[index]['description']!,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          height: 1.5,
-                                        ),
-                                        textAlign: TextAlign.left,
+                                    child: Text(
+                                      sliderData[index]['description']!,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        height: 1.5,
                                       ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: List.generate(
-                                      sliderData.length,
-                                      (dotIndex) => AnimatedContainer(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        width: 8.0,
-                                        height: 8.0,
-                                        decoration: BoxDecoration(
-                                          color: _currentIndex == dotIndex
-                                              ? Color(0xFF619EF7)
-                                              : Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
+                                      textAlign: TextAlign.left,
                                     ),
                                   ),
                                 ],
@@ -250,38 +218,92 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
-                        Container(
-                          color: Color(0xFFF2F2F2),
-                          width: screenWidth,
-                          height: screenWidth * 0.03,
-                        ),
+                        const SizedBox(height: 20),
+                        // 뉴스 소비량 그래프
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          child: Text(
-                            '나의 뉴스 소비량',
-                            style: TextStyle(fontSize: 18),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          child: Divider(
-                            color: Color(0xFFE8E8E8),
-                          ),
-                        ),
-                        Image.asset(
-                          'assets/logo.png',
-                          fit: BoxFit.cover,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          child: Text(
-                            '오늘 내가 읽은 뉴스는 총 55건입니다! 화이팅!',
-                            style: TextStyle(fontSize: 18),
-                            textAlign: TextAlign.left,
+                          padding: const EdgeInsets.all(12),
+                          child: SizedBox(
+                            height: 200,
+                            child: LineChart(
+                              LineChartData(
+                                lineBarsData: [
+                                  // 이번 주 데이터
+                                  LineChartBarData(
+                                    spots: [
+                                      FlSpot(0, 9),
+                                      FlSpot(1, 4),
+                                      FlSpot(2, 5),
+                                      FlSpot(3, 6),
+                                      FlSpot(4, 8),
+                                      FlSpot(5, 7),
+                                      FlSpot(6, 3),
+                                    ],
+                                    isCurved: true,
+                                    color: Colors.blue,
+                                    barWidth: 4,
+                                    belowBarData: BarAreaData(show: false),
+                                  ),
+                                  // 저번 주 데이터
+                                  LineChartBarData(
+                                    spots: [
+                                      FlSpot(0, 7),
+                                      FlSpot(1, 5),
+                                      FlSpot(2, 6),
+                                      FlSpot(3, 4),
+                                      FlSpot(4, 6),
+                                      FlSpot(5, 5),
+                                      FlSpot(6, 2),
+                                    ],
+                                    isCurved: true,
+                                    color: Colors.red,
+                                    barWidth: 4,
+                                    belowBarData: BarAreaData(show: false),
+                                  ),
+                                ],
+                                titlesData: FlTitlesData(
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      getTitlesWidget: (value, meta) {
+                                        const days = [
+                                          '월',
+                                          '화',
+                                          '수',
+                                          '목',
+                                          '금',
+                                          '토',
+                                          '일'
+                                        ];
+                                        return Text(
+                                          days[value.toInt()],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 28,
+                                      getTitlesWidget: (value, meta) {
+                                        return Text(
+                                          value.toInt().toString(),
+                                          style: TextStyle(fontSize: 12),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                gridData: FlGridData(show: false),
+                                borderData: FlBorderData(show: false),
+                                minX: 0,
+                                maxX: 6,
+                                minY: 0,
+                                maxY: 10,
+                              ),
+                            ),
                           ),
                         ),
                       ],
