@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/services.dart'; // rootBundle 사용을 위해 추가
+import 'package:typicons_flutter/typicons_flutter.dart'; // Typicons 패키지 import
 import 'package:newsee/presentation/pages/Main/Main.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart'; // 패키지 임포트
-import 'package:typicons_flutter/typicons_flutter.dart';
 
 class SelectInterests extends StatefulWidget {
   @override
@@ -10,28 +10,59 @@ class SelectInterests extends StatefulWidget {
 }
 
 class _SelectInterestsState extends State<SelectInterests> {
-  // 아이콘과 텍스트 목록
-  final List<Map<String, dynamic>> interests = [
-    {'icon': Icons.how_to_vote_outlined, 'text': '정치'},
-    {'icon': Icons.trending_up_outlined, 'text': '경제'},
-    {'icon': Icons.groups_outlined, 'text': '사회'},
-    {'icon': Ionicons.earth_sharp, 'text': '국제'},
-    {'icon': Icons.sports_basketball_outlined, 'text': '스포츠'},
-    {'icon': Icons.palette_outlined, 'text': '문화/예술'},
-    {'icon': Icons.science_outlined, 'text': '과학/기술'},
-    {'icon': Ionicons.fitness_outline, 'text': '건강/의료'},
-    {'icon': Icons.mic_external_on_outlined, 'text': '연예/오락'},
-    {'icon': Typicons.leaf, 'text': '환경'},
-  ];
+  late List<Map<String, dynamic>> interests; // 관심사 아이콘과 텍스트 리스트
+  List<int> selectedInterests = []; // 선택된 항목의 categoryId 리스트
 
-  // 선택된 항목을 관리하는 리스트
-  late List<bool> selectedInterests;
+  // 문자열로 된 아이콘 이름을 IconData로 변환하는 함수
+  IconData getIconFromString(String iconName) {
+    switch (iconName) {
+      case "Icons.how_to_vote_outlined":
+        return Icons.how_to_vote_outlined;
+      case "Icons.trending_up_outlined":
+        return Icons.trending_up_outlined;
+      case "Icons.groups_outlined":
+        return Icons.groups_outlined;
+      case "Ionicons.earth_sharp":
+        return Icons.groups_outlined; // Ionicons 사용
+      case "Icons.sports_basketball_outlined":
+        return Icons.sports_basketball_outlined;
+      case "Icons.palette_outlined":
+        return Icons.palette_outlined;
+      case "Icons.science_outlined":
+        return Icons.science_outlined;
+      case "Ionicons.fitness_outline":
+        return Icons.groups_outlined; // Ionicons 사용
+      case "Icons.mic_external_on_outlined":
+        return Icons.mic_external_on_outlined;
+      case "Typicons.leaf":
+        return Typicons.leaf; // Typicons 사용
+      default:
+        return Icons.help_outline; // 기본 아이콘
+    }
+  }
+
+  // JSON 파일을 로드하여 아이콘 목록을 초기화하는 함수
+  Future<void> loadInterestsFromAsset() async {
+    final String response =
+        await rootBundle.loadString('assets/category/list.json');
+    final data = json.decode(response); // JSON 파싱
+
+    setState(() {
+      interests = List<Map<String, dynamic>>.from(data['data'].map((item) {
+        return {
+          'categoryId': item['categoryId'],
+          'icon': getIconFromString(item['icon']), // 아이콘을 IconData로 변환
+          'text': item['categoryName'],
+        };
+      }));
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    selectedInterests =
-        List.filled(interests.length, false); // interests의 개수에 맞게 초기화
+    interests = []; // 초기값으로 빈 리스트 설정
+    loadInterestsFromAsset(); // 데이터 로드
   }
 
   @override
@@ -43,7 +74,6 @@ class _SelectInterestsState extends State<SelectInterests> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Header(), // 헤더 추가
             SizedBox(height: 16),
             Text(
               '당신의 관심 분야를 선택해주세요.',
@@ -62,14 +92,19 @@ class _SelectInterestsState extends State<SelectInterests> {
                       crossAxisCount: 3, // 한 줄에 3개
                       childAspectRatio: 1,
                     ),
-
                     itemBuilder: (context, index) {
-                      bool isSelected = selectedInterests[index];
+                      bool isSelected = selectedInterests
+                          .contains(interests[index]['categoryId']);
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedInterests[index] =
-                                !selectedInterests[index];
+                            if (isSelected) {
+                              selectedInterests
+                                  .remove(interests[index]['categoryId']);
+                            } else {
+                              selectedInterests
+                                  .add(interests[index]['categoryId']);
+                            }
                           });
                         },
                         child: Container(
@@ -122,10 +157,12 @@ class _SelectInterestsState extends State<SelectInterests> {
               height: screenWidth * 0.14,
               child: ElevatedButton(
                 onPressed: () {
+                  // 선택된 categoryId 리스트를 사용하여 원하는 동작을 처리
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => MainPage()),
                   );
+                  print('선택된 관심 분야 IDs: $selectedInterests');
                 },
                 child: Text(
                   '해당 관심 분야로 시작하기',
@@ -144,51 +181,6 @@ class _SelectInterestsState extends State<SelectInterests> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class Header extends StatelessWidget {
-  const Header({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.only(
-            left: screenWidth * 0.05,
-            top: screenWidth * 0.05,
-            right: screenWidth * 0.05,
-            bottom: screenWidth * 0.025,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Image.asset(
-                'assets/logo.png',
-                width: screenWidth * 0.3,
-              ),
-              Spacer(),
-              Icon(
-                Icons.search,
-                color: Color(0xFF0038FF),
-                size: screenWidth * 0.06,
-              ),
-            ],
-          ),
-        ),
-        Container(
-          width: screenWidth * 0.92,
-          child: Divider(
-            thickness: 1,
-            color: Color(0xFFD3D3D3),
-          ),
-        ),
-      ],
     );
   }
 }

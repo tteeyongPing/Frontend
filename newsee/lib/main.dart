@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/loginPage/login.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 
+const YOUR_NATIVE_APP_KEY = '26bb41329a634b7abb90a966b30a02b7';
+const YOUR_JAVASCRIPT_APP_KEY = '2c8616b833de5f755af7e399d420eea6';
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // runApp() 호출 전 Flutter SDK 초기화
+  KakaoSdk.init(
+    nativeAppKey: '${YOUR_NATIVE_APP_KEY}',
+    javaScriptAppKey: '${YOUR_JAVASCRIPT_APP_KEY}',
+  );
   runApp(MyApp());
 }
 

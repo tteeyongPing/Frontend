@@ -38,7 +38,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^0.13.5 
   logger: ^1.1.0
+  kakao_flutter_sdk: ^1.9.5
   fl_chart: ^0.69.0
+
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,7 @@ flutter:
       - assets/logo.png
       - assets/SampleMyPlayList.json
       - assets/SampleSubscribePlayList.json
+      - assets/category/list.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
