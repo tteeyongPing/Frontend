@@ -1,0 +1,18 @@
+{
+    "code": 200,
+    "result": "SUCCESS",
+    "message": "관심분야를 가지고 왔습니다.",
+    "data": [
+        {"categoryId": 1, "categoryName": "정치", "icon": "Icons.how_to_vote_outlined"},
+        {"categoryId": 2, "categoryName": "경제", "icon": "Icons.trending_up_outlined"},
+        {"categoryId": 3, "categoryName": "사회", "icon": "Icons.groups_outlined"},
+        {"categoryId": 4, "categoryName": "국제", "icon": "Icons.earth_sharp"},
+        {"categoryId": 5, "categoryName": "스포츠", "icon": "Icons.sports_basketball_outlined"},
+        {"categoryId": 6, "categoryName": "문화/예술", "icon": "Icons.palette_outlined"},
+        {"categoryId": 7, "categoryName": "과학/기술", "icon": "Icons.science_outlined"},
+        {"categoryId": 8, "categoryName": "건강/의료", "icon": "Icons.fitness_outline"},
+        {"categoryId": 9, "categoryName": "연예/오락", "icon": "Icons.mic_external_on_outlined"},
+        {"categoryId": 10, "categoryName": "환경", "icon": "Icons.leaf"}
+      ]
+  }
+  
