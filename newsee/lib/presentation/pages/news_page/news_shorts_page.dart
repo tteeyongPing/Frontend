@@ -3,10 +3,10 @@ import 'package:newsee/models/News.dart';
 import 'news_origin_page.dart';
 import 'package:newsee/models/news_counter.dart';
 
-class NewsSummaryPage extends StatelessWidget {
+class NewsShortsPage extends StatelessWidget {
   final News news;
 
-  const NewsSummaryPage({super.key, required this.news});
+  const NewsShortsPage({super.key, required this.news});
 
   Future<void> _recordViewCount() async {
     await NewsCounter.recordNewsCount(news.newsId);
@@ -57,7 +57,7 @@ class NewsSummaryPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                // News Summary Display
+                // News Shorts Display
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -183,7 +183,7 @@ class NewsSummaryPage extends StatelessWidget {
                           ),
                         ),
 
-                        // Increased spacing between the news summary and the button
+                        // Increased spacing between the news Shorts and the button
                         SizedBox(
                             height: screenWidth *
                                 0.08), // Adjusted for tighter spacing
