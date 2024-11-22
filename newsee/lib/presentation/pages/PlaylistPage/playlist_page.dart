@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:newsee/models/Playlist.dart'; // Playlist 모델
 import 'package:newsee/models/News.dart'; // News 모델
-import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlistDetailPage.dart';
+import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
 
 class PlaylistPage extends StatefulWidget {
   @override
