@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/MyPage/MyPage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditNamePage extends StatefulWidget {
   @override
@@ -9,6 +13,59 @@ class EditNamePage extends StatefulWidget {
 class _EditNamePageState extends State<EditNamePage> {
   TextEditingController _controller =
       TextEditingController(); // 입력된 텍스트를 관리하는 컨트롤러
+  bool isLoading = false;
+
+  Future<void> patchNickname(nickname) async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      var url = Uri.parse(
+          '${RootUrlProvider.baseURL}/user/nickname/edit?nickname=$nickname');
+      var response = await http.patch(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('닉네임 변경 성공');
+        Navigator.pop(context); // 네비게이션 팝
+      } else if (response.statusCode == 409) {
+        _showErrorDialog('이미 존재하는 닉네임입니다.\n 다른 닉네임을 사용해주세요.');
+      } else {
+        _showErrorDialog('닉네임 변경을 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('저장 중 오류가 발생했습니다: $e');
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
+
+  // 오류 메시지를 보여주는 함수
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('오류'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // '확인' 버튼
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +135,7 @@ class _EditNamePageState extends State<EditNamePage> {
                         child: ElevatedButton(
                           onPressed: () {
                             // 입력된 텍스트를 출력하거나 다른 작업을 할 수 있습니다.
-                            print('입력한 이름: ${_controller.text}');
-                            Navigator.pop(context); // 이름 변경 후 이전 페이지로 돌아가기
+                            patchNickname(_controller.text);
                           },
                           child: Text(
                             '저장하기',

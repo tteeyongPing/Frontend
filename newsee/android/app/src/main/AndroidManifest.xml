@@ -53,6 +53,10 @@
             </intent-filter>
         </activity>
 
+        <!-- 카카오 앱 키 설정 -->
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="@string/kakao_app_key" />
     </application>
 
     <!-- 플러터에서 사용되는 meta-data, 삭제하지 말 것 -->

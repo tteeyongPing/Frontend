@@ -1,23 +1,139 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:newsee/data/SampleNews.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:newsee/models/News.dart';
 import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
+
+late ScrollController _scrollController;
 
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
+// SharedPreferences에서 토큰 및 유저 ID 가져오는 함수
+Future<Map<String, dynamic>> getTokenAndUserId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('token');
+  int? userId = prefs.getInt('userId');
+  return {'token': token, 'userId': userId};
+}
+
+// 오류 메시지를 보여주는 함수
+void _showErrorDialog(String message, BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('오류'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 class _SearchPageState extends State<SearchPage> {
   TextEditingController _searchController = TextEditingController();
   List<News> _searchResults = [];
-  List<News> _allNewsData = allNewsData; // SampleNews.dart에서 가져온 데이터
+  bool isLoading = false;
+  late List<Map<String, dynamic>> _allNewsData = [];
+  late List<Map<String, dynamic>> _allPlayListData = [];
+  bool isNewsSelected = true;
+
+  Future<void> loadSearchNewsData(String input) async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      int? userId = credentials['userId'];
+
+      var url =
+          Uri.parse('${RootUrlProvider.baseURL}/search/news?input=$input');
+      var response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes)); // UTF-8로 디코딩
+        setState(() {
+          _allNewsData =
+              List<Map<String, dynamic>>.from(data['data'].map((item) {
+            return {
+              'id': item['id'],
+              'title': item['title'],
+              'date': item['date'],
+              'company': item['company'],
+            };
+          }));
+        });
+      } else if (response.statusCode == 404) {
+        _showErrorDialog('뉴스 검색 결과가 없습니다.', context);
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('뉴스 검색 중 오류가 발생했습니다.$e', context);
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
+
+  Future<void> loadSearchPlayListData(String input) async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      int? userId = credentials['userId'];
+
+      var url =
+          Uri.parse('${RootUrlProvider.baseURL}/search/playlist?input=$input');
+      var response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes)); // UTF-8로 디코딩
+        setState(() {
+          _allPlayListData =
+              List<Map<String, dynamic>>.from(data['data'].map((item) {
+            return {
+              'playlistId': item['playlistId'],
+              'playlistName': item['playlistName'],
+              'description': item['description'],
+              'userId': item['userId'],
+              'newsList': item['newsList']
+            };
+          }));
+        });
+      } else {
+        _showErrorDialog('플레이리스트 검색 데이터를 불러오는 데 실패했습니다.', context);
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('플레이리스트 검색 중 오류가 발생했습니다.$e', context);
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
 
   List<String> _recentSearches = [];
   FocusNode _focusNode = FocusNode();
   bool isSearchOpen = false;
-  bool isNewsSelected = true; // '뉴스'가 기본적으로 선택되도록
 
   // 최근 검색어를 SharedPreferences에서 불러오기
   Future<void> _loadRecentSearches() async {
@@ -27,32 +143,31 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  // 최근 검색어를 SharedPreferences에 저장하기
+// 최근 검색어를 SharedPreferences에 저장하기 (반대로 저장)
   Future<void> _saveRecentSearch(String query) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!_recentSearches.contains(query)) {
-      if (_recentSearches.length >= 5) {
-        _recentSearches.removeAt(0); // 최대 5개까지만 저장
-      }
-      _recentSearches.add(query);
-      await prefs.setStringList('recentSearches', _recentSearches);
+
+    // 이미 최근 검색어 목록에 포함되어 있으면 삭제
+    _recentSearches.remove(query);
+
+    // 검색어를 맨 앞에 추가
+    _recentSearches.insert(0, query);
+
+    // 최대 5개까지만 저장
+    if (_recentSearches.length > 5) {
+      _recentSearches.removeLast(); // 5개 이상이면 마지막 항목을 삭제
     }
+
+    // 업데이트된 목록을 SharedPreferences에 저장
+    await prefs.setStringList('recentSearches', _recentSearches);
   }
 
   void _searchItems(String query) {
     setState(() {
       if (isNewsSelected) {
-        _searchResults = _allNewsData
-            .where((news) =>
-                news.title.toLowerCase().contains(query.toLowerCase()) ||
-                news.shorts.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        loadSearchNewsData(query); // 뉴스 검색 함수 호출
       } else {
-        // 플레이리스트에 대한 검색 로직 추가 (가정)
-        _searchResults = _allNewsData
-            .where((news) =>
-                news.title.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        loadSearchPlayListData(query); // 플레이리스트 검색 함수 호출
       }
     });
   }
@@ -71,9 +186,10 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _loadRecentSearches();
+    _scrollController = ScrollController();
     _focusNode.addListener(() {
       setState(() {
-        isSearchOpen = _focusNode.hasFocus; // 포커스가 있을 때 최근 검색어 목록 열기
+        isSearchOpen = _focusNode.hasFocus;
       });
     });
   }
@@ -100,9 +216,12 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         actions: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
+          // Expanded를 없애고 TextField에 직접적으로 크기 설정
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05), // 왼쪽/오른쪽 여백 설정
+            child: SizedBox(
+              width: screenWidth * 0.68, // TextField의 크기 조정
               child: TextField(
                 controller: _searchController,
                 focusNode: _focusNode,
@@ -110,23 +229,20 @@ class _SearchPageState extends State<SearchPage> {
                   hintText: '뉴스 또는 플레이리스트 검색',
                   border: InputBorder.none,
                 ),
-                onSubmitted: (query) {
-                  if (query.isNotEmpty) {
-                    _searchItems(query);
-                    _addRecentSearch(query);
-                    _focusNode.unfocus(); // 검색 완료 후 포커스 해제
-                  }
-                },
+                textAlign: TextAlign.center, // 텍스트 중앙 정렬
                 onTap: () {
                   setState(() {
-                    isSearchOpen = !isSearchOpen; // 상태를 토글하여 최근 검색어 목록 열기/닫기
+                    isSearchOpen = true;
                   });
-                  _focusNode.unfocus(); // 검색 아이콘 클릭 시 포커스 해제
+                },
+                onSubmitted: (query) {
+                  if (query.isNotEmpty) {
+                    _addRecentSearch(query); // 최근 검색어 저장
+                  }
+                  _focusNode.unfocus();
                 },
                 onChanged: (query) {
-                  setState(() {
-                    _searchItems(query);
-                  });
+                  setState(() {});
                 },
               ),
             ),
@@ -138,10 +254,7 @@ class _SearchPageState extends State<SearchPage> {
                 _searchItems(query);
                 _addRecentSearch(query);
               }
-              setState(() {
-                isSearchOpen = !isSearchOpen; // 상태를 토글하여 최근 검색어 목록 열기/닫기
-              });
-              _focusNode.unfocus(); // 검색 아이콘 클릭 시 포커스 해제
+              _focusNode.unfocus();
             },
             child: Icon(
               Icons.search,
@@ -174,47 +287,42 @@ class _SearchPageState extends State<SearchPage> {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          isNewsSelected = true; // 뉴스 선택
+                          isNewsSelected = true;
                         });
-                        _searchItems(_searchController.text);
+                        _searchItems(_searchController.text); // 뉴스 검색
                       },
                       child: Container(
                         width: screenWidth * 0.5,
                         padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                         color: Colors.white,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Center(
-                              child: Text(
-                                '관련된 뉴스',
-                                style: TextStyle(
-                                  fontWeight: isNewsSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  fontSize: 16,
-                                  color: isNewsSelected
-                                      ? Colors.black
-                                      : Color(0xFF707070),
-                                ),
-                              ),
+                        child: Center(
+                          child: Text(
+                            '관련된 뉴스',
+                            style: TextStyle(
+                              fontWeight: isNewsSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 16,
+                              color: isNewsSelected
+                                  ? Colors.black
+                                  : Color(0xFF707070),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          isNewsSelected = false; // 플레이리스트 선택
+                          isNewsSelected = false;
                         });
-                        _searchItems(_searchController.text);
+                        _searchItems(_searchController.text); // 플레이리스트 검색
                       },
                       child: Container(
                         width: screenWidth * 0.5,
                         padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                         color: Colors.white,
                         child: Center(
                           child: Text(
@@ -234,119 +342,153 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ],
                 ),
-                // 탭과 구분선 추가
-                !isNewsSelected
-                    ? Container(
-                        width: screenWidth * 1, // 원하는 width 설정
-                        alignment: Alignment.centerRight, // 오른쪽 정렬
-                        child: Container(
-                          width: screenWidth * 0.5,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                left: screenWidth * 0.025,
-                                right: screenWidth * 0.025), // 왼쪽 여백 설정
+                Container(
+                    width: screenWidth * 1, // 너비를 설정
+                    alignment: Alignment.centerLeft,
+                    child: isNewsSelected
+                        ? Container(
+                            width: screenWidth * 0.45, // 너비를 설정
+                            alignment: Alignment.centerLeft,
                             child: Divider(
-                              height: 1.2,
-                              color: Colors.black,
-                              thickness: 1.0,
+                              color: Colors.black, // 구분선 색상
+                              height: 1.0, // 구분선의 높이
+                              thickness: 2.0, // 구분선의 두께
+                              indent: screenWidth * 0.05, // 왼쪽 여백
+                              endIndent: 0.0, // 오른쪽 여백
                             ),
-                          ),
-                        ),
-                      )
-                    : Container(
-                        width: screenWidth * 1, // 원하는 width 설정
-                        alignment: Alignment.centerLeft, // 왼쪽 정렬
-                        child: Container(
-                          width: screenWidth * 0.5,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                left: screenWidth * 0.025,
-                                right: screenWidth * 0.025), // 왼쪽 여백 설정
+                          )
+                        : Container(
+                            width: screenWidth * 0.95, // 너비를 설정
+                            alignment: Alignment.centerLeft,
                             child: Divider(
-                              height: 1.2,
-                              color: Colors.black,
-                              thickness: 1.0,
+                              color: Colors.black, // 구분선 색상
+                              height: 1.0, // 구분선의 높이
+                              thickness: 2.0, // 구분선의 두께
+                              indent: screenWidth * 0.55, // 왼쪽 여백
+                              endIndent: 0.0, // 오른쪽 여백
                             ),
-                          ),
-                        ),
-                      ),
-
-                SizedBox(height: 10),
+                          )),
+                // 뉴스나 플레이리스트에 맞는 데이터 표시
                 Expanded(
-                  child: _searchResults.isEmpty
-                      ? Center(child: Text('검색 결과가 없습니다.'))
-                      : ListView.builder(
-                          itemCount: _searchResults.length,
-                          itemBuilder: (context, index) {
-                            final news = _searchResults[index];
-                            return GestureDetector(
-                              onTap: () {
-                                // 클릭 시 NewsSummaryPage로 이동
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        NewsShortsPage(news: news),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: isNewsSelected
+                        ? _allNewsData.length
+                        : _allPlayListData.length,
+                    itemBuilder: (context, index) {
+                      if (isNewsSelected) {
+                        return Container(
+                            margin: const EdgeInsets.only(
+                                top: 12, left: 24, right: 24, bottom: 12),
+                            padding: const EdgeInsets.only(
+                                top: 20,
+                                left: 24,
+                                right: 16,
+                                bottom: 20), // 왼쪽, 오른쪽, 아래쪽에만 마진
+
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 0,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: SizedBox(
+                              height: 102, // 원하는 고정 높이를 설정
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _allNewsData[index]['company'],
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(12),
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          news.company, // 신문사
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF0038FF),
-                                          ),
-                                        ),
-                                        Text(
-                                          news.company,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF707070),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 5),
-                                    Text(
-                                      news.title,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    Text(
-                                      news.shorts,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Color(0xFF707070),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  Text(_allNewsData[index]['title'],
+                                      style: const TextStyle(fontSize: 20)),
+                                  Text(
+                                    _allNewsData[index]['title'].length > 43
+                                        ? '${_allNewsData[index]['title'].substring(0, 43)}...'
+                                        : _allNewsData[index]['title'],
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                ],
                               ),
-                            );
-                          },
-                        ),
-                ),
+                            ));
+                      } else {
+                        return Container(
+                            margin: const EdgeInsets.only(
+                                top: 12, left: 24, right: 24, bottom: 12),
+                            padding: const EdgeInsets.only(
+                                top: 30,
+                                left: 24,
+                                right: 16,
+                                bottom: 20), // 왼쪽, 오른쪽, 아래쪽에만 마진
+
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 0,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: SizedBox(
+                              height: 92, // 원하는 고정 높이를 설정
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(_allPlayListData[index]['playlistName'],
+                                      style: const TextStyle(fontSize: 20)),
+                                  Text(
+                                    _allPlayListData[index]['description']
+                                                .length >
+                                            43
+                                        ? '${_allPlayListData[index]['description'].substring(0, 43)}...'
+                                        : _allPlayListData[index]
+                                            ['description'],
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "게시자: " +
+                                            _allPlayListData[index]['userId']
+                                                .toString(),
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ));
+                      }
+                    },
+                  ),
+                ), // 최근 검색어 목록이 열렸을 때
               ],
             ),
-            // 최근 검색어 목록이 열렸을 때
             if (isSearchOpen)
               Positioned(
                 top: 0,
