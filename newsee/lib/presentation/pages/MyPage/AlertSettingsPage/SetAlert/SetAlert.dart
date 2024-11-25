@@ -1,16 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // JSON 변환을 위한 import
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetAlertPage extends StatefulWidget {
   @override
   _SetAlertPageState createState() => _SetAlertPageState();
 }
 
+// SharedPreferences에서 토큰 및 유저 ID 가져오는 함수
+Future<Map<String, dynamic>> getTokenAndUserId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('token');
+  int? userId = prefs.getInt('userId');
+  return {'token': token, 'userId': userId};
+}
+
 class _SetAlertPageState extends State<SetAlertPage> {
-  int _selectedHour = 8;
-  int _selectedMinute = 30;
-  String _selectedAmPm = "AM";
+  int _selectedHour = 1;
+  int _selectedMinute = 0;
+  String _selectedAmPm = "오전";
   List<String> _selectedDays = [];
+  bool isLoading = false; // 로딩 상태 관리
 
   void _toggleDay(String day) {
     setState(() {
@@ -22,20 +35,92 @@ class _SetAlertPageState extends State<SetAlertPage> {
     });
   }
 
-  void _addAlert() {
-    String formattedTime =
-        '$_selectedHour:${_selectedMinute.toString().padLeft(2, '0')} $_selectedAmPm';
-    if (_selectedDays.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('요일을 모두 선택해 주세요.')),
+  // 오류 메시지를 보여주는 함수
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('오류'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _addAlert() async {
+    // 필수 입력값 체크
+    if (_selectedHour == -1 ||
+        _selectedMinute == -1 ||
+        _selectedAmPm.isEmpty ||
+        _selectedDays.isEmpty) {
+      _showErrorDialog('시간과 날짜를 모두 선택해주세요.');
+      return;
+    }
+
+    setState(() => isLoading = true); // 로딩 상태 시작
+    String formattedTime;
+
+    try {
+      if (_selectedAmPm == "오전") {
+        formattedTime =
+            '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
+      } else {
+        formattedTime =
+            '${(_selectedHour % 12 + 12).toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
+      }
+
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      int? userId = credentials['userId'];
+
+      if (token == null || userId == null) {
+        _showErrorDialog('로그인이 필요합니다.');
+        return;
+      }
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/alarm/create');
+      var response = await http.post(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'period': formattedTime,
+          //'day': _selectedDays,
+          'day': "MONDAY",
+          'userId': userId,
+          'active': true,
+        }),
       );
-    } else {
-      Navigator.pop(context, {
-        'date': formattedTime,
-        'day': _selectedDays,
-        'on': true,
-        'selected': false,
-      });
+      print("body 확인" +
+          jsonEncode({
+            'period': formattedTime,
+            //'day': _selectedDays,
+            'userId': userId,
+            'active': true,
+          }));
+      if (response.statusCode == 200) {
+        print('알림 생성 성공');
+        Navigator.pop(context, true);
+      } else {
+        print('응답 코드: ${response.statusCode}');
+        print('응답 내용: ${response.body}');
+        _showErrorDialog('알림 생성을 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('알림 생성 오류가 발생했습니다: $e');
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
     }
   }
 
@@ -51,8 +136,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: null,
-        flexibleSpace: Center(
+        title: Center(
           child: Text(
             '알림 추가',
             style: TextStyle(
@@ -73,6 +157,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // 시간 선택 Picker UI
                       Container(
                         width: screenWidth * 0.9,
                         height: 200,
@@ -111,13 +196,18 @@ class _SetAlertPageState extends State<SetAlertPage> {
                                 useMagnifier: true,
                                 onSelectedItemChanged: (index) {
                                   setState(() {
+                                    // 무한 스크롤처럼 동작하도록 설정
                                     _selectedHour = (index % 12) + 1; // 1~12 순환
                                   });
                                 },
-                                children: List.generate(12, (index) {
+                                children: List.generate(1000, (index) {
+                                  // 큰 숫자로 설정
                                   return Center(
-                                      child: Text('${(index % 12) + 1}',
-                                          style: TextStyle(fontSize: 24)));
+                                    child: Text(
+                                      '${(index % 12) + 1}', // 1~12 반복
+                                      style: TextStyle(fontSize: 24),
+                                    ),
+                                  );
                                 }),
                               ),
                             ),
@@ -130,12 +220,12 @@ class _SetAlertPageState extends State<SetAlertPage> {
                                 useMagnifier: true,
                                 onSelectedItemChanged: (index) {
                                   setState(() {
-                                    _selectedMinute = (index % 60); // 0~59 분 순환
+                                    _selectedMinute = (index % 60);
                                   });
                                 },
-                                children: List.generate(60, (index) {
+                                children: List.generate(6000, (index) {
                                   return Center(
-                                      child: Text('$index',
+                                      child: Text('${(index % 61)}',
                                           style: TextStyle(fontSize: 24)));
                                 }),
                               ),
@@ -144,38 +234,35 @@ class _SetAlertPageState extends State<SetAlertPage> {
                         ),
                       ),
                       SizedBox(height: 20),
+                      // 요일 선택 UI
                       Wrap(
-                        runSpacing: screenWidth * 0.01, // 여러 줄에 걸친 아이템 간격
+                        runSpacing: screenWidth * 0.01,
                         alignment: WrapAlignment.start,
                         children:
                             ['일', '월', '화', '수', '목', '금', '토'].map((day) {
                           bool isSelected = _selectedDays.contains(day);
-
                           return Container(
-                            width:
-                                screenWidth * 0.123, // 고정된 너비 (예: 화면 너비의 12%)
+                            width: screenWidth * 0.123,
                             child: GestureDetector(
                               onTap: () {
-                                _toggleDay(day); // 날짜 선택/해제
+                                _toggleDay(day);
                               },
                               child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0), // 안쪽 여백 추가
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? Color(0xFFD0D9F6)
-                                      : Colors.grey[200], // 선택된 상태에서 배경색 변경
-                                  borderRadius:
-                                      BorderRadius.circular(20), // 둥근 모서리
+                                      : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Center(
                                   child: Text(
                                     day,
                                     style: TextStyle(
-                                      fontSize: screenWidth * 0.04, // 반응형 글씨 크기
+                                      fontSize: screenWidth * 0.04,
                                       color: isSelected
                                           ? Color(0xFF0038FF)
-                                          : Colors.black, // 선택 시 글씨 색 변경
+                                          : Colors.black,
                                     ),
                                   ),
                                 ),
@@ -185,15 +272,20 @@ class _SetAlertPageState extends State<SetAlertPage> {
                         }).toList(),
                       ),
                       SizedBox(height: 20),
+                      // 알림 추가 버튼
                       Container(
                         width: screenWidth * 0.9,
                         height: screenWidth * 0.14,
                         child: ElevatedButton(
-                          onPressed: _addAlert,
-                          child: Text('알림 추가',
-                              style: TextStyle(
+                          onPressed: isLoading ? null : _addAlert,
+                          child: isLoading
+                              ? CircularProgressIndicator(
                                   color: Colors.white,
-                                  fontSize: screenWidth * 0.04)),
+                                )
+                              : Text('알림 추가',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.04)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF0038FF),
                             shape: RoundedRectangleBorder(
