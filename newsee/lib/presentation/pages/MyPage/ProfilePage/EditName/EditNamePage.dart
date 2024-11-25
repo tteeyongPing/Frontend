@@ -10,12 +10,19 @@ class EditNamePage extends StatefulWidget {
   _EditNamePageState createState() => _EditNamePageState();
 }
 
+// 이름 저장
+Future<void> saveUserName(String userName) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('userName', userName);
+}
+
 class _EditNamePageState extends State<EditNamePage> {
   TextEditingController _controller =
       TextEditingController(); // 입력된 텍스트를 관리하는 컨트롤러
   bool isLoading = false;
 
-  Future<void> patchNickname(nickname) async {
+  // 닉네임 업데이트를 위한 API 호출
+  Future<void> patchNickname(String nickname) async {
     setState(() => isLoading = true); // 로딩 상태 시작
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -34,7 +41,8 @@ class _EditNamePageState extends State<EditNamePage> {
 
       if (response.statusCode == 200) {
         print('닉네임 변경 성공');
-        Navigator.pop(context); // 네비게이션 팝
+        saveUserName('$nickname');
+        Navigator.pop(context, nickname);
       } else if (response.statusCode == 409) {
         _showErrorDialog('이미 존재하는 닉네임입니다.\n 다른 닉네임을 사용해주세요.');
       } else {
@@ -91,20 +99,18 @@ class _EditNamePageState extends State<EditNamePage> {
       ),
       body: Column(
         children: [
-          // Divider 추가: AppBar와 body 사이에 구분선
           Divider(
-            color: Colors.grey, // 구분선 색상 설정
-            thickness: 1, // 구분선 두께 설정
-            height: 1, // 구분선과 AppBar 간의 간격 설정
+            color: Colors.grey,
+            thickness: 1,
+            height: 1,
           ),
-          // 나머지 content
           Expanded(
             child: Center(
               child: SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '닉네임 변경',
@@ -119,24 +125,26 @@ class _EditNamePageState extends State<EditNamePage> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      // 텍스트 입력 필드
                       TextField(
-                        controller: _controller, // 컨트롤러 연결
+                        controller: _controller,
                         decoration: InputDecoration(
                           hintText: '이름을 입력하세요',
-                          border: OutlineInputBorder(), // 입력 필드의 테두리
+                          border: OutlineInputBorder(),
                         ),
+                        onChanged: (value) {
+                          setState(() {}); // 입력 값이 변경될 때마다 UI를 갱신
+                        },
                       ),
                       SizedBox(height: 20),
-                      // 저장하기 버튼
                       Container(
                         width: screenWidth * 0.9,
                         height: screenWidth * 0.14,
                         child: ElevatedButton(
-                          onPressed: () {
-                            // 입력된 텍스트를 출력하거나 다른 작업을 할 수 있습니다.
-                            patchNickname(_controller.text);
-                          },
+                          onPressed: _controller.text.isEmpty
+                              ? null // 입력값이 없으면 버튼 비활성화
+                              : () {
+                                  patchNickname(_controller.text);
+                                },
                           child: Text(
                             '저장하기',
                             style: TextStyle(

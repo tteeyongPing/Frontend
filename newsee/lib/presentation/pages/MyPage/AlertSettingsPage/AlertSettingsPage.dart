@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/MyPage/AlertSettingsPage/SetAlert/SetAlert.dart'; // SetAlert import 추가
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // JSON 변환을 위한 import
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AlertSettingsPage extends StatefulWidget {
   @override
@@ -8,28 +12,62 @@ class AlertSettingsPage extends StatefulWidget {
 
 class _AlertSettingsPageState extends State<AlertSettingsPage> {
   TextEditingController _controller = TextEditingController();
+  bool isLoading = false; // 로딩 상태 관리
+
+  @override
+  void initState() {
+    super.initState();
+    loadAlert(); // 알림 데이터를 로드
+  }
+
+  // SharedPreferences에서 토큰 및 유저 ID 가져오는 함수
+  Future<Map<String, dynamic>> getTokenAndUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    int? userId = prefs.getInt('userId');
+    return {'token': token, 'userId': userId};
+  }
 
   // 관심 분야 목록
-  final List<Map<String, dynamic>> alarms = [
-    {
-      'date': '8:50',
-      'day': ['월', '화', '수', '목', '금'],
-      'on': true,
-      'selected': false, // 선택 상태 추가
-    },
-    {
-      'date': '18:10',
-      'day': ['목', '금', '토'],
-      'on': true,
-      'selected': false,
-    },
-    {
-      'date': '22:50',
-      'day': ['월', '화'],
-      'on': false,
-      'selected': false,
-    },
-  ];
+  final List<Map<String, dynamic>> alarms = [];
+
+  // JSON 파일을 로드하여 알림 데이터를 초기화
+  Future<void> loadAlert() async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/alarm');
+      var response = await http.get(url, headers: {
+        'accept': '*/*',
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes)); // UTF-8로 디코딩
+        setState(() {
+          alarms.clear();
+          alarms
+              .addAll(List<Map<String, dynamic>>.from(data['data'].map((item) {
+            return {
+              'alarmId': item['alarmId'],
+              'date': item['period'],
+              'on': item['active'],
+              'day': ["월", "화"]
+            };
+          })));
+        });
+      } else {
+        _showErrorDialog('알림 목록을 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('알림 목록을 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
 
   bool _isEditing = false; // 편집 모드 여부
   List<int> _selectedAlarms = []; // 선택된 알람의 인덱스 리스트
@@ -70,6 +108,25 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
       _isEditing = false; // 삭제 후 편집 종료
       _updateSelectAll(); // 전체 선택 상태 업데이트
     });
+  }
+
+  // 오류 메시지를 보여주는 함수
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('오류'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _toggleSelectAll() {
@@ -157,12 +214,16 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                   // + 버튼을 눌러 SetAlert 페이지로 이동
                   IconButton(
                     icon: Icon(Icons.add, size: 20, color: Color(0xFF4D71F6)),
-                    onPressed: () {
-                      // SetAlert 페이지로 이동
-                      Navigator.push(
+                    onPressed: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SetAlertPage()),
                       );
+
+                      // SetAlertPage에서 true를 반환한 경우 새로고침
+                      if (result == true) {
+                        loadAlert();
+                      }
                     },
                   ),
                 ],
@@ -266,10 +327,47 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                             // 알람 스위치
                             Switch(
                               value: alarm['on'],
-                              onChanged: (bool value) {
+                              onChanged: (bool value) async {
                                 setState(() {
-                                  alarm['on'] = value;
+                                  alarm['on'] = value; // UI 업데이트
                                 });
+
+                                try {
+                                  final credentials = await getTokenAndUserId();
+                                  String? token = credentials['token'];
+
+                                  var url = Uri.parse(
+                                      '${RootUrlProvider.baseURL}/alarm/edit');
+                                  var response = await http.patch(
+                                    url,
+                                    headers: {
+                                      'accept': '*/*',
+                                      'Authorization': 'Bearer $token',
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: json.encode({
+                                      'alarmId': alarm['alarmId'],
+                                      "period": alarm['date'],
+                                      "day": "FRIDAY",
+                                      'active': value
+                                    }),
+                                  );
+
+                                  if (response.statusCode != 200) {
+                                    // 상태 복구 (API 실패 시 이전 상태로 롤백)
+                                    setState(() {
+                                      alarm['on'] = !value;
+                                    });
+                                    _showErrorDialog('알림 상태를 변경하는 데 실패했습니다.');
+                                  }
+                                } catch (e) {
+                                  print('오류 발생: $e');
+                                  // 상태 복구 (오류 발생 시 이전 상태로 롤백)
+                                  setState(() {
+                                    alarm['on'] = !value;
+                                  });
+                                  _showErrorDialog('알림 상태를 변경하는 중 오류가 발생했습니다.');
+                                }
                               },
                               activeTrackColor: Color(0xFF4D71F6),
                               inactiveThumbColor: Colors.white,

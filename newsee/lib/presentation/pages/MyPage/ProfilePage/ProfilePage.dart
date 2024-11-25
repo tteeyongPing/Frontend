@@ -6,14 +6,22 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:newsee/Api/RootUrlProvider.dart';
 
+// SharedPreferences에서 사용자 데이터 제거
 Future<void> removeUserData() async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
     await prefs.remove('userId');
+    await prefs.remove('userName');
   } catch (e) {
     print("SharedPreferences 오류: $e");
   }
+}
+
+// 이름 불러오기
+Future<String?> getUserName() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userName') ?? ' '; // 기본값 ' ' 반환
 }
 
 bool isLoading = false;
@@ -24,6 +32,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String userName = ' '; // 기본값을 ' '으로 설정
+
   TextEditingController _controller = TextEditingController();
 
   // 로딩 상태를 UI에 반영하기 위한 방법 추가
@@ -294,49 +304,61 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
 
+  // SharedPreferences에서 userName을 가져오는 함수
+  Future<void> _loadUserName() async {
+    String? name = await getUserName();
+    setState(() {
+      userName = name ?? ' '; // 값이 없으면 ' '으로 설정
+    });
+  }
+
+  // Navigate to EditNamePage and update the userName on return
+  void _navigateToEditNamePage() async {
+    String? updatedName = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditNamePage()),
+    );
+
+    // If a new nickname was returned, update the profile page
+    if (updatedName != null && updatedName.isNotEmpty) {
+      setState(() {
+        userName = updatedName; // Update userName with new nickname
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.of(context).pop(userName); // nickName 전달
+          },
         ),
         flexibleSpace: Center(
           child: Text(
-            '홍길동님의 정보',
-            style:
-                TextStyle(color: Colors.black, fontSize: screenWidth * 0.045),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Divider(
-            color: Colors.grey,
-            thickness: 1.0,
-            height: 1.0,
+            '$userName님의 정보',
+            style: TextStyle(color: Colors.black, fontSize: 20),
           ),
         ),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              buildNavigationRow("닉네임 변경", onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditNamePage()),
-                );
-              }),
-              buildNavigationRow("로그아웃", onTap: _showLogoutDialog),
-              buildNavigationRow("서비스 탈퇴", onTap: _showUnsubscribeDialog),
-            ],
-          ),
-          _buildLoadingIndicator(), // 로딩 인디케이터 표시
+          _buildLoadingIndicator(),
+          buildNavigationRow('닉네임 변경', onTap: () {
+            _navigateToEditNamePage();
+          }),
+          buildNavigationRow('로그아웃', onTap: _showLogoutDialog),
+          buildNavigationRow('회원 탈퇴', onTap: _showUnsubscribeDialog),
         ],
       ),
     );
