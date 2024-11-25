@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/MyPage/ProfilePage/EditName/EditNamePage.dart';
 import 'package:newsee/presentation/pages/loginPage/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:newsee/Api/RootUrlProvider.dart';
+
+Future<void> removeUserData() async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('userId');
+  } catch (e) {
+    print("SharedPreferences 오류: $e");
+  }
+}
+
+bool isLoading = false;
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -9,6 +25,109 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _controller = TextEditingController();
+
+  // 로딩 상태를 UI에 반영하기 위한 방법 추가
+  Widget _buildLoadingIndicator() {
+    return isLoading
+        ? Center(child: CircularProgressIndicator())
+        : SizedBox.shrink();
+  }
+
+  // 로그아웃 요청 처리
+  Future<void> doLogout() async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/user/logout');
+      var response = await http.post(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('로그아웃 성공');
+        removeUserData(); // 사용자 데이터 삭제
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false, // 모든 페이지를 제거하고 새 페이지만 남김
+        );
+      } else {
+        _showErrorDialog('로그아웃에 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('로그아웃 중 오류가 발생했습니다.');
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
+
+  // 회원 탈퇴 요청 처리
+  Future<void> deleteAccount() async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/user/leave');
+      var response = await http.delete(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('회원 탈퇴 성공');
+        removeUserData(); // 사용자 데이터 삭제
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false, // 모든 페이지를 제거하고 새 페이지만 남김
+        );
+      } else if (response.statusCode == 404) {
+        print('이미 존재하지 않는 계정입니다');
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false, // 모든 페이지를 제거하고 새 페이지만 남김
+        );
+      } else {
+        _showErrorDialog('회원 탈퇴에 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('회원 탈퇴 중 오류가 발생했습니다.');
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
+
+  // 오류 메시지를 보여주는 함수
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('오류'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // 로그아웃 팝업을 표시하는 메서드
   void _showLogoutDialog() {
@@ -61,12 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                          (route) => false,
-                        );
+                        doLogout(); // 로그아웃 실행
                       },
                       child: Text("로그아웃", style: TextStyle(color: Colors.red)),
                     ),
@@ -94,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 80,
             child: Center(
               child: Text(
-                "Newsee에서 서비스 탈퇴하시겠습니까?",
+                "Newsee 서비스를 탈퇴하시겠습니까?",
                 style: TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
               ),
@@ -131,12 +245,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                          (route) => false,
-                        );
+                        deleteAccount();
                       },
                       child:
                           Text("서비스 탈퇴", style: TextStyle(color: Colors.red)),
@@ -213,22 +322,21 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // 닉네임 변경 메뉴
-          buildNavigationRow("닉네임 변경", onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => EditNamePage()),
-            );
-          }),
-          SizedBox(height: screenWidth * 0.05),
-
-          // 로그아웃 메뉴
-          buildNavigationRow("로그아웃", onTap: _showLogoutDialog),
-
-          // 서비스 탈퇴 메뉴
-          buildNavigationRow("서비스 탈퇴", onTap: _showUnsubscribeDialog),
+          Column(
+            children: [
+              buildNavigationRow("닉네임 변경", onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditNamePage()),
+                );
+              }),
+              buildNavigationRow("로그아웃", onTap: _showLogoutDialog),
+              buildNavigationRow("서비스 탈퇴", onTap: _showUnsubscribeDialog),
+            ],
+          ),
+          _buildLoadingIndicator(), // 로딩 인디케이터 표시
         ],
       ),
     );
