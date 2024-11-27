@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/MyPage/ProfilePage/ProfilePage.dart';
+import 'package:newsee/presentation/pages/SelectInterests/SelectInterests.dart';
 import 'package:newsee/presentation/pages/MyPage/ProfilePage/EditInterests/EditInterestsPage.dart';
 import 'package:newsee/presentation/pages/MyPage/AlertSettingsPage/AlertSettingsPage.dart';
+import 'package:newsee/presentation/pages/SearchPage/SearchPage.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,8 +12,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MyPage extends StatefulWidget {
   final VoidCallback onNavigateToNews;
   final VoidCallback onNavigateToBookmark;
+  final VoidCallback onNavigateMyPlaylistPage;
+  final VoidCallback onNavigateToPlaylistPage;
 
-  MyPage({required this.onNavigateToNews, required this.onNavigateToBookmark});
+  // 생성자 부분에서 각 콜백을 필수 항목으로 받고 있습니다.
+  const MyPage({
+    required this.onNavigateToNews,
+    required this.onNavigateToBookmark,
+    required this.onNavigateMyPlaylistPage,
+    required this.onNavigateToPlaylistPage,
+  });
 
   @override
   _MyPageState createState() => _MyPageState();
@@ -203,7 +213,7 @@ class _MyPageState extends State<MyPage> {
                 buildNavigationRow("뉴스 검색하기", onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                    MaterialPageRoute(builder: (context) => SearchPage()),
                   );
                 }),
                 GestureDetector(
@@ -268,18 +278,60 @@ class _MyPageState extends State<MyPage> {
                     ),
                   ),
                 ),
-                buildNavigationRow("마이 플레이리스트", onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
-                }),
-                buildNavigationRow("구독한 플레이리스트", onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
-                }),
+                GestureDetector(
+                  onTap: widget.onNavigateMyPlaylistPage,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.05,
+                      vertical: screenWidth * 0.02,
+                    ),
+                    height: screenWidth * 0.12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "뉴스 목록 보기",
+                          style: TextStyle(fontSize: screenWidth * 0.04),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: screenWidth * 0.04,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: widget.onNavigateToPlaylistPage,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.05,
+                      vertical: screenWidth * 0.02,
+                    ),
+                    height: screenWidth * 0.12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "뉴스 목록 보기",
+                          style: TextStyle(fontSize: screenWidth * 0.04),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: screenWidth * 0.04,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
             SizedBox(height: screenWidth * 0.05),
@@ -299,7 +351,8 @@ class _MyPageState extends State<MyPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => EditInterestsPage()),
+                        builder: (context) =>
+                            SelectInterests(visibilityFlag: -1)),
                   );
                 }),
               ],

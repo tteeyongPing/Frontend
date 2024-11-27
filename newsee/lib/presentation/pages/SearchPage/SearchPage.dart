@@ -75,6 +75,7 @@ class _SearchPageState extends State<SearchPage> {
               'title': item['title'],
               'date': item['date'],
               'company': item['company'],
+              'shorts': item['title']
             };
           }));
         });
@@ -116,6 +117,7 @@ class _SearchPageState extends State<SearchPage> {
               'playlistName': item['playlistName'],
               'description': item['description'],
               'userId': item['userId'],
+              'userName': item['userName'],
               'newsList': item['newsList']
             };
           }));
@@ -418,9 +420,9 @@ class _SearchPageState extends State<SearchPage> {
                                   Text(_allNewsData[index]['title'],
                                       style: const TextStyle(fontSize: 20)),
                                   Text(
-                                    _allNewsData[index]['title'].length > 43
-                                        ? '${_allNewsData[index]['title'].substring(0, 43)}...'
-                                        : _allNewsData[index]['title'],
+                                    _allNewsData[index]['date'].length > 43
+                                        ? '${_allNewsData[index]['date'].substring(0, 43)}...'
+                                        : _allNewsData[index]['date'],
                                     style: const TextStyle(
                                         fontSize: 12, color: Colors.grey),
                                   ),
@@ -474,7 +476,7 @@ class _SearchPageState extends State<SearchPage> {
                                     children: [
                                       Text(
                                         "게시자: " +
-                                            _allPlayListData[index]['userId']
+                                            _allPlayListData[index]['userName']
                                                 .toString(),
                                         style: const TextStyle(fontSize: 14),
                                       ),
@@ -527,16 +529,23 @@ class _SearchPageState extends State<SearchPage> {
                             Expanded(
                               flex: 1,
                               child: Center(
-                                child: Transform.rotate(
-                                  angle: -0.785398, // 화살표 회전 (45도)
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // 아이콘 클릭 시 실행할 함수
+                                    print("아이콘이 클릭되었습니다!");
+                                    setState(() {
+                                      // 해당 검색어를 리스트에서 제거
+                                      _recentSearches.removeAt(index);
+                                    });
+                                  },
                                   child: Icon(
-                                    Icons.arrow_upward,
+                                    Icons.clear,
                                     color: Color(0xFF707070),
                                     size: 24.0,
                                   ),
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         ),
                         onTap: () {

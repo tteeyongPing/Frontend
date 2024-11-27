@@ -28,6 +28,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
     return {'token': token, 'userId': userId};
   }
 
+  Future<void> patchActive() async {}
   // 관심 분야 목록
   final List<Map<String, dynamic>> alarms = [];
 
@@ -54,10 +55,13 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
               'alarmId': item['alarmId'],
               'date': item['period'],
               'on': item['active'],
-              'day': ["월", "화"]
+              'days': item['days'],
+              'selected': false
             };
           })));
         });
+      } else if (response.statusCode == 404) {
+        alarms.clear();
       } else {
         _showErrorDialog('알림 목록을 불러오는 데 실패했습니다.');
       }
@@ -65,7 +69,12 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
       print('오류 발생: $e');
       _showErrorDialog('알림 목록을 불러오는 중 오류가 발생했습니다.');
     } finally {
-      setState(() => isLoading = false); // 로딩 상태 종료
+      setState(() {
+        isLoading = false;
+        _selectedAlarms.clear(); // 삭제 후 선택된 항목 초기화
+        _isEditing = false; // 편집 종료
+        _updateSelectAll(); // 전체 선택 상태 업데이트
+      });
     }
   }
 
@@ -97,17 +106,96 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
     });
   }
 
-  void _deleteSelectedAlarms() {
-    setState(() {
-      // 선택된 알람 삭제
-      _selectedAlarms.sort((a, b) => b.compareTo(a)); // 내림차순으로 정렬해서 삭제
+  Future<void> _patchActive(bool active) async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/alarm/edit');
+
+      // _selectedAlarms의 각 항목에 대해 상태 변경 요청을 보냄
       for (var index in _selectedAlarms) {
-        alarms.removeAt(index);
+        var alarm = alarms[index]; // _selectedAlarms에서 index에 해당하는 알람 가져오기
+
+        var response = await http.patch(
+          url,
+          headers: {
+            'accept': '*/*',
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'alarmId': alarm['alarmId'], // alarm의 ID
+            'period': alarm['date'], // 알람의 주기
+            'days': alarm['days'], // 알람이 반복되는 요일
+            'active': active, // 새로운 active 값
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          // 성공하면 알람의 상태를 active로 업데이트
+          setState(() {
+            alarm['on'] = active;
+          });
+        } else {
+          _showErrorDialog('알림 상태를 변경하는 데 실패했습니다.');
+        }
       }
-      _selectedAlarms.clear(); // 삭제 후 선택된 항목 초기화
-      _isEditing = false; // 삭제 후 편집 종료
-      _updateSelectAll(); // 전체 선택 상태 업데이트
-    });
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('알림 상태를 변경하는 중 오류가 발생했습니다.');
+    } finally {
+      loadAlert();
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
+  }
+
+  Future<void> _deleteSelectedAlarms() async {
+    setState(() => isLoading = true); // 로딩 상태 시작
+
+    try {
+      // 선택된 알람을 내림차순으로 정렬해서 삭제
+      _selectedAlarms.sort((a, b) => b.compareTo(a));
+
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+
+      // 알람 삭제 요청
+      for (var index in _selectedAlarms) {
+        var url = Uri.parse('${RootUrlProvider.baseURL}/alarm/remove?alarmId=' +
+            alarms[index]['alarmId'].toString());
+        print(url);
+        var response = await http.delete(
+          url,
+          headers: {
+            'accept': '*/*',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          print("알람 삭제 룰루");
+          alarms.removeAt(index); // 알람 목록에서 삭제
+        } else {
+          _showErrorDialog('알림을 삭제하는 데 실패했습니다.');
+          return; // 실패하면 더 이상 진행하지 않음
+        }
+      }
+
+      // 선택된 알람 초기화 및 상태 업데이트
+      setState(() {
+        _selectedAlarms.clear(); // 삭제 후 선택된 항목 초기화
+        _isEditing = false; // 편집 종료
+        _updateSelectAll(); // 전체 선택 상태 업데이트
+      });
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('알림 삭제 중 오류가 발생했습니다.');
+    } finally {
+      setState(() => isLoading = false); // 로딩 상태 종료
+    }
   }
 
   // 오류 메시지를 보여주는 함수
@@ -220,9 +308,8 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                         MaterialPageRoute(builder: (context) => SetAlertPage()),
                       );
 
-                      // SetAlertPage에서 true를 반환한 경우 새로고침
                       if (result == true) {
-                        loadAlert();
+                        loadAlert(); // 돌아왔을 때 목록 다시 로드
                       }
                     },
                   ),
@@ -231,12 +318,32 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
             ),
             // 알림 목록
             Expanded(
-              child: ListView(
-                children: alarms.map((alarm) {
-                  return Container(
+                child: ListView(
+              children: alarms.map((alarm) {
+                return GestureDetector(
+                  onLongPress: () {
+                    // 길게 눌렀을 때 동작
+                    print('길게 눌림');
+                  },
+                  onTap: () async {
+                    // SetAlertPage로 알람 데이터 전달 및 결과를 기다림
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SetAlertPage(alarms: [alarm]), // 알람 데이터를 전달
+                      ),
+                    );
+
+                    // 결과가 true일 때 목록을 다시 로드
+                    if (result == true) {
+                      loadAlert(); // 돌아왔을 때 알림 목록을 다시 로드
+                    }
+                  },
+                  child: Container(
                     width: screenWidth * 0.9,
-                    margin: const EdgeInsets.all(12),
-                    padding: const EdgeInsets.all(12),
+                    margin: EdgeInsets.all(screenWidth * 0.05),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -257,25 +364,29 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                           children: [
                             // 체크박스와 알람 시간 표시
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // 체크박스 추가
                                 _isEditing
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          _toggleSelection(
-                                              alarms.indexOf(alarm));
-                                        },
-                                        child: Icon(
-                                          alarm['selected']
-                                              ? Icons.check_circle
-                                              : Icons.radio_button_unchecked,
-                                          color: alarm['selected']
-                                              ? Color(0xFF4D71F6)
-                                              : Colors.grey,
-                                          size: 30,
+                                    ? Padding(
+                                        padding: EdgeInsets.only(
+                                            right: screenWidth * 0.1),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _toggleSelection(
+                                                alarms.indexOf(alarm));
+                                          },
+                                          child: Icon(
+                                            alarm['selected']
+                                                ? Icons.check_circle
+                                                : Icons.radio_button_unchecked,
+                                            color: alarm['selected']
+                                                ? Color(0xFF4D71F6)
+                                                : Colors.grey,
+                                            size: 30,
+                                          ),
                                         ),
                                       )
-                                    : Container(), // 편집 모드일 때만 체크박스 표시
+                                    : Container(),
                                 RichText(
                                   text: TextSpan(
                                     style: TextStyle(
@@ -285,7 +396,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                     children: [
                                       TextSpan(
                                         text: formatTime(alarm['date']!)
-                                            .substring(0, 2), // 오전/오후 부분만 작게
+                                            .substring(0, 2),
                                         style: TextStyle(
                                           fontSize: screenWidth * 0.04,
                                         ),
@@ -301,11 +412,10 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                 ),
                               ],
                             ),
-                            // 요일 표시
                             Row(
                               children: ['일', '월', '화', '수', '목', '금', '토']
                                   .map((day) {
-                                bool isSelected = alarm['day']!.contains(day);
+                                bool isSelected = alarm['days']!.contains(day);
                                 return Padding(
                                   padding: const EdgeInsets.only(
                                       right: 4, top: 30, bottom: 30),
@@ -316,96 +426,177 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                       color: isSelected
                                           ? Colors.black
                                           : Color(0xFFB0B0B0),
-                                      fontWeight: isSelected
-                                          ? FontWeight.normal
-                                          : FontWeight.normal,
                                     ),
                                   ),
                                 );
                               }).toList(),
                             ),
-                            // 알람 스위치
-                            Switch(
-                              value: alarm['on'],
-                              onChanged: (bool value) async {
-                                setState(() {
-                                  alarm['on'] = value; // UI 업데이트
-                                });
+                            if (!_isEditing)
+                              Switch(
+                                value: alarm['on'],
+                                onChanged: (bool value) async {
+                                  setState(() {
+                                    alarm['on'] = value;
+                                  });
 
-                                try {
-                                  final credentials = await getTokenAndUserId();
-                                  String? token = credentials['token'];
+                                  try {
+                                    final credentials =
+                                        await getTokenAndUserId();
+                                    String? token = credentials['token'];
 
-                                  var url = Uri.parse(
-                                      '${RootUrlProvider.baseURL}/alarm/edit');
-                                  var response = await http.patch(
-                                    url,
-                                    headers: {
-                                      'accept': '*/*',
-                                      'Authorization': 'Bearer $token',
-                                      'Content-Type': 'application/json',
-                                    },
-                                    body: json.encode({
-                                      'alarmId': alarm['alarmId'],
-                                      "period": alarm['date'],
-                                      "day": "FRIDAY",
-                                      'active': value
-                                    }),
-                                  );
-
-                                  if (response.statusCode != 200) {
-                                    // 상태 복구 (API 실패 시 이전 상태로 롤백)
+                                    var url = Uri.parse(
+                                        '${RootUrlProvider.baseURL}/alarm/edit');
+                                    var response = await http.patch(
+                                      url,
+                                      headers: {
+                                        'accept': '*/*',
+                                        'Authorization': 'Bearer $token',
+                                        'Content-Type': 'application/json',
+                                      },
+                                      body: json.encode({
+                                        'alarmId': alarm['alarmId'],
+                                        "period": alarm['date'],
+                                        "days": alarm['days'],
+                                        'active': value
+                                      }),
+                                    );
+                                    if (response.statusCode != 200) {
+                                      setState(() {
+                                        alarm['on'] = !value;
+                                      });
+                                      _showErrorDialog('알림 상태를 변경하는 데 실패했습니다.');
+                                    }
+                                  } catch (e) {
+                                    print('오류 발생: $e');
                                     setState(() {
                                       alarm['on'] = !value;
                                     });
-                                    _showErrorDialog('알림 상태를 변경하는 데 실패했습니다.');
+                                    _showErrorDialog(
+                                        '알림 상태를 변경하는 중 오류가 발생했습니다.');
                                   }
-                                } catch (e) {
-                                  print('오류 발생: $e');
-                                  // 상태 복구 (오류 발생 시 이전 상태로 롤백)
-                                  setState(() {
-                                    alarm['on'] = !value;
-                                  });
-                                  _showErrorDialog('알림 상태를 변경하는 중 오류가 발생했습니다.');
-                                }
-                              },
-                              activeTrackColor: Color(0xFF4D71F6),
-                              inactiveThumbColor: Colors.white,
-                              inactiveTrackColor: Color(0XffD3D3D3),
-                            ),
+                                },
+                                activeTrackColor: Color(0xFF4D71F6),
+                                inactiveThumbColor: Colors.white,
+                                inactiveTrackColor: Color(0XffD3D3D3),
+                              ),
                           ],
                         ),
                       ],
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
+                  ),
+                );
+              }).toList(),
+            )),
             // 삭제 버튼 (편집 모드일 때만)
             if (_isEditing && _selectedAlarms.isNotEmpty)
               Container(
-                padding: EdgeInsets.all(20),
-                child: GestureDetector(
-                  onTap: _deleteSelectedAlarms,
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFF4C4C),
-                      borderRadius: BorderRadius.circular(8),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                width: screenWidth * 1,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 4),
+                      blurRadius: 6,
                     ),
-                    child: Text(
-                      '삭제',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.05,
-                        fontWeight: FontWeight.bold,
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceEvenly, // 아이템 간의 간격을 띄우기
+                  children: [
+                    // 첫 번째 버튼 (켜기)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _patchActive(true),
+                        child: Container(
+                          color: Colors.white,
+                          alignment: Alignment.center,
+                          height: 100, // 원하는 높이
+
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.alarm_outlined,
+                                  size: 24, color: Color(0xFF0038FF)), // 아이콘
+                              SizedBox(height: 8),
+                              Text(
+                                '켜기',
+                                style: TextStyle(
+                                  color: Color(0xFF0038FF),
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+
+                    // 두 번째 버튼 (끄기)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _patchActive(false),
+                        child: Container(
+                          color: Colors.white,
+                          alignment: Alignment.center,
+                          height: 100, // 원하는 높이
+
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.alarm_off_outlined,
+                                  size: 24, color: Color(0xFF0038FF)), // 아이콘
+                              SizedBox(height: 8),
+                              Text(
+                                '끄기',
+                                style: TextStyle(
+                                  color: Color(0xFF0038FF),
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // 세 번째 버튼 (삭제)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _deleteSelectedAlarms,
+                        child: Container(
+                          color: Colors.white,
+                          width: screenWidth / 3,
+                          alignment: Alignment.center,
+                          height: 100, // 원하는 높이
+
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.delete_outline,
+                                  size: 24, color: Color(0xFF0038FF)), // 아이콘
+                              SizedBox(height: 8),
+                              Text(
+                                '삭제',
+                                style: TextStyle(
+                                  color: Color(0xFF0038FF),
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              )
           ],
         ),
       ),
