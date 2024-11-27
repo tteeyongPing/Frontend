@@ -42,7 +42,8 @@ class LoginPage extends StatelessWidget {
         // 로그인 성공 후 Main 페이지로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SelectInterests()),
+          MaterialPageRoute(
+              builder: (context) => SelectInterests(visibilityFlag: 0)),
         );
       } else {
         print('로그인 실패: ${response.statusCode}');

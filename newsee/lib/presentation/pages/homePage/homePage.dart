@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:http/http.dart' as http;
+import 'package:newsee/presentation/pages/SelectInterests/SelectInterests.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,6 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late List<Map<String, dynamic>> interests;
+  bool isLoading = false;
   final List<Map<String, dynamic>> sliderData = [
     {
       'newspaper': '농민신문생활',
@@ -31,23 +38,86 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
-  final List<Map<String, dynamic>> interests = [
-    {'icon': Icons.how_to_vote_outlined, 'text': '정치'},
-    {'icon': Icons.trending_up_outlined, 'text': '경제'},
-    {'icon': Icons.groups_outlined, 'text': '사회'},
-    {'icon': Ionicons.earth_sharp, 'text': '국제'},
-    {'icon': Icons.add, 'text': '추가하기'},
-  ];
-
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  final List<IconData> icons = [
+    Icons.trending_up_outlined,
+    Icons.mic_external_on_outlined,
+    Icons.groups_outlined,
+    Ionicons.fitness_outline,
+    Icons.science_outlined,
+    Icons.sports_basketball_outlined,
+    Icons.palette_outlined,
+  ];
+
+  Future<Map<String, dynamic>> getTokenAndUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return {
+      'token': prefs.getString('token'),
+      'userId': prefs.getInt('userId'),
+    };
+  }
+
+  Future<void> loadMyInterests() async {
+    setState(() => isLoading = true);
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/category/my');
+      var response = await http.get(url, headers: {
+        'accept': '*/*',
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          interests = List<Map<String, dynamic>>.from(data['data'].asMap().map(
+            (index, item) {
+              return MapEntry(index, {
+                'categoryId': item['categoryId'],
+                'icon': icons[item['categoryId'] % icons.length],
+                'text': item['categoryName'],
+              });
+            },
+          ).values);
+        });
+      } else {
+        _showErrorDialog('관심사를 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('데이터를 불러오는 중 문제가 발생했습니다.');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('오류'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    _pageController.addListener(() {
+    interests = [];
+    // Future.wait()을 사용하여 비동기 함수들이 완료될 때까지 기다립니다.
+    Future.wait([loadMyInterests()]).then((_) {
       setState(() {
-        _currentIndex = _pageController.page!.round();
+        // 완료된 후 UI 업데이트
       });
     });
   }
@@ -59,7 +129,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onInterestTap(String text) {
-    // print('$text 클릭됨');
+    print('$text 클릭됨');
   }
 
   @override
@@ -177,8 +247,60 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisSpacing: 1.0,
                                 crossAxisSpacing: 0,
                               ),
-                              itemCount: interests.length,
+                              itemCount:
+                                  interests.length + 1, // 아이템 수에 1을 더해줍니다.
                               itemBuilder: (context, index) {
+                                // 마지막 인덱스일 경우 '추가하기' 버튼을 보여줍니다.
+                                if (index == interests.length) {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SelectInterests(
+                                                    visibilityFlag: -1)),
+                                      );
+
+                                      if (result == true) {
+                                        loadMyInterests(); // 돌아왔을 때 목록 다시 로드
+                                      }
+                                    },
+                                    child: Container(
+                                      width: 80,
+                                      height: 150,
+                                      color: Colors.white,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 70,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFF2F2F2),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Icon(
+                                              Icons.add,
+                                              size: 40,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          SizedBox(height: 0),
+                                          Text(
+                                            "추가하기",
+                                            style: TextStyle(fontSize: 16),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // 나머지 아이템은 interests에서 가져옵니다.
                                 return GestureDetector(
                                   onTap: () =>
                                       _onInterestTap(interests[index]['text']!),

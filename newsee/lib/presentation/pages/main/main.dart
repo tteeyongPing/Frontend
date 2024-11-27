@@ -28,6 +28,8 @@ class _MainPageState extends State<MainPage> {
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
         onNavigateToBookmark: () => _onItemTapped(2),
+        onNavigateMyPlaylistPage: () => _onItemTapped(3),
+        onNavigateToPlaylistPage: () => _onItemTapped(3),
       ),
     ];
   }
