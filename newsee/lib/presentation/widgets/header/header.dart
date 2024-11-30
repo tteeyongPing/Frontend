@@ -13,7 +13,6 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         Container(
           height: kToolbarHeight, // 높이를 kToolbarHeight로 고정
           padding: EdgeInsets.symmetric(
