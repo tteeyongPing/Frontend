@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
+import 'package:share_plus/share_plus.dart'; // share_plus 패키지 추가
 
 class NewsOriginPage extends StatelessWidget {
   final News news;
@@ -32,7 +33,7 @@ class NewsOriginPage extends StatelessWidget {
                   Expanded(
                     child: Center(
                       child: Text(
-                        '뉴스 오리진 페이지', // Changed to "뉴스 오리진 페이지"
+                        '뉴스 원본',
                         style: TextStyle(
                           fontSize: screenWidth * 0.05,
                           fontWeight: FontWeight.bold,
@@ -49,9 +50,7 @@ class NewsOriginPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    // company, Title, and Info Section
-
+                    // Company, Title, and Info Section
                     Container(
                       width: screenWidth,
                       padding:
@@ -62,11 +61,9 @@ class NewsOriginPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
-                          // company
+                          // Company
                           Text(
                             news.company,
-
                             style: TextStyle(
                               fontSize: screenWidth * 0.035,
                               color: Colors.black,
@@ -134,19 +131,23 @@ class NewsOriginPage extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.share),
                                 onPressed: () {
-                                  // Add share functionality here
+                                  // 공유 기능
+                                  Share.share(
+                                    'Check out this news from ${news.company}:\n\n${news.title}\n\n${news.content}',
+                                    subject: 'News from ${news.company}',
+                                  );
                                 },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.bookmark_border),
                                 onPressed: () {
-                                  // Add favorite functionality here
+                                  // 즐겨찾기 기능 추가
                                 },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.more_vert),
                                 onPressed: () {
-                                  // Add more options functionality here
+                                  // 기타 옵션 추가
                                 },
                               ),
                             ],

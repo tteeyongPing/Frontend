@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:newsee/models/Playlist.dart'; // Playlist 모델
-import 'package:newsee/models/News.dart'; // News 모델
 import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
 
 late ScrollController _scrollController;
@@ -11,10 +10,10 @@ class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
 
   @override
-  _PlaylistPageState createState() => _PlaylistPageState();
+  PlaylistPageState createState() => PlaylistPageState();
 }
 
-class _PlaylistPageState extends State<PlaylistPage> {
+class PlaylistPageState extends State<PlaylistPage> {
   bool isLoading = false;
   late List<Playlist> playlists = []; // 플레이리스트 목록
   late List<Playlist> subscribePlaylists = []; // 구독한 플레이리스트 목록
@@ -50,12 +49,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
     });
   }
 
-  // 플레이리스트 클릭 시 뉴스 페이지로 이동
-  void _navigateToNewsPage(List<News> news) {
+  // 플레이리스트 클릭 시 상세 페이지로 이동
+  void _navigateToPlaylistDetail(Playlist playlist) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => NewsListPage(news: news),
+        builder: (context) => PlaylistDetailPage(playlist: playlist),
       ),
     );
   }
@@ -140,105 +139,60 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   ? playlists.length
                   : subscribePlaylists.length,
               itemBuilder: (context, index) {
-                if (isMyPlaylistSelected) {
-                  return Container(
-                      margin: const EdgeInsets.only(
-                          top: 10, left: 24, right: 24, bottom: 10),
-                      padding: const EdgeInsets.only(
-                          top: 12,
-                          left: 17,
-                          right: 17,
-                          bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 0,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                final playlist = isMyPlaylistSelected
+                    ? playlists[index]
+                    : subscribePlaylists[index];
+                return GestureDetector(
+                  onTap: () =>
+                      _navigateToPlaylistDetail(playlist), // 클릭 시 상세 페이지로 이동
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        top: 10, left: 24, right: 24, bottom: 10),
+                    padding: const EdgeInsets.only(
+                        top: 12, left: 17, right: 17, bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 0,
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: SizedBox(
+                      height: 113, // 원하는 고정 높이를 설정
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            playlist.playlistName,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          Text(
+                            playlist.description.length > 43
+                                ? '${playlist.description.substring(0, 43)}...'
+                                : playlist.description,
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "게시자: ${playlist.userId}",
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      child: SizedBox(
-                        height: 113, // 원하는 고정 높이를 설정
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(subscribePlaylists[index].playlistName,
-                                style: const TextStyle(fontSize: 20)),
-                            Text(
-                              subscribePlaylists[index].description.length > 43
-                                  ? '${subscribePlaylists[index].description.substring(0, 43)}...'
-                                  : subscribePlaylists[index].description,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "", //"게시자: ${subscribePlaylists[index].userId}",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ));
-                } else {
-                  return Container(
-                      margin: const EdgeInsets.only(
-                          top: 10, left: 24, right: 24, bottom: 10),
-                      padding: const EdgeInsets.only(
-                          top: 12,
-                          left: 17,
-                          right: 17,
-                          bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 0,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: SizedBox(
-                        height: 113, // 원하는 고정 높이를 설정
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(subscribePlaylists[index].playlistName,
-                                style: const TextStyle(fontSize: 20)),
-                            Text(
-                              subscribePlaylists[index].description.length > 43
-                                  ? '${subscribePlaylists[index].description.substring(0, 43)}...'
-                                  : subscribePlaylists[index].description,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "", //"게시자: ${subscribePlaylists[index].userId}",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ));
-                }
+                    ),
+                  ),
+                );
               },
             ),
           ),

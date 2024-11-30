@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
 import 'news_origin_page.dart';
 import 'package:newsee/models/news_counter.dart';
+import 'package:share_plus/share_plus.dart';
 
 class NewsShortsPage extends StatelessWidget {
   final News news;
@@ -144,7 +145,11 @@ class NewsShortsPage extends StatelessWidget {
                                   IconButton(
                                     icon: const Icon(Icons.share),
                                     onPressed: () {
-                                      // Add share functionality here
+                                      // 공유 기능
+                                      Share.share(
+                                        'Check out this news: ${news.title}\n\n${news.shorts}',
+                                        subject: news.company,
+                                      );
                                     },
                                   ),
                                   IconButton(
