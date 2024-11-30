@@ -346,12 +346,11 @@ class _ProfilePageState extends State<ProfilePage> {
             Navigator.of(context).pop(userName); // nickName 전달
           },
         ),
-        flexibleSpace: Center(
-          child: Text(
-            '$userName님의 정보',
-            style: TextStyle(color: Colors.black, fontSize: 20),
-          ),
+        title: Text(
+          '$userName님의 정보',
+          style: TextStyle(color: Colors.black, fontSize: 20),
         ),
+        centerTitle: true, // 제목을 정확히 가운데 정렬
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
