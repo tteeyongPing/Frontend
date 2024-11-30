@@ -10,10 +10,10 @@ class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
 
   @override
-  _PlaylistPageState createState() => _PlaylistPageState();
+  PlaylistPageState createState() => PlaylistPageState();
 }
 
-class _PlaylistPageState extends State<PlaylistPage> {
+class PlaylistPageState extends State<PlaylistPage> {
   bool isLoading = false;
   late List<Playlist> playlists = []; // 플레이리스트 목록
   late List<Playlist> subscribePlaylists = []; // 구독한 플레이리스트 목록
