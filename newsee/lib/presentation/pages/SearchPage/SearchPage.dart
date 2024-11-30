@@ -205,7 +205,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
+    double appBarHeight = AppBar().preferredSize.height;
     return Scaffold(
       backgroundColor: Color(0xFFF2F2F2),
       appBar: AppBar(

@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
             (index, item) {
               return MapEntry(index, {
                 'categoryId': item['categoryId'],
-                'icon': icons[item['categoryId'] % icons.length],
+                'icon': icons[(item['categoryId'] % icons.length) - 1],
                 'text': item['categoryName'],
               });
             },

@@ -28,8 +28,6 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
     return {'token': token, 'userId': userId};
   }
 
-  Future<void> patchActive() async {}
-  // 관심 분야 목록
   final List<Map<String, dynamic>> alarms = [];
 
   // JSON 파일을 로드하여 알림 데이터를 초기화
@@ -252,15 +250,17 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: null,
-        flexibleSpace: Center(
-          child: Text(
-            '뉴스 알림 설정',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-            ),
+        title: Text(
+          '뉴스 알림 설정',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
           ),
+        ),
+        centerTitle: true, // 제목을 정확히 가운데 정렬
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1.0),
+          child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
         ),
       ),
       body: Center(
@@ -269,7 +269,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
           children: [
             // 편집 버튼과 추가 버튼
             Container(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05, // 좌우 패딩을 화면 크기 비율로 설정
+              ),
               child: Row(
                 mainAxisAlignment:
                     MainAxisAlignment.spaceBetween, // O 체크박스를 왼쪽에 배치
@@ -323,26 +325,39 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                 return GestureDetector(
                   onLongPress: () {
                     // 길게 눌렀을 때 동작
-                    print('길게 눌림');
+                    setState(() {
+                      _isEditing = !_isEditing; // 편집 모드 토글
+                    });
+                    _toggleSelection(alarms.indexOf(alarm));
+                    //print('길게 눌림');
                   },
                   onTap: () async {
-                    // SetAlertPage로 알람 데이터 전달 및 결과를 기다림
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            SetAlertPage(alarms: [alarm]), // 알람 데이터를 전달
-                      ),
-                    );
+                    if (!_isEditing) {
+                      // _isEditing이 true일 때만 동작
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SetAlertPage(alarms: [alarm]), // 알람 데이터를 전달
+                        ),
+                      );
 
-                    // 결과가 true일 때 목록을 다시 로드
-                    if (result == true) {
-                      loadAlert(); // 돌아왔을 때 알림 목록을 다시 로드
+                      // 결과가 true일 때 목록을 다시 로드
+                      if (result == true) {
+                        loadAlert(); // 돌아왔을 때 알림 목록을 다시 로드
+                      }
+                    } else {
+                      _toggleSelection(alarms.indexOf(alarm));
                     }
+                    // _isEditing이 false일 경우 아무 동작도 하지 않음
                   },
                   child: Container(
                     width: screenWidth * 0.9,
-                    margin: EdgeInsets.all(screenWidth * 0.05),
+                    margin: EdgeInsets.only(
+                      left: screenWidth * 0.05, // 왼쪽 패딩
+                      right: screenWidth * 0.05, // 오른쪽 패딩
+                      bottom: screenWidth * 0.05, // 위쪽 패딩
+                    ),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -422,11 +437,13 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                   child: Text(
                                     day,
                                     style: TextStyle(
-                                      fontSize: screenWidth * 0.03,
-                                      color: isSelected
-                                          ? Colors.black
-                                          : Color(0xFFB0B0B0),
-                                    ),
+                                        fontSize: screenWidth * 0.03,
+                                        color: isSelected
+                                            ? Color(0xFF0038FF)
+                                            : Color(0xFFB0B0B0),
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal),
                                   ),
                                 );
                               }).toList(),

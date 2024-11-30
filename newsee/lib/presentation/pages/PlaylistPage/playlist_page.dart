@@ -181,7 +181,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "게시자: ${subscribePlaylists[index].userId}",
+                                  "", //"게시자: ${subscribePlaylists[index].userId}",
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ],
@@ -230,7 +230,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "게시자: ${subscribePlaylists[index].userId}",
+                                  "", //"게시자: ${subscribePlaylists[index].userId}",
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ],
