@@ -281,7 +281,7 @@ class _ProfilePageState extends State<ProfilePage> {
           horizontal: screenWidth * 0.05,
           vertical: screenWidth * 0.02,
         ),
-        height: screenWidth * 0.12,
+        height: kToolbarHeight,
         decoration: BoxDecoration(
           color: Colors.white,
         ),
@@ -334,7 +334,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Color(0xFFF2F2F2),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -350,6 +352,10 @@ class _ProfilePageState extends State<ProfilePage> {
             style: TextStyle(color: Colors.black, fontSize: 20),
           ),
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1.0),
+          child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
+        ),
       ),
       body: Column(
         children: [
@@ -357,6 +363,9 @@ class _ProfilePageState extends State<ProfilePage> {
           buildNavigationRow('닉네임 변경', onTap: () {
             _navigateToEditNamePage();
           }),
+          SizedBox(
+            height: kToolbarHeight / 2,
+          ),
           buildNavigationRow('로그아웃', onTap: _showLogoutDialog),
           buildNavigationRow('회원 탈퇴', onTap: _showUnsubscribeDialog),
         ],
