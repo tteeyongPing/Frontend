@@ -33,4 +33,17 @@ class News {
       reporter: json['reporter'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': newsId,
+      'category': categoryId,
+      'title': title,
+      'date': date,
+      'content': content,
+      'company': company,
+      'shorts': shorts,
+      'reporter': reporter,
+    };
+  }
 }
