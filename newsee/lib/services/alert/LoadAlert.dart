@@ -1,9 +1,15 @@
-import 'dart:convert'; // json.decode 사용을 위한 import
-import 'package:flutter/material.dart'; // setState, Scaffold 등 Flutter UI 관련 클래스 사용
-import 'package:http/http.dart' as http; // http.get을 사용하기 위한 import
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:newsee/services/alert/AlertDatabase.dart';
 import 'package:newsee/services/getTokenAndUserId.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
+
+Future<void> printAlarms() async {
+  final dbHelper = AlarmDatabaseHelper();
+  final alarms = await dbHelper.getAlarms();
+  print(alarms); // DB에서 가져온 알림 리스트 출력
+}
 
 Future<void> loadAlert() async {
   try {
@@ -41,6 +47,9 @@ Future<void> loadAlert() async {
       if (newAlarms.isNotEmpty) {
         await dbHelper.insertAlarms(newAlarms);
       }
+
+      // DB에서 알림 목록 출력
+      printAlarms(); // 알림 데이터 출력
     } else if (response.statusCode == 404) {
       // 알림이 없을 경우
       print('알림을 찾을 수 없습니다.');
@@ -51,5 +60,6 @@ Future<void> loadAlert() async {
   } catch (e) {
     // 예외 처리
     print('오류 발생: $e');
-  } finally {}
+    // 여기서 사용자에게 오류 메시지를 보여주는 방법을 추가할 수 있음
+  }
 }

@@ -1,53 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // JSON 변환을 위한 import
 import 'package:shared_preferences/shared_preferences.dart';
-
-class TimePickerWidget extends StatefulWidget {
-  final Function(DateTime) onTimeChanged; // 부모로 시간을 전달할 콜백 함수
-
-  TimePickerWidget({required this.onTimeChanged});
-
-  @override
-  _TimePickerWidgetState createState() => _TimePickerWidgetState();
-}
-
-class _TimePickerWidgetState extends State<TimePickerWidget> {
-  DateTime time = DateTime.now();
-
-  @override
-  Widget build(BuildContext context) {
-    return ScrollDateTimePicker(
-      itemExtent: 54, // 항목의 높이
-      infiniteScroll: true, // 무한 스크롤
-      dateOption: DateTimePickerOption(
-        dateFormat: DateFormat('hh:mm a'), // 시간만 포맷
-        minDate: DateTime(2024, 1, 1, 0, 0), // 최소시간
-        maxDate: DateTime(2024, 1, 1, 23, 59), // 최대시간
-        initialDate: time, // 초기값
-      ),
-      onChange: (datetime) {
-        setState(() {
-          time = datetime; // 선택된 시간을 상태에 저장
-        });
-        widget.onTimeChanged(datetime); // 부모로 시간 전달
-      },
-      itemBuilder: (context, pattern, text, isActive, isDisabled) {
-        return Text(
-          text,
-          style: TextStyle(
-            fontSize: isActive ? 30 : 20, // Bold on active (centered) item
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: isActive ? Colors.black : Color(0xFFB0B0B0),
-          ),
-        );
-      },
-    );
-  }
-}
 
 class SetAlertPage extends StatefulWidget {
   final List<Map<String, dynamic>>? alarms; // 알람 데이터를 nullable로 변경
@@ -72,7 +28,6 @@ class _SetAlertPageState extends State<SetAlertPage> {
   String _selectedAmPm = "오전";
   List<String> _selectedDays = [];
   bool isLoading = false; // 로딩 상태 관리
-  DateTime? selectedTime; // 선택된 시간 저장 변수
 
   @override
   void initState() {
@@ -129,9 +84,11 @@ class _SetAlertPageState extends State<SetAlertPage> {
     }
 
     setState(() => isLoading = true);
-    String formattedTime = _selectedAmPm == "오전"
-        ? '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}'
-        : '${(_selectedHour % 12 + 12).toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
+    String formattedTime = (_selectedAmPm == "오전" && _selectedHour == 12)
+        ? '00:${_selectedMinute.toString().padLeft(2, '0')}'
+        : (_selectedAmPm == "오전")
+            ? '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}'
+            : '${(_selectedHour % 12 + 12).toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
 
     try {
       final credentials = await getTokenAndUserId();
@@ -223,27 +180,80 @@ class _SetAlertPageState extends State<SetAlertPage> {
               child: Column(
                 children: [
                   // 시간 선택 Picker
-                  TimePickerWidget(
-                    onTimeChanged: (DateTime newTime) {
-                      setState(() {
-                        selectedTime = newTime;
-                        _selectedHour = newTime.hour;
-                        _selectedMinute = newTime.minute;
-                        _selectedAmPm = newTime.hour < 12 ? '오전' : '오후';
-                      });
-                    },
-                  ),
+                  _buildTimePicker(screenWidth, screenHeight),
                   SizedBox(height: 20),
                   // 요일 선택 UI
                   Container(
                     width: screenWidth * 0.9,
                     child: _buildDayPicker(screenWidth),
                   ),
+
                   SizedBox(height: 20),
                   // 추가/수정 버튼
                   _buildActionButton(screenWidth),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimePicker(double screenWidth, double screenHeight) {
+    return Container(
+      width: screenWidth * 0.9,
+      height: screenHeight * 0.3,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: CupertinoPicker(
+              backgroundColor: Colors.transparent,
+              itemExtent: 75,
+              onSelectedItemChanged: (index) {
+                setState(() => _selectedAmPm = index == 0 ? "오전" : "오후");
+              },
+              scrollController: FixedExtentScrollController(
+                initialItem: _selectedAmPm == "오전" ? 0 : 1,
+              ),
+              children: ["오전", "오후"]
+                  .map((period) => Center(
+                      child: Text(period, style: TextStyle(fontSize: 30))))
+                  .toList(),
+            ),
+          ),
+          Expanded(
+            child: CupertinoPicker(
+              itemExtent: 75,
+              onSelectedItemChanged: (index) {
+                setState(() => _selectedHour = (index % 12) + 1); // 1~12 순환
+              },
+              scrollController: FixedExtentScrollController(
+                initialItem: _selectedHour - 1,
+              ),
+              children: List.generate(12, (i) => i + 1)
+                  .map((hour) => Center(
+                      child: Text('$hour', style: TextStyle(fontSize: 30))))
+                  .toList(),
+            ),
+          ),
+          Text(':', style: TextStyle(fontSize: 30)),
+          Expanded(
+            child: CupertinoPicker(
+              itemExtent: 75,
+              onSelectedItemChanged: (index) {
+                setState(() => _selectedMinute = index % 60); // 0~59 순환
+              },
+              scrollController: FixedExtentScrollController(
+                initialItem: _selectedMinute,
+              ),
+              children: List.generate(60, (i) => i)
+                  .map((minute) => Center(
+                      child: Text('$minute', style: TextStyle(fontSize: 24))))
+                  .toList(),
             ),
           ),
         ],
@@ -291,19 +301,22 @@ class _SetAlertPageState extends State<SetAlertPage> {
   }
 
   Widget _buildActionButton(double screenWidth) {
-    return ElevatedButton(
-      onPressed:
-          isLoading ? null : () => _addOrUpdateAlert(widget.alarms != null),
-      style: ElevatedButton.styleFrom(
-        minimumSize: Size(screenWidth * 0.8, 50),
-        backgroundColor: Colors.blue,
+    return SizedBox(
+      width: screenWidth * 0.9,
+      height: 48,
+      child: ElevatedButton(
+        onPressed:
+            isLoading ? null : () => _addOrUpdateAlert(widget.alarms != null),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isLoading ? Colors.grey : Color(0xFF0038FF),
+        ),
+        child: isLoading
+            ? CircularProgressIndicator(color: Colors.white)
+            : Text(
+                widget.alarms != null ? '수정' : '추가',
+                style: TextStyle(fontSize: 18),
+              ),
       ),
-      child: isLoading
-          ? CircularProgressIndicator()
-          : Text(
-              widget.alarms != null ? '수정하기' : '추가하기',
-              style: TextStyle(fontSize: 18),
-            ),
     );
   }
 }
