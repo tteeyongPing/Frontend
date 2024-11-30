@@ -4,6 +4,9 @@ import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // JSON 변환을 위한 import
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:newsee/services/alert/LoadAlert.dart';
+import 'package:newsee/services/alert/ScheduleAlert.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class SetAlertPage extends StatefulWidget {
   final List<Map<String, dynamic>>? alarms; // 알람 데이터를 nullable로 변경
@@ -138,6 +141,9 @@ class _SetAlertPageState extends State<SetAlertPage> {
 
       if (response.statusCode == 200) {
         print('${isUpdate ? "수정" : "추가"} 성공');
+        await cancelAllNotifications(); //알림 취소
+        await LoadAlert(); // 알림 로드
+        await scheduleNotifications(); // 알림 예약
         Navigator.pop(context, true);
       } else {
         print('응답 코드: ${response.statusCode}');

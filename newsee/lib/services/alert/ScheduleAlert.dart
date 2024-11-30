@@ -67,6 +67,11 @@ Future<void> scheduleNotifications() async {
   }
 }
 
+// 모든 예약된 알림을 취소
+Future<void> cancelAllNotifications() async {
+  await flutterLocalNotificationsPlugin.cancelAll();
+}
+
 // 요일 문자열을 숫자 (1-7)로 변환하는 함수
 int getDayOfWeekFromString(String day) {
   switch (day) {

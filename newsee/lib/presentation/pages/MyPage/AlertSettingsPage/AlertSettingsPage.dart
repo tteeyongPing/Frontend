@@ -4,6 +4,8 @@ import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // JSON 변환을 위한 import
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:newsee/services/alert/LoadAlert.dart';
+import 'package:newsee/services/alert/ScheduleAlert.dart';
 
 class AlertSettingsPage extends StatefulWidget {
   @override
@@ -67,6 +69,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
       print('오류 발생: $e');
       _showErrorDialog('알림 목록을 불러오는 중 오류가 발생했습니다.');
     } finally {
+      await cancelAllNotifications(); //알림 취소
+      await LoadAlert(); // 알림 로드
+      await scheduleNotifications(); // 알림 예약
       setState(() {
         isLoading = false;
         _selectedAlarms.clear(); // 삭제 후 선택된 항목 초기화
@@ -147,7 +152,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
       print('오류 발생: $e');
       _showErrorDialog('알림 상태를 변경하는 중 오류가 발생했습니다.');
     } finally {
-      loadAlert();
+      await cancelAllNotifications(); //알림 취소
+      await LoadAlert(); // 알림 로드
+      await scheduleNotifications(); // 알림 예약
       setState(() => isLoading = false); // 로딩 상태 종료
     }
   }
@@ -194,6 +201,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
       print('오류 발생: $e');
       _showErrorDialog('알림 삭제 중 오류가 발생했습니다.');
     } finally {
+      await cancelAllNotifications(); //알림 취소
+      await LoadAlert(); // 알림 로드
+      await scheduleNotifications(); // 알림 예약
       setState(() => isLoading = false); // 로딩 상태 종료
     }
   }
@@ -479,7 +489,14 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                         'active': value
                                       }),
                                     );
-                                    if (response.statusCode != 200) {
+                                    if (response.statusCode == 200) {
+                                      await cancelAllNotifications(); // 알림 취소
+                                      print('알림 취소 완료');
+                                      await LoadAlert(); // 알림 로드
+                                      print('알림 로드 완료');
+                                      await scheduleNotifications(); // 알림 예약
+                                      print('알림 예약 완료');
+                                    } else {
                                       setState(() {
                                         alarm['on'] = !value;
                                       });
