@@ -11,7 +11,7 @@ Future<void> printAlarms() async {
   print(alarms); // DB에서 가져온 알림 리스트 출력
 }
 
-Future<void> loadAlert() async {
+Future<void> LoadAlert() async {
   try {
     // 로그인 정보 및 토큰 가져오기
     final credentials = await getTokenAndUserId();

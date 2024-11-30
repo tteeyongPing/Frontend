@@ -35,11 +35,6 @@ Future<void> initializeNotifications() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 
-// 모든 예약된 알림을 취소
-Future<void> cancelAllNotifications() async {
-  await flutterLocalNotificationsPlugin.cancelAll();
-}
-
 Future<void> sendData(String token, BuildContext context) async {
   var url =
       Uri.parse('${RootUrlProvider.baseURL}/kakao/token/login?token=$token');
@@ -55,7 +50,7 @@ Future<void> sendData(String token, BuildContext context) async {
       int userId = responseData['data']['userId'];
       saveToken(newToken, userId); // 토큰 저장
       await cancelAllNotifications(); //알림 취소
-      await loadAlert(); // 알림 로드
+      await LoadAlert(); // 알림 로드
       await scheduleNotifications(); // 알림 예약
       Navigator.pushReplacement(
         context,
