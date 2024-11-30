@@ -86,15 +86,15 @@ class _EditNamePageState extends State<EditNamePage> {
           icon: Icon(Icons.arrow_back, color: Colors.black), // 뒤로가기 아이콘
           onPressed: () => Navigator.of(context).pop(), // 뒤로가기 처리
         ),
-        title: null, // 기본 title을 null로 설정
-        flexibleSpace: Center(
-          child: Text(
-            '닉네임 변경',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-            ),
-          ),
+        title: Text(
+          '닉네임 변경',
+          style: TextStyle(color: Colors.black, fontSize: 20),
+        ),
+
+        centerTitle: true, // 제목을 정확히 가운데 정렬
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1.0),
+          child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
         ),
       ),
       body: Column(
