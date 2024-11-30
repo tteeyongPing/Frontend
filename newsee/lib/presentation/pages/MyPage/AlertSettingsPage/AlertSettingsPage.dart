@@ -86,6 +86,8 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
     String period = hour < 12 ? '오전' : '오후';
     if (hour > 12) {
       hour -= 12;
+    } else if (hour == 0) {
+      hour = 12;
     }
     return '$period ${hour}:${timeParts[1]}';
   }
