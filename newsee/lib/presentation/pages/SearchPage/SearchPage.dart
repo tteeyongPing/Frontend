@@ -381,12 +381,12 @@ class _SearchPageState extends State<SearchPage> {
                       if (isNewsSelected) {
                         return Container(
                             margin: const EdgeInsets.only(
-                                top: 12, left: 24, right: 24, bottom: 12),
+                                top: 10, left: 24, right: 24, bottom: 10),
                             padding: const EdgeInsets.only(
-                                top: 20,
-                                left: 24,
-                                right: 16,
-                                bottom: 20), // 왼쪽, 오른쪽, 아래쪽에만 마진
+                                top: 12,
+                                left: 17,
+                                right: 17,
+                                bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
 
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -401,7 +401,7 @@ class _SearchPageState extends State<SearchPage> {
                               ],
                             ),
                             child: SizedBox(
-                              height: 102, // 원하는 고정 높이를 설정
+                              height: 113, // 원하는 고정 높이를 설정
                               child: Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -432,12 +432,12 @@ class _SearchPageState extends State<SearchPage> {
                       } else {
                         return Container(
                             margin: const EdgeInsets.only(
-                                top: 12, left: 24, right: 24, bottom: 12),
+                                top: 10, left: 24, right: 24, bottom: 10),
                             padding: const EdgeInsets.only(
-                                top: 30,
-                                left: 24,
-                                right: 16,
-                                bottom: 20), // 왼쪽, 오른쪽, 아래쪽에만 마진
+                                top: 12,
+                                left: 17,
+                                right: 17,
+                                bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
 
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -452,7 +452,7 @@ class _SearchPageState extends State<SearchPage> {
                               ],
                             ),
                             child: SizedBox(
-                              height: 92, // 원하는 고정 높이를 설정
+                              height: 113, // 원하는 고정 높이를 설정
                               child: Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
