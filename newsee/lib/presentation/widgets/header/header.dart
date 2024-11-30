@@ -17,11 +17,9 @@ class Header extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(
-            left: screenWidth * 0.05,
-            top: screenWidth * 0.11,
-            right: screenWidth * 0.05,
-            bottom: 0, // 아래쪽 패딩을 조정하여 약간의 공간 유지
+          height: kToolbarHeight, // 높이를 kToolbarHeight로 고정
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.05,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween, // 좌우로 요소 배치

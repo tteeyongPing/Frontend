@@ -15,7 +15,6 @@ class MyPage extends StatefulWidget {
   final VoidCallback onNavigateMyPlaylistPage;
   final VoidCallback onNavigateToPlaylistPage;
 
-  // 생성자 부분에서 각 콜백을 필수 항목으로 받고 있습니다.
   const MyPage({
     required this.onNavigateToNews,
     required this.onNavigateToBookmark,
@@ -40,16 +39,15 @@ Future<String?> getUserName() async {
 }
 
 class _MyPageState extends State<MyPage> {
-  bool isLoading = false; // 로딩 상태를 관리하는 변수
-  String? nickName; // 사용자 닉네임을 저장할 변수
+  bool isLoading = false;
+  String? nickName;
 
   @override
   void initState() {
     super.initState();
-    loadName(); // 페이지 로드 시 닉네임을 불러오기
+    loadName();
   }
 
-  // SharedPreferences에서 토큰 및 유저 ID 가져오는 함수
   Future<Map<String, dynamic>> getTokenAndUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -57,7 +55,6 @@ class _MyPageState extends State<MyPage> {
     return {'token': token, 'userId': userId};
   }
 
-  // 오류 메시지를 보여주는 함수
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -76,9 +73,8 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
-  // JSON 파일을 로드하여 관심사 데이터를 초기화
   Future<void> loadName() async {
-    setState(() => isLoading = true); // 로딩 상태 시작
+    setState(() => isLoading = true);
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -90,9 +86,9 @@ class _MyPageState extends State<MyPage> {
       });
 
       if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes)); // UTF-8로 디코딩
+        var data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
-          nickName = data['data']; // 닉네임을 상태에 저장
+          nickName = data['data'];
           saveUserName('$nickName');
         });
       } else {
@@ -102,11 +98,10 @@ class _MyPageState extends State<MyPage> {
       print('오류 발생: $e');
       _showErrorDialog('닉네임을 불러오는 중 오류가 발생했습니다.');
     } finally {
-      setState(() => isLoading = false); // 로딩 상태 종료
+      setState(() => isLoading = false);
     }
   }
 
-  // 중복된 InkWell 코드 재사용을 위한 메서드
   Widget buildNavigationRow(String title, {VoidCallback? onTap}) {
     double screenWidth = MediaQuery.of(context).size.width;
 
@@ -117,7 +112,7 @@ class _MyPageState extends State<MyPage> {
           horizontal: screenWidth * 0.05,
           vertical: screenWidth * 0.02,
         ),
-        height: screenWidth * 0.12,
+        height: kToolbarHeight,
         decoration: BoxDecoration(
           color: Colors.white,
         ),
@@ -139,11 +134,11 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
-  // 섹션을 구성하는 메서드 (재사용)
   Widget buildSection({required String title, required List<Widget> items}) {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
       ),
@@ -154,9 +149,8 @@ class _MyPageState extends State<MyPage> {
           Text(
             title,
             style: TextStyle(
-                fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+                fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 10),
           ...items,
         ],
       ),
@@ -170,43 +164,39 @@ class _MyPageState extends State<MyPage> {
     return Scaffold(
       backgroundColor: Color(0xFFF2F2F2),
       body: SingleChildScrollView(
-        // 화면이 길어지는 경우 스크롤 가능하게
         child: Column(
           children: [
-            // 홍길동 컨테이너
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              child: SizedBox(
-                width: screenWidth,
-                height: 48,
-                child: buildNavigationRow(
-                  nickName ?? '로딩 중...', // nickName이 null일 경우 로딩 중이라고 표시
-                  onTap: () async {
-                    // ProfilePage로 이동하고 닉네임을 반환받음
-                    final updatedNickName = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfilePage(),
-                      ),
-                    );
+              height: kToolbarHeight,
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05,
+                vertical: screenWidth * 0.02,
+              ),
+              child: buildNavigationRow(
+                nickName ?? '로딩 중...',
+                onTap: () async {
+                  final updatedNickName = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePage(),
+                    ),
+                  );
 
-                    // 반환된 닉네임을 받아서 업데이트
-                    if (updatedNickName != null) {
-                      setState(() {
-                        nickName = updatedNickName; // nickName 업데이트
-                        saveUserName(nickName!); // SharedPreferences에 저장
-                      });
-                    }
-                  },
-                ),
+                  if (updatedNickName != null) {
+                    setState(() {
+                      nickName = updatedNickName;
+                      saveUserName(nickName!);
+                    });
+                  }
+                },
               ),
             ),
-            SizedBox(height: screenWidth * 0.05),
-
-            // 뉴스 탐색 섹션
+            SizedBox(
+              height: kToolbarHeight / 2,
+            ),
             buildSection(
               title: "뉴스 탐색",
               items: [
@@ -218,125 +208,33 @@ class _MyPageState extends State<MyPage> {
                 }),
                 GestureDetector(
                   onTap: widget.onNavigateToNews,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.05,
-                      vertical: screenWidth * 0.02,
-                    ),
-                    height: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "뉴스 목록 보기",
-                          style: TextStyle(fontSize: screenWidth * 0.04),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: screenWidth * 0.04,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: buildNavigationRow("뉴스 목록 보기"),
                 ),
               ],
             ),
-            SizedBox(height: screenWidth * 0.05),
-
-            // 나의 뉴스 관리 섹션
+            SizedBox(
+              height: kToolbarHeight / 2,
+            ),
             buildSection(
               title: "나의 뉴스 관리",
               items: [
                 GestureDetector(
                   onTap: widget.onNavigateToBookmark,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.05,
-                      vertical: screenWidth * 0.02,
-                    ),
-                    height: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "북마크",
-                          style: TextStyle(fontSize: screenWidth * 0.04),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: screenWidth * 0.04,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: buildNavigationRow("북마크"),
                 ),
                 GestureDetector(
                   onTap: widget.onNavigateMyPlaylistPage,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.05,
-                      vertical: screenWidth * 0.02,
-                    ),
-                    height: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "뉴스 목록 보기",
-                          style: TextStyle(fontSize: screenWidth * 0.04),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: screenWidth * 0.04,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: buildNavigationRow("내 뉴스 목록 보기"),
                 ),
                 GestureDetector(
                   onTap: widget.onNavigateToPlaylistPage,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.05,
-                      vertical: screenWidth * 0.02,
-                    ),
-                    height: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "뉴스 목록 보기",
-                          style: TextStyle(fontSize: screenWidth * 0.04),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: screenWidth * 0.04,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: buildNavigationRow("플레이리스트 보기"),
                 ),
               ],
             ),
-            SizedBox(height: screenWidth * 0.05),
-
-            // 설정 섹션
+            SizedBox(
+              height: kToolbarHeight / 2,
+            ),
             buildSection(
               title: "설정",
               items: [
@@ -356,6 +254,9 @@ class _MyPageState extends State<MyPage> {
                   );
                 }),
               ],
+            ),
+            SizedBox(
+              height: kToolbarHeight / 2,
             ),
           ],
         ),
