@@ -11,9 +11,9 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Column(
       children: [
-
         Container(
           height: kToolbarHeight, // 높이를 kToolbarHeight로 고정
           padding: EdgeInsets.symmetric(
@@ -27,7 +27,7 @@ class Header extends StatelessWidget {
               Flexible(
                 child: Image.asset(
                   'assets/logo.png',
-                  height: 48, // 고정된 높이로 크기 조정
+                  height: kToolbarHeight * 0.5, // 고정된 높이로 크기 조정
                   fit: BoxFit.contain, // 이미지를 컨테이너에 맞춤
                 ),
               ),
@@ -43,7 +43,7 @@ class Header extends StatelessWidget {
                 child: const Icon(
                   Icons.search,
                   color: Color(0xFF0038FF),
-                  size: 32.0, // 고정된 크기 설정
+                  size: kToolbarHeight * 0.5, // 고정된 크기 설정
                 ),
               ),
             ],

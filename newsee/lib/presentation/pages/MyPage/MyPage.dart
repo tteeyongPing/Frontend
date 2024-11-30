@@ -103,29 +103,27 @@ class _MyPageState extends State<MyPage> {
   }
 
   Widget buildNavigationRow(String title, {VoidCallback? onTap}) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.05,
-          vertical: screenWidth * 0.02,
+          vertical: 0,
         ),
-        height: kToolbarHeight,
+        height: kToolbarHeight * 0.8,
         decoration: BoxDecoration(
           color: Colors.white,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.04),
+              style: TextStyle(fontSize: kToolbarHeight * 0.3),
             ),
             Icon(
               Icons.arrow_forward_ios,
-              size: screenWidth * 0.04,
+              size: kToolbarHeight * 0.4,
               color: Colors.black,
             ),
           ],
@@ -142,14 +140,25 @@ class _MyPageState extends State<MyPage> {
       decoration: BoxDecoration(
         color: Colors.white,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05, vertical: kToolbarHeight * 0.2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-                fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
+          Container(
+            height: kToolbarHeight * 0.7,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontSize: kToolbarHeight * 0.3,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           ...items,
         ],
@@ -167,31 +176,37 @@ class _MyPageState extends State<MyPage> {
         child: Column(
           children: [
             Container(
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: Colors.white,
               ),
-              height: kToolbarHeight,
               padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05,
-                vertical: screenWidth * 0.02,
-              ),
-              child: buildNavigationRow(
-                nickName ?? '로딩 중...',
-                onTap: () async {
-                  final updatedNickName = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfilePage(),
-                    ),
-                  );
+                  horizontal: screenWidth * 0.05,
+                  vertical: kToolbarHeight * 0.1),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final updatedNickName = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfilePage(),
+                        ),
+                      );
 
-                  if (updatedNickName != null) {
-                    setState(() {
-                      nickName = updatedNickName;
-                      saveUserName(nickName!);
-                    });
-                  }
-                },
+                      if (updatedNickName != null) {
+                        setState(() {
+                          nickName = updatedNickName;
+                          saveUserName(nickName!);
+                        });
+                      }
+                    },
+                    child: buildNavigationRow(
+                      nickName ?? '로딩 중...',
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(

@@ -270,16 +270,16 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // 내비게이션 행 구성 함수
+// 내비게이션 행 구성 함수
   Widget buildNavigationRow(String title, {VoidCallback? onTap}) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    // 화면의 가로 길이 값을 final로 받아옵니다.
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.05,
-          vertical: screenWidth * 0.02,
+          horizontal: screenWidth * 0.05, // 화면 크기에 따라 가로 패딩 설정
         ),
         height: kToolbarHeight,
         decoration: BoxDecoration(
@@ -287,14 +287,15 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.04),
+              style: TextStyle(fontSize: kToolbarHeight * 0.3),
             ),
             Icon(
               Icons.arrow_forward_ios,
-              size: screenWidth * 0.03,
+              size: kToolbarHeight * 0.4, // 아이콘 크기 설정
               color: Colors.black,
             ),
           ],
