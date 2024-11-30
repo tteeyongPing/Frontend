@@ -1,16 +1,18 @@
-import './News.dart'; // News 모델을 import
+import './News.dart';
 
 class Playlist {
   final int playlistId;
   final String playlistName;
   final String description;
-  final List<News> news; // News 객체 리스트 추가
+  final String userId;
+  final List<News> news;
 
   Playlist({
     required this.playlistId,
     required this.playlistName,
     required this.description,
-    required this.news, // News 리스트 받음
+    required this.userId,
+    required this.news,
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
@@ -26,7 +28,8 @@ class Playlist {
       playlistId: json['playlistId'],
       playlistName: json['playlistName'],
       description: json['description'],
-      news: newsList, // 변환된 News 리스트
+      userId: json['userId'],
+      news: newsList,
     );
   }
 }

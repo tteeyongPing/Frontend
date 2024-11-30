@@ -11,6 +11,26 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
+    return Column(
+      children: [
+        Container(
+          height: kToolbarHeight, // 높이를 kToolbarHeight로 고정
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.05,
+          ),
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // 좌우로 요소 배치
+            children: [
+              // 왼쪽에 로고 아이콘
+              Flexible(
+                child: Image.asset(
+                  'assets/logo.png',
+                  height: 48, // 고정된 높이로 크기 조정
+                  fit: BoxFit.contain, // 이미지를 컨테이너에 맞춤
+                ),
+=======
     double screenWidth = MediaQuery.of(context).size.width;
     double appBarHeight = kToolbarHeight; // AppBar의 기본 높이를 사용
 
@@ -34,6 +54,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
                 'assets/logo.png',
                 height: appBarHeight * 0.5, // 고정된 높이로 크기 조정
                 fit: BoxFit.contain, // 이미지를 컨테이너에 맞춤
+>>>>>>> main
               ),
             ),
             // 오른쪽 메뉴 아이콘 (visibilityFlag 조건 추가)
