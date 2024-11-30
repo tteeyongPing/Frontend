@@ -28,8 +28,8 @@ class Footer extends StatelessWidget {
                   menus[index]['icon'],
                   size: 30, // 아이콘 크기 설정
                   color: selectedIndex == index
-                      ? Color(0xFF619EF7)
-                      : Color(0xFF707070),
+                      ? const Color(0xFF619EF7)
+                      : const Color(0xFF707070),
                 ),
                 SizedBox(height: 4), // 아이콘과 레이블 사이의 간격 설정
               ],
