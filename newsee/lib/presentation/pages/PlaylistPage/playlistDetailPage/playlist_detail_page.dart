@@ -1,106 +1,183 @@
 import 'package:flutter/material.dart';
-import 'package:newsee/models/News.dart';
-import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
+import 'package:newsee/models/Playlist.dart';
+import 'package:share_plus/share_plus.dart';
 
-class NewsListPage extends StatelessWidget {
-  final List<News> news;
+class PlaylistDetailPage extends StatelessWidget {
+  final Playlist playlist;
 
-  NewsListPage({required this.news});
+  const PlaylistDetailPage({super.key, required this.playlist});
 
-  // Helper function to get category name
-  String _getCategoryName(int categoryId) {
-    // Add your logic to map categoryId to category name
-    // For example:
-    if (categoryId == 1) return 'Politics';
-    if (categoryId == 2) return 'Business';
-    return 'Other';
+  void _sharePlaylist() {
+    final String shareContent = '''
+플레이리스트: ${playlist.playlistName}
+설명: ${playlist.description}
+작성자: ${playlist.userId}
+뉴스 개수: ${playlist.news.length}
+    
+뉴스 목록:
+${playlist.news.map((news) => '- ${news.title}').join('\n')}
+    ''';
+
+    Share.share(shareContent, subject: '플레이리스트 공유');
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
+        title: const Text(
+          '나의 플레이리스트',
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: true,
         backgroundColor: Colors.white,
-        title: Text('뉴스 목록'),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: news.map((item) {
-            return GestureDetector(
-              onTap: () {
-                // Navigate to the news shorts page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NewsShortsPage(
-                        news: item), // Pass the selected news item
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFD4D4D4), width: 1),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Playlist Name
+                  Text(
+                    playlist.playlistName,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Playlist Description
+                  Text(
+                    playlist.description,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Playlist Info
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '작성자: ${playlist.userId}',
+                        style:
+                            const TextStyle(fontSize: 10, color: Colors.black),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        '뉴스: ${playlist.news.length}개',
+                        style:
+                            const TextStyle(fontSize: 10, color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Buttons Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _sharePlaylist, // 공유 기능 호출
+                    icon: const Icon(Icons.share, size: 18),
+                    label: const Text(
+                      '공유하기',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4D71F6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // 수정 기능 추가
+                    },
+                    icon: const Icon(Icons.edit, size: 18, color: Colors.black),
+                    label: const Text(
+                      '수정하기',
+                      style: TextStyle(fontSize: 10, color: Colors.black),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD6D6D6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // News List Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                '뉴스 목록 (${playlist.news.length}개)',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // News Items
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: playlist.news.length,
+              itemBuilder: (context, index) {
+                final news = playlist.news[index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ListTile(
+                    title: Text(
+                      news.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      news.content,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 );
               },
-              child: Container(
-                width: screenWidth * 0.9,
-                margin: const EdgeInsets.all(12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 0,
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // News item UI
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.company,
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.03,
-                          ),
-                        ),
-                        Text(
-                          _getCategoryName(item
-                              .categoryId), // Using the helper function to get the category name
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.03,
-                            color: const Color(0xFF0038FF),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item.title,
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.05,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item.shorts.length > 43
-                          ? '${item.shorts.substring(0, 43)}...'
-                          : item.shorts,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: screenWidth * 0.025,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+            ),
+          ],
         ),
       ),
     );
