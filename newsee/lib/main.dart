@@ -120,7 +120,7 @@ Future<void> onSelectNotification(NotificationResponse response) async {
   if (payload == 'detail_page') {
     // MainPage로 이동
     MyApp.navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (context) => AlertSettingsPage()),
+      MaterialPageRoute(builder: (context) => MainPage()),
     );
   }
 }
