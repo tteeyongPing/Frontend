@@ -81,10 +81,17 @@ ${widget.playlist.news.map((news) => '- ${news.title}').join('\n')}
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 0, // 기존 그림자 제거
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // 구분선의 높이
+          child: Container(
+            color: const Color(0xFFD4D4D4), // 구분선 색상
+            height: 1.0, // 구분선 두께
+          ),
         ),
       ),
       body: SingleChildScrollView(
