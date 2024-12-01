@@ -71,7 +71,7 @@ class _SearchPageState extends State<SearchPage> {
           _allNewsData =
               List<Map<String, dynamic>>.from(data['data'].map((item) {
             return {
-              'id': item['id'],
+              'id': item['newsId'],
               'title': item['title'],
               'date': item['date'],
               'company': item['company'],
@@ -379,56 +379,68 @@ class _SearchPageState extends State<SearchPage> {
                         : _allPlayListData.length,
                     itemBuilder: (context, index) {
                       if (isNewsSelected) {
-                        return Container(
-                            margin: const EdgeInsets.only(
-                                top: 10, left: 24, right: 24, bottom: 10),
-                            padding: const EdgeInsets.only(
-                                top: 12,
-                                left: 17,
-                                right: 17,
-                                bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
-
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 0,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                        return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => NewsShortsPage(
+                                      newsId: _allNewsData[index]['id']),
                                 ),
-                              ],
-                            ),
-                            child: SizedBox(
-                              height: 113, // 원하는 고정 높이를 설정
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                              );
+                            },
+                            child: Container(
+                                margin: const EdgeInsets.only(
+                                    top: 10, left: 24, right: 24, bottom: 10),
+                                padding: const EdgeInsets.only(
+                                    top: 12,
+                                    left: 17,
+                                    right: 17,
+                                    bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
+
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      spreadRadius: 0,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: SizedBox(
+                                  height: 113, // 원하는 고정 높이를 설정
+                                  child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            _allNewsData[index]['company'],
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(_allNewsData[index]['title'],
+                                          style: const TextStyle(fontSize: 20)),
                                       Text(
-                                        _allNewsData[index]['company'],
-                                        style: const TextStyle(fontSize: 14),
+                                        _allNewsData[index]['date'].length > 43
+                                            ? '${_allNewsData[index]['date'].substring(0, 43)}...'
+                                            : _allNewsData[index]['date'],
+                                        style: const TextStyle(
+                                            fontSize: 12, color: Colors.grey),
                                       ),
                                     ],
                                   ),
-                                  Text(_allNewsData[index]['title'],
-                                      style: const TextStyle(fontSize: 20)),
-                                  Text(
-                                    _allNewsData[index]['date'].length > 43
-                                        ? '${_allNewsData[index]['date'].substring(0, 43)}...'
-                                        : _allNewsData[index]['date'],
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                            ));
+                                )));
                       } else {
                         return Container(
                             margin: const EdgeInsets.only(

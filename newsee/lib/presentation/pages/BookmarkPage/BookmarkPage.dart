@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
 
 class BookmarkPage extends StatefulWidget {
   @override
@@ -152,63 +153,73 @@ class _BookmarkPageState extends State<BookmarkPage> {
     }
   }
 
-  // 뉴스 카드 위젯
+// 뉴스 카드 위젯
   Widget _buildNewsCard(News news) {
-    return Container(
-      height: 140,
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 0,
-            blurRadius: 8,
-            offset: Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewsShortsPage(newsId: news.newsId),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(news.company, style: TextStyle(fontSize: 14)),
-              if (_isEditing)
-                GestureDetector(
-                  onTap: () => _toggleSelection(news),
-                  child: Icon(
-                    news.selected
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
-                    color: news.selected ? Color(0xFF4D71F6) : Colors.grey,
+        );
+      },
+      child: Container(
+        height: 140,
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 0,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(news.company, style: TextStyle(fontSize: 14)),
+                if (_isEditing)
+                  GestureDetector(
+                    onTap: () => _toggleSelection(news),
+                    child: Icon(
+                      news.selected
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: news.selected ? Color(0xFF4D71F6) : Colors.grey,
+                    ),
+                  )
+                else
+                  Text(
+                    news.categoryId,
+                    style: TextStyle(fontSize: 12, color: Color(0xFF0038FF)),
                   ),
-                )
-              else
-                Text(
-                  news.categoryId,
-                  style: TextStyle(fontSize: 12, color: Color(0xFF0038FF)),
-                ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Text(
-            news.title.length > 60
-                ? '${news.title.substring(0, 60)}...'
-                : news.title,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text(
-            news.content.length > 40
-                ? '${news.content.substring(0, 40)}...'
-                : news.content,
-            style: TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ],
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              news.title.length > 60
+                  ? '${news.title.substring(0, 60)}...'
+                  : news.title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              news.content.length > 40
+                  ? '${news.content.substring(0, 40)}...'
+                  : news.content,
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }

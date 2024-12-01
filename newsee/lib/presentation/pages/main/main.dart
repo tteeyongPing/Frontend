@@ -28,7 +28,7 @@ class _MainPageState extends State<MainPage> {
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
       BookmarkPage(),
-      //PlaylistPage(),
+      PlaylistPage(),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
         onNavigateToBookmark: () => _onItemTapped(2),
@@ -63,7 +63,7 @@ class _MainPageState extends State<MainPage> {
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
       BookmarkPage(),
-      //PlaylistPage(),
+      PlaylistPage(),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
         onNavigateToBookmark: () => _onItemTapped(2),

@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
 
+late ScrollController _scrollController;
 
 class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
@@ -19,14 +25,7 @@ class PlaylistPageState extends State<PlaylistPage> {
   }
 
   // 데모 데이터를 로드하는 함수
-  void loadDemoData() {
-    setState(() {
-      playlists = demoPlaylists; // 데모 데이터의 나의 플레이리스트
-      subscribePlaylists = demoPlaylists
-          .where((playlist) => playlist.playlistId % 2 == 0)
-          .toList(); // 구독한 플레이리스트 (임의로 짝수 ID만 선택)
-    });
-  }
+  void loadDemoData() {}
 
   // 플레이리스트 클릭 시 상세 페이지로 이동
   void _navigateToPlaylistDetail(Playlist playlist) {
@@ -137,7 +136,7 @@ class PlaylistPageState extends State<PlaylistPage> {
               ),
             ],
           ),
-
+          // 플레이리스트 목록
           Expanded(
             child: ListView.builder(
               itemCount: isMyPlaylistSelected
@@ -164,6 +163,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                         ),
                       ],
                     ),
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -201,6 +201,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                               icon: const Icon(
                                 Icons.more_vert,
                                 size: 20, // 버튼 크기
+
                               ),
                               onPressed: () {
                                 // 점 세 개 버튼 클릭 시 실행
@@ -273,4 +274,3 @@ class PlaylistPageState extends State<PlaylistPage> {
     );
   }
 }
-
