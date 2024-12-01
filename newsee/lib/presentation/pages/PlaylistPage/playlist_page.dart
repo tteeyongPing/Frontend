@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:newsee/models/Playlist.dart'; // Playlist 모델
-import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
-import 'package:newsee/data/SamplePlaylist.dart'; // 데모 데이터 임포트
+
 
 class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
@@ -209,3 +206,4 @@ class PlaylistPageState extends State<PlaylistPage> {
     );
   }
 }
+

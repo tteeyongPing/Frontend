@@ -1,14 +1,14 @@
-// models/news.dart
-
+// News 모델 클래스에 factory 생성자 추가
 class News {
   final int newsId;
-  final int categoryId;
+  final String categoryId;
   final String title;
   final String date;
   final String content;
   final String company;
-  final String shorts;
   final String reporter;
+  final String shorts;
+  bool selected;
 
   News({
     required this.newsId,
@@ -17,8 +17,9 @@ class News {
     required this.date,
     required this.content,
     required this.company,
-    required this.shorts,
     required this.reporter,
+    required this.shorts,
+    this.selected = false,
   });
 
   factory News.fromJson(Map<String, dynamic> json) {
@@ -29,21 +30,9 @@ class News {
       date: json['date'],
       content: json['content'],
       company: json['company'],
-      shorts: json['shorts'],
       reporter: json['reporter'],
+      shorts: json['shorts'],
+      selected: false,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': newsId,
-      'category': categoryId,
-      'title': title,
-      'date': date,
-      'content': content,
-      'company': company,
-      'shorts': shorts,
-      'reporter': reporter,
-    };
   }
 }
