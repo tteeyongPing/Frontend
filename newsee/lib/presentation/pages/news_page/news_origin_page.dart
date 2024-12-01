@@ -2,10 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
 import 'package:share_plus/share_plus.dart';
 
-class NewsOriginPage extends StatelessWidget {
+class NewsOriginPage extends StatefulWidget {
   final News news;
 
   const NewsOriginPage({super.key, required this.news});
+
+  @override
+  State<NewsOriginPage> createState() => _NewsOriginPageState();
+}
+
+class _NewsOriginPageState extends State<NewsOriginPage> {
+  String _note = ''; // 메모 내용을 저장할 변수
+
+  void _editNote() {
+    TextEditingController noteController =
+        TextEditingController(text: _note); // 기존 메모 내용을 초기값으로 설정
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('메모 작성'),
+          content: TextField(
+            controller: noteController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: '뉴스 기사에 대한 메모를 작성하세요.',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // 취소 버튼
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _note = noteController.text; // 메모 내용 업데이트
+                });
+                Navigator.pop(context); // 팝업 닫기
+              },
+              child: const Text('저장'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +106,7 @@ class NewsOriginPage extends StatelessWidget {
                         children: [
                           // Company
                           Text(
-                            news.company,
+                            widget.news.company,
                             style: TextStyle(
                               fontSize: screenWidth * 0.035,
                               color: Colors.black,
@@ -74,7 +117,7 @@ class NewsOriginPage extends StatelessWidget {
 
                           // Title
                           Text(
-                            news.title,
+                            widget.news.title,
                             style: TextStyle(
                               fontSize: screenWidth * 0.05,
                               color: Colors.black,
@@ -108,7 +151,7 @@ class NewsOriginPage extends StatelessWidget {
                               children: [
                                 // Date
                                 Text(
-                                  news.date,
+                                  widget.news.date,
                                   style: TextStyle(
                                     fontSize: screenWidth * 0.035,
                                     color: Colors.black,
@@ -116,7 +159,7 @@ class NewsOriginPage extends StatelessWidget {
                                 ),
                                 // Reporter Name
                                 Text(
-                                  news.reporter,
+                                  widget.news.reporter,
                                   style: TextStyle(
                                     fontSize: screenWidth * 0.035,
                                     color: Colors.black,
@@ -133,8 +176,8 @@ class NewsOriginPage extends StatelessWidget {
                                 onPressed: () {
                                   // 공유 기능
                                   Share.share(
-                                    'Check out this news from ${news.company}:\n\n${news.title}\n\n${news.content}',
-                                    subject: 'News from ${news.company}',
+                                    'Check out this news from ${widget.news.company}:\n\n${widget.news.title}\n\n${widget.news.content}',
+                                    subject: 'News from ${widget.news.company}',
                                   );
                                 },
                               ),
@@ -149,6 +192,10 @@ class NewsOriginPage extends StatelessWidget {
                                 onPressed: () {
                                   // 기타 옵션 추가
                                 },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_note), // 펜 아이콘
+                                onPressed: _editNote, // 메모 작성 호출
                               ),
                             ],
                           ),
@@ -165,7 +212,7 @@ class NewsOriginPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        news.content,
+                        widget.news.content,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: screenWidth * 0.04,
@@ -173,6 +220,25 @@ class NewsOriginPage extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                    // Display Notes
+                    if (_note.isNotEmpty) // 메모가 있을 경우 표시
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '메모:\n$_note',
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: screenWidth * 0.04,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
