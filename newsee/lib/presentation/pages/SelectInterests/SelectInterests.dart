@@ -69,7 +69,7 @@ class _SelectInterestsState extends State<SelectInterests> {
           if (endpoint == "my") {
             // 'visibilityFlag'가 -1일 경우 Navigator.push 실행을 막습니다.
             if (data['data'].length != 0 && widget.visibilityFlag != -1) {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => MainPage()),
               );
@@ -120,7 +120,7 @@ class _SelectInterestsState extends State<SelectInterests> {
 
       if (response.statusCode == 200) {
         if (widget.visibilityFlag != -1) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => MainPage()),
           );
