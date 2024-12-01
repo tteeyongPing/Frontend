@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
 
+late ScrollController _scrollController;
 
 class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
@@ -19,14 +25,7 @@ class PlaylistPageState extends State<PlaylistPage> {
   }
 
   // 데모 데이터를 로드하는 함수
-  void loadDemoData() {
-    setState(() {
-      playlists = demoPlaylists; // 데모 데이터의 나의 플레이리스트
-      subscribePlaylists = demoPlaylists
-          .where((playlist) => playlist.playlistId % 2 == 0)
-          .toList(); // 구독한 플레이리스트 (임의로 짝수 ID만 선택)
-    });
-  }
+  void loadDemoData() {}
 
   // 플레이리스트 클릭 시 상세 페이지로 이동
   void _navigateToPlaylistDetail(Playlist playlist) {
@@ -137,7 +136,7 @@ class PlaylistPageState extends State<PlaylistPage> {
               ),
             ],
           ),
-
+          // 플레이리스트 목록
           Expanded(
             child: ListView.builder(
               itemCount: isMyPlaylistSelected
@@ -148,8 +147,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                     ? playlists[index]
                     : subscribePlaylists[index];
                 return GestureDetector(
-                  onTap: () =>
-                      _navigateToPlaylistDetail(playlist), // 클릭 시 상세 페이지로 이동
+                  onTap: () => _navigateToPlaylistDetail(playlist),
                   child: Container(
                     margin: const EdgeInsets.only(
                         top: 10, left: 24, right: 24, bottom: 10),
@@ -168,19 +166,22 @@ class PlaylistPageState extends State<PlaylistPage> {
                       ],
                     ),
                     child: SizedBox(
-                      height: 113, // 원하는 고정 높이를 설정
+                      height: 113,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            playlist.playlistName,
+                            playlist.playlistName ??
+                                'Unnamed Playlist', // Null safety 처리
                             style: const TextStyle(fontSize: 20),
                           ),
                           Text(
-                            playlist.description.length > 43
-                                ? '${playlist.description.substring(0, 43)}...'
-                                : playlist.description,
+                            playlist.description != null &&
+                                    playlist.description!.length > 43
+                                ? '${playlist.description!.substring(0, 43)}...'
+                                : playlist.description ??
+                                    'No Description', // Null safety 및 길이 체크
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.grey),
                           ),
@@ -188,7 +189,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "게시자: ${playlist.userId}",
+                                "게시자: ${playlist.userId}", // 대신 userName 사용
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ],
@@ -206,4 +207,3 @@ class PlaylistPageState extends State<PlaylistPage> {
     );
   }
 }
-

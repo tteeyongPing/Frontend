@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:newsee/presentation/pages/SelectInterests/SelectInterests.dart';
+import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
 
 // 텍스트의 실제 렌더링 길이를 기반으로 자르는 함수
 String getTruncatedContent(String content, double maxWidth, TextStyle style) {
@@ -415,56 +416,69 @@ class NewsListPageState extends State<NewsListPage> {
                   itemCount: _displayedNews.length,
                   itemBuilder: (context, index) {
                     final news = _displayedNews[index];
-                    return Container(
-                      margin: const EdgeInsets.only(
-                          top: 10, left: 24, right: 24, bottom: 10),
-                      padding: const EdgeInsets.only(
-                          top: 12, left: 17, right: 17, bottom: 12), // 패딩 설정
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 0,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4), // 그림자 위치
+                    return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    NewsShortsPage(newsId: news.id)),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                              top: 10, left: 24, right: 24, bottom: 10),
+                          padding: const EdgeInsets.only(
+                              top: 12,
+                              left: 17,
+                              right: 17,
+                              bottom: 12), // 패딩 설정
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                spreadRadius: 0,
+                                blurRadius: 8,
+                                offset: const Offset(0, 4), // 그림자 위치
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: SizedBox(
-                        height: 113, // 고정 높이 설정
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                          child: SizedBox(
+                            height: 113, // 고정 높이 설정
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      news.company,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
+                                ),
                                 Text(
-                                  news.company,
-                                  style: const TextStyle(fontSize: 14),
+                                  news.title.runes.take(1500).length > 60
+                                      ? '${String.fromCharCodes(news.title.runes.take(1000).toList()).substring(0, 51)}...'
+                                      : news.title,
+                                  style: const TextStyle(
+                                      fontSize: 20, color: Colors.black),
+                                ),
+                                Text(
+                                  news.content.length > 43
+                                      ? '${news.content.substring(0, 53)}...' // 내용이 길면 잘라서 표시
+                                      : news.content,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
                                 ),
                               ],
                             ),
-                            Text(
-                              news.title.runes.take(1500).length > 60
-                                  ? '${String.fromCharCodes(news.title.runes.take(1000).toList()).substring(0, 51)}...'
-                                  : news.title,
-                              style: const TextStyle(
-                                  fontSize: 20, color: Colors.black),
-                            ),
-                            Text(
-                              news.content.length > 43
-                                  ? '${news.content.substring(0, 53)}...' // 내용이 길면 잘라서 표시
-                                  : news.content,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                          ),
+                        ));
                   },
                 )),
         ],
