@@ -88,144 +88,194 @@ ${widget.playlist.news.map((news) => '- ${news.title}').join('\n')}
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title Section
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFD4D4D4), width: 1),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Title Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Color(0xFFD4D4D4), width: 1),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Playlist Name
+                Text(
+                  widget.playlist.playlistName,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF333333),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Playlist Name
-                  Text(
-                    widget.playlist.playlistName,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-                  // Playlist Description
-                  Text(
-                    _description,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black54,
-                    ),
-                    textAlign: TextAlign.center,
+                // Playlist Description
+                Text(
+                  _description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black54,
                   ),
-                  const SizedBox(height: 16),
-
-                  // Playlist Info
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '작성자: ${widget.playlist.userId}',
-                        style:
-                            const TextStyle(fontSize: 10, color: Colors.black),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        '뉴스: ${widget.playlist.news.length}개',
-                        style:
-                            const TextStyle(fontSize: 10, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Buttons Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _sharePlaylist, // 공유 기능 호출
-                    icon: const Icon(Icons.share, size: 18),
-                    label: const Text(
-                      '공유하기',
-                      style: TextStyle(fontSize: 10),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4D71F6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _editDescription(context), // 수정 기능 호출
-                    icon: const Icon(Icons.edit, size: 18, color: Colors.black),
-                    label: const Text(
-                      '수정하기',
-                      style: TextStyle(fontSize: 10, color: Colors.black),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD6D6D6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // News List Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                '뉴스 목록 (${widget.playlist.news.length}개)',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-            // News Items
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.playlist.news.length,
-              itemBuilder: (context, index) {
-                final news = widget.playlist.news[index];
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    title: Text(
-                      news.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                // Playlist Info
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '작성자: ${widget.playlist.userId}',
+                      style: const TextStyle(fontSize: 12, color: Colors.black),
                     ),
-                    subtitle: Text(
-                      news.content,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    const SizedBox(width: 10),
+                    Text(
+                      '뉴스: ${widget.playlist.news.length}개',
+                      style: const TextStyle(fontSize: 12, color: Colors.black),
                     ),
-                  ),
-                );
-              },
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Buttons Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // 버튼 중앙 정렬
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _sharePlaylist, // 공유 기능 호출
+                      icon: const Icon(Icons.share,
+                          size: 18, color: Colors.white),
+                      label: const Text(
+                        '공유하기',
+                        style: TextStyle(fontSize: 10, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4D71F6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16), // 버튼 간 간격
+                    ElevatedButton.icon(
+                      onPressed: () => _editDescription(context), // 수정 기능 호출
+                      icon:
+                          const Icon(Icons.edit, size: 18, color: Colors.black),
+                      label: const Text(
+                        '수정하기',
+                        style: TextStyle(fontSize: 10, color: Colors.black),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD6D6D6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // News Items
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: widget.playlist.news.length,
+            itemBuilder: (context, index) {
+              final news = widget.playlist.news[index];
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(16),
+                height: 113, // 전체 높이를 고정
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header (Source and Category)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          news.company,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          "카테고리: ${news.categoryId}", // Replace with actual category name if available
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0038FF),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+
+                    // Title
+                    Container(
+                      height: 43, // 제목 높이를 고정
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center, // 수직 중앙 정렬
+                        children: [
+                          Text(
+                            news.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              height: 1.5, // 줄 간격
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center, // 수평 중앙 정렬
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+
+                    // Summary
+                    Expanded(
+                      child: Text(
+                        news.content,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          height: 1.5, // 텍스트 줄 간격 조절
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.start, // 텍스트는 왼쪽 정렬
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ]),
       ),
     );
   }

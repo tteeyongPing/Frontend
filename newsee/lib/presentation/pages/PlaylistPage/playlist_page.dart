@@ -50,68 +50,97 @@ class PlaylistPageState extends State<PlaylistPage> {
       body: Column(
         children: [
           // 탭 UI
-          Row(
+          Column(
             children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isMyPlaylistSelected = true;
-                  });
-                },
-                child: Container(
-                  width: screenWidth * 0.5,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  color: Colors.white,
-                  child: Center(
-                    child: Text(
-                      '나의 플레이리스트',
-                      style: TextStyle(
-                        fontWeight: isMyPlaylistSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        fontSize: 16,
-                        color: isMyPlaylistSelected
-                            ? Colors.black
-                            : const Color(0xFF707070),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isMyPlaylistSelected = true;
+                      });
+                    },
+                    child: Container(
+                      width: screenWidth * 0.5,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 20),
+                      color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          '나의 플레이리스트',
+                          style: TextStyle(
+                            fontWeight: isMyPlaylistSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            fontSize: 16,
+                            color: isMyPlaylistSelected
+                                ? Colors.black
+                                : const Color(0xFF707070),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isMyPlaylistSelected = false;
+                      });
+                    },
+                    child: Container(
+                      width: screenWidth * 0.5,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 20),
+                      color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          '구독한 플레이리스트',
+                          style: TextStyle(
+                            fontWeight: !isMyPlaylistSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            fontSize: 16,
+                            color: !isMyPlaylistSelected
+                                ? Colors.black
+                                : const Color(0xFF707070),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isMyPlaylistSelected = false;
-                  });
-                },
-                child: Container(
-                  width: screenWidth * 0.5,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  color: Colors.white,
-                  child: Center(
-                    child: Text(
-                      '구독한 플레이리스트',
-                      style: TextStyle(
-                        fontWeight: !isMyPlaylistSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        fontSize: 16,
-                        color: !isMyPlaylistSelected
-                            ? Colors.black
-                            : const Color(0xFF707070),
+              // 구분선
+              Container(
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: isMyPlaylistSelected
+                    ? Container(
+                        width: screenWidth * 0.45,
+                        alignment: Alignment.centerLeft,
+                        child: Divider(
+                          color: Colors.black,
+                          height: 1.0,
+                          thickness: 2.0,
+                          indent: screenWidth * 0.05,
+                          endIndent: 0.0,
+                        ),
+                      )
+                    : Container(
+                        width: screenWidth * 0.95,
+                        alignment: Alignment.centerLeft,
+                        child: Divider(
+                          color: Colors.black,
+                          height: 1.0,
+                          thickness: 2.0,
+                          indent: screenWidth * 0.55,
+                          endIndent: 0.0,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
-          const Divider(
-            color: Colors.grey,
-            thickness: 1.0,
-          ),
+
           Expanded(
             child: ListView.builder(
               itemCount: isMyPlaylistSelected
