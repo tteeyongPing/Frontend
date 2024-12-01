@@ -2,23 +2,72 @@ import 'package:flutter/material.dart';
 import 'package:newsee/models/Playlist.dart';
 import 'package:share_plus/share_plus.dart';
 
-class PlaylistDetailPage extends StatelessWidget {
+class PlaylistDetailPage extends StatefulWidget {
   final Playlist playlist;
 
   const PlaylistDetailPage({super.key, required this.playlist});
 
+  @override
+  State<PlaylistDetailPage> createState() => _PlaylistDetailPageState();
+}
+
+class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
+  late String _description; // 설명을 저장하는 상태 변수
+
+  @override
+  void initState() {
+    super.initState();
+    _description = widget.playlist.description; // 초기 설명값 설정
+  }
+
   void _sharePlaylist() {
     final String shareContent = '''
-플레이리스트: ${playlist.playlistName}
-설명: ${playlist.description}
-작성자: ${playlist.userId}
-뉴스 개수: ${playlist.news.length}
+플레이리스트: ${widget.playlist.playlistName}
+설명: $_description
+작성자: ${widget.playlist.userId}
+뉴스 개수: ${widget.playlist.news.length}
     
 뉴스 목록:
-${playlist.news.map((news) => '- ${news.title}').join('\n')}
+${widget.playlist.news.map((news) => '- ${news.title}').join('\n')}
     ''';
 
     Share.share(shareContent, subject: '플레이리스트 공유');
+  }
+
+  void _editDescription(BuildContext context) {
+    TextEditingController descriptionController =
+        TextEditingController(text: _description);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('설명 수정'),
+          content: TextField(
+            controller: descriptionController,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              hintText: '새로운 설명을 입력하세요',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // 취소
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _description = descriptionController.text; // 설명 업데이트
+                });
+                Navigator.pop(context); // 다이얼로그 닫기
+              },
+              child: const Text('저장'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -56,7 +105,7 @@ ${playlist.news.map((news) => '- ${news.title}').join('\n')}
                 children: [
                   // Playlist Name
                   Text(
-                    playlist.playlistName,
+                    widget.playlist.playlistName,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -68,7 +117,7 @@ ${playlist.news.map((news) => '- ${news.title}').join('\n')}
 
                   // Playlist Description
                   Text(
-                    playlist.description,
+                    _description,
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.black54,
@@ -82,13 +131,13 @@ ${playlist.news.map((news) => '- ${news.title}').join('\n')}
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '작성자: ${playlist.userId}',
+                        '작성자: ${widget.playlist.userId}',
                         style:
                             const TextStyle(fontSize: 10, color: Colors.black),
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        '뉴스: ${playlist.news.length}개',
+                        '뉴스: ${widget.playlist.news.length}개',
                         style:
                             const TextStyle(fontSize: 10, color: Colors.black),
                       ),
@@ -120,9 +169,7 @@ ${playlist.news.map((news) => '- ${news.title}').join('\n')}
                     ),
                   ),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      // 수정 기능 추가
-                    },
+                    onPressed: () => _editDescription(context), // 수정 기능 호출
                     icon: const Icon(Icons.edit, size: 18, color: Colors.black),
                     label: const Text(
                       '수정하기',
@@ -144,7 +191,7 @@ ${playlist.news.map((news) => '- ${news.title}').join('\n')}
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                '뉴스 목록 (${playlist.news.length}개)',
+                '뉴스 목록 (${widget.playlist.news.length}개)',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -157,9 +204,9 @@ ${playlist.news.map((news) => '- ${news.title}').join('\n')}
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: playlist.news.length,
+              itemCount: widget.playlist.news.length,
               itemBuilder: (context, index) {
-                final news = playlist.news[index];
+                final news = widget.playlist.news[index];
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
