@@ -5,14 +5,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:permission_handler/permission_handler.dart'; // 권한 요청을 위한 패키지 임포트
 import 'package:newsee/presentation/pages/loginPage/login.dart';
+import 'package:newsee/presentation/pages/Main/Main.dart'; // MainPage 임포트
+import 'package:newsee/presentation/pages/MyPage/AlertSettingsPage/AlertSettingsPage.dart'; // MainPage 임포트
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'weekly_channel', // 고유 ID
-  'Weekly Notifications', // 채널 이름
-  description: 'Channel for weekly scheduled notifications.', // 설명
+  'Newsee', // 고유 ID
+  'Newsee', // 채널 이름
+  description: '오늘은 오류나지 마라', // 설명
   importance: Importance.high,
 );
 
@@ -46,7 +48,10 @@ void main() async {
       AndroidInitializationSettings('app_icon');
   const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: onSelectNotification, // 알림 클릭 이벤트 핸들러
+  );
 
   runApp(MyApp());
 }
@@ -67,9 +72,14 @@ Future<void> _requestNotificationPermission() async {
 }
 
 class MyApp extends StatelessWidget {
+  // NavigatorKey 추가
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // NavigatorKey 설정
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: createMaterialColor(
@@ -99,5 +109,18 @@ class MyApp extends StatelessWidget {
     });
 
     return MaterialColor(color.value, swatch);
+  }
+}
+
+// 알림 클릭 이벤트 핸들러
+Future<void> onSelectNotification(NotificationResponse response) async {
+  // 알림에서 전달된 payload 확인
+  String? payload = response.payload;
+
+  if (payload == 'detail_page') {
+    // MainPage로 이동
+    MyApp.navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (context) => AlertSettingsPage()),
+    );
   }
 }
