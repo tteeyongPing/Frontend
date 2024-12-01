@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:newsee/models/Playlist.dart'; // Playlist 모델
 import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
-
-late ScrollController _scrollController;
+import 'package:newsee/data/SamplePlaylist.dart'; // 데모 데이터 임포트
 
 class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
@@ -14,7 +11,6 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class PlaylistPageState extends State<PlaylistPage> {
-  bool isLoading = false;
   late List<Playlist> playlists = []; // 플레이리스트 목록
   late List<Playlist> subscribePlaylists = []; // 구독한 플레이리스트 목록
   bool isMyPlaylistSelected = true;
@@ -22,30 +18,16 @@ class PlaylistPageState extends State<PlaylistPage> {
   @override
   void initState() {
     super.initState();
-    loadUserPlaylists();
+    loadDemoData(); // 데모 데이터 로드
   }
 
-  // JSON 데이터 로드 함수 (나의 플레이리스트)
-  Future<void> loadUserPlaylists() async {
-    final String response =
-        await rootBundle.loadString('assets/SampleMyPlayList.json');
-    final data = json.decode(response);
+  // 데모 데이터를 로드하는 함수
+  void loadDemoData() {
     setState(() {
-      playlists = (data['data'] as List)
-          .map((playlistJson) => Playlist.fromJson(playlistJson))
-          .toList();
-    });
-  }
-
-  // JSON 데이터 로드 함수 (구독한 플레이리스트)
-  Future<void> loadSubscribePlaylists() async {
-    final String response =
-        await rootBundle.loadString('assets/SampleSubscribePlayList.json');
-    final data = json.decode(response);
-    setState(() {
-      subscribePlaylists = (data['data'] as List)
-          .map((playlistJson) => Playlist.fromJson(playlistJson))
-          .toList();
+      playlists = demoPlaylists; // 데모 데이터의 나의 플레이리스트
+      subscribePlaylists = demoPlaylists
+          .where((playlist) => playlist.playlistId % 2 == 0)
+          .toList(); // 구독한 플레이리스트 (임의로 짝수 ID만 선택)
     });
   }
 
@@ -75,7 +57,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                   setState(() {
                     isMyPlaylistSelected = true;
                   });
-                  loadUserPlaylists();
                 },
                 child: Container(
                   width: screenWidth * 0.5,
@@ -103,7 +84,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                   setState(() {
                     isMyPlaylistSelected = false;
                   });
-                  loadSubscribePlaylists();
                 },
                 child: Container(
                   width: screenWidth * 0.5,
@@ -134,7 +114,6 @@ class PlaylistPageState extends State<PlaylistPage> {
           ),
           Expanded(
             child: ListView.builder(
-              controller: _scrollController,
               itemCount: isMyPlaylistSelected
                   ? playlists.length
                   : subscribePlaylists.length,
