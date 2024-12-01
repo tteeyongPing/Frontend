@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/models/News.dart';
-import 'package:share_plus/share_plus.dart'; // share_plus 패키지 추가
+import 'package:share_plus/share_plus.dart';
 
 class NewsOriginPage extends StatelessWidget {
   final News news;
