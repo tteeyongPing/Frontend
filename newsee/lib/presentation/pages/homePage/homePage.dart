@@ -6,8 +6,14 @@ import 'dart:convert';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'package:newsee/presentation/pages/SelectInterests/SelectInterests.dart';
+import 'package:newsee/presentation/pages/news_page/news_list_page.dart';
 
 class HomePage extends StatefulWidget {
+  final Function(int) onNavigateToNews; // 콜백 타입 정의
+
+  const HomePage({
+    required this.onNavigateToNews,
+  });
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -41,6 +47,7 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
   final List<IconData> icons = [
+    Icons.add,
     Icons.trending_up_outlined,
     Icons.mic_external_on_outlined,
     Icons.groups_outlined,
@@ -77,7 +84,7 @@ class _HomePageState extends State<HomePage> {
             (index, item) {
               return MapEntry(index, {
                 'categoryId': item['categoryId'],
-                'icon': icons[(item['categoryId'] % icons.length) - 1],
+                'icon': icons[(item['categoryId'] % icons.length)],
                 'text': item['categoryName'],
               });
             },
@@ -128,7 +135,16 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _onInterestTap(String text) {
+  void _onInterestTap(String text, int id) {
+    print(id);
+    widget.onNavigateToNews(id);
+    /*Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => NewsListPage(
+                initialSelectedInterestId: id,
+              )),
+    );*/
     print('$text 클릭됨');
   }
 
@@ -302,8 +318,9 @@ class _HomePageState extends State<HomePage> {
 
                                 // 나머지 아이템은 interests에서 가져옵니다.
                                 return GestureDetector(
-                                  onTap: () =>
-                                      _onInterestTap(interests[index]['text']!),
+                                  onTap: () => _onInterestTap(
+                                      interests[index]['text']!,
+                                      interests[index]['categoryId']),
                                   child: Container(
                                     width: 80,
                                     height: 150,

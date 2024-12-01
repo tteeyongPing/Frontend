@@ -14,6 +14,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  int? _initialSelectedInterestId = null; // Example initial ID
 
   late List<Widget> _pages;
 
@@ -21,8 +22,11 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     _pages = [
-      HomePage(),
-      NewsListPage(),
+      HomePage(
+        onNavigateToNews: (id) =>
+            _onItemTappedNews(id), // Pass the correct callback
+      ),
+      NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
       BookmarkPage(),
       PlaylistPage(),
       MyPage(
@@ -38,29 +42,55 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _selectedIndex = index;
     });
+    _initialSelectedInterestId = null;
+  }
+
+  void _onItemTappedNews(int id) {
+    setState(() {
+      _selectedIndex = 1; // Update selected index
+    });
+
+    // Logic for updating initial interest ID based on the selected news type
+    _initialSelectedInterestId = id; // Dynamically set the selected interest ID
+    NewsListPage(initialSelectedInterestId: _initialSelectedInterestId);
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      HomePage(
+        onNavigateToNews: (id) => _onItemTappedNews(id),
+      ),
+      NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
+      BookmarkPage(),
+      PlaylistPage(),
+      MyPage(
+        onNavigateToNews: () => _onItemTapped(1),
+        onNavigateToBookmark: () => _onItemTapped(2),
+        onNavigateMyPlaylistPage: () => _onItemTapped(3),
+        onNavigateToPlaylistPage: () => _onItemTapped(3),
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white, // 색상 고정
-        elevation: 0, // 그림자 효과 없애기
-        leading: SizedBox.shrink(), // 왼쪽 아이콘 제거
-        flexibleSpace: Header(), // Header 위젯을 배치
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: SizedBox.shrink(),
+        flexibleSpace: Header(),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1.0), // Divider의 높이 설정
+          preferredSize: Size.fromHeight(1.0),
           child: Divider(
-            color: Colors.grey, // Divider 색상 설정
-            thickness: 1.0, // Divider 두께 설정
-            height: 1.0, // Divider가 차지할 높이 설정
+            color: Colors.grey,
+            thickness: 1.0,
+            height: 1.0,
           ),
         ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: _pages[_selectedIndex], // 선택된 페이지 표시
+            child: pages[_selectedIndex], // pages 리스트에서 현재 선택된 페이지 표시
           ),
         ],
       ),
