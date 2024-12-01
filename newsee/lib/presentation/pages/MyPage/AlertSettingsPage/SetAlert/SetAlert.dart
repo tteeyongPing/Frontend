@@ -170,32 +170,74 @@ class _SetAlertPageState extends State<SetAlertPage> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Center(
-          child: Text(
-            widget.alarms != null ? '알림 수정' : '알림 추가',
-            style: TextStyle(color: Colors.black, fontSize: 18),
-          ),
+        title: Text(
+          widget.alarms != null ? '알림 수정' : '알림 추가',
+          style: TextStyle(color: Colors.black),
         ),
+        centerTitle: true, // 제목을 정확히 가운데 정렬
       ),
       body: Column(
         children: [
           Divider(color: Colors.grey, thickness: 1, height: 1),
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(0),
               child: Column(
                 children: [
                   // 시간 선택 Picker
                   _buildTimePicker(screenWidth, screenHeight),
                   SizedBox(height: 20),
                   // 요일 선택 UI
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: screenWidth,
+              height: screenHeight * 0.5, // 하단에 배치할 Container 크기
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Color(0xffE9EEFF),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Column(
+                children: [
+                  _selectedDays.isNotEmpty
+                      ? Container(
+                          width: screenWidth, // 화면 너비 설정
+                          height: 40, // 고정된 세로 크기
+                          margin: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            "매주 " +
+                                _selectedDays.toString().substring(
+                                    1, _selectedDays.toString().length - 1),
+                            style: TextStyle(fontSize: 16),
+                            textAlign: TextAlign.left,
+                          ),
+                        )
+                      : Container(
+                          width: screenWidth, // 화면 너비 설정
+                          height: 40, // 고정된 세로 크기
+                          margin: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            "요일을 선택해주세요.",
+                            style: TextStyle(fontSize: 16),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Container(
                     width: screenWidth * 0.9,
                     child: _buildDayPicker(screenWidth),
                   ),
-
                   SizedBox(height: 20),
-                  // 추가/수정 버튼
                   _buildActionButton(screenWidth),
                 ],
               ),
@@ -227,7 +269,15 @@ class _SetAlertPageState extends State<SetAlertPage> {
               ),
               children: ["오전", "오후"]
                   .map((period) => Center(
-                      child: Text(period, style: TextStyle(fontSize: 30))))
+                          child: Text(
+                        period,
+                        style: TextStyle(
+                          fontSize: _selectedAmPm == period ? 36 : 24,
+                          fontWeight: _selectedAmPm == period
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      )))
                   .toList(),
             ),
           ),
@@ -242,7 +292,15 @@ class _SetAlertPageState extends State<SetAlertPage> {
               ),
               children: List.generate(12, (i) => i + 1)
                   .map((hour) => Center(
-                      child: Text('$hour', style: TextStyle(fontSize: 30))))
+                          child: Text(
+                        '$hour',
+                        style: TextStyle(
+                          fontSize: _selectedHour == hour ? 40 : 30,
+                          fontWeight: _selectedHour == hour
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      )))
                   .toList(),
             ),
           ),
@@ -258,7 +316,15 @@ class _SetAlertPageState extends State<SetAlertPage> {
               ),
               children: List.generate(60, (i) => i)
                   .map((minute) => Center(
-                      child: Text('$minute', style: TextStyle(fontSize: 24))))
+                          child: Text(
+                        '$minute',
+                        style: TextStyle(
+                          fontSize: _selectedMinute == minute ? 40 : 30,
+                          fontWeight: _selectedMinute == minute
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      )))
                   .toList(),
             ),
           ),
@@ -279,18 +345,15 @@ class _SetAlertPageState extends State<SetAlertPage> {
             width: screenWidth / 11,
             height: screenWidth / 11,
             decoration: BoxDecoration(
-              color: Colors.white,
               borderRadius: BorderRadius.circular(50),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: Color(0xFF0038FF),
-                        spreadRadius: 0.5,
-                      ),
-                    ]
-                  : [], // 선택된 상태일 때만 그림자 추가
+              border: Border.all(
+                color: isSelected
+                    ? Color(0xFF0038FF)
+                    : Colors.transparent, // 선택된 상태에 따라 테두리 색상 변경
+                width: 1, // 테두리 두께 설정
+              ),
             ),
-            curve: Curves.easeInOut, // 애니메이션의 곡선 설정 (부드럽게)
+            curve: Curves.fastOutSlowIn,
             child: Center(
               child: Text(
                 day,
@@ -311,16 +374,19 @@ class _SetAlertPageState extends State<SetAlertPage> {
       width: screenWidth * 0.9,
       height: 48,
       child: ElevatedButton(
-        onPressed:
-            isLoading ? null : () => _addOrUpdateAlert(widget.alarms != null),
+        onPressed: isLoading || _selectedDays.isEmpty
+            ? null
+            : () => _addOrUpdateAlert(widget.alarms != null),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isLoading ? Colors.grey : Color(0xFF0038FF),
+          backgroundColor: isLoading || _selectedDays.isEmpty
+              ? Colors.grey
+              : Color(0xFF0038FF),
         ),
         child: isLoading
             ? CircularProgressIndicator(color: Colors.white)
             : Text(
-                widget.alarms != null ? '수정' : '추가',
-                style: TextStyle(fontSize: 18),
+                widget.alarms != null ? '수정' : '저장',
+                style: TextStyle(fontSize: 18, color: Colors.white),
               ),
       ),
     );
