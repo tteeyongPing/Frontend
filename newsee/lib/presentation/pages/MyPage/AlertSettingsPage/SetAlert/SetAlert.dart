@@ -211,7 +211,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
                       ? Container(
                           width: screenWidth, // 화면 너비 설정
                           height: 40, // 고정된 세로 크기
-                          margin: const EdgeInsets.only(left: 10),
+                          margin: const EdgeInsets.only(left: 16, top: 10),
                           child: Text(
                             "매주 " +
                                 _selectedDays.toString().substring(
@@ -223,7 +223,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
                       : Container(
                           width: screenWidth, // 화면 너비 설정
                           height: 40, // 고정된 세로 크기
-                          margin: const EdgeInsets.only(left: 10),
+                          margin: const EdgeInsets.only(left: 16, top: 10),
                           child: Text(
                             "요일을 선택해주세요.",
                             style: TextStyle(fontSize: 16),
@@ -254,79 +254,102 @@ class _SetAlertPageState extends State<SetAlertPage> {
       height: screenHeight * 0.3,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
+        color: Colors.white, // 전체 배경 흰색
       ),
-      child: Row(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Expanded(
-            child: CupertinoPicker(
-              backgroundColor: Colors.transparent,
-              itemExtent: 75,
-              onSelectedItemChanged: (index) {
-                setState(() => _selectedAmPm = index == 0 ? "오전" : "오후");
-              },
-              scrollController: FixedExtentScrollController(
-                initialItem: _selectedAmPm == "오전" ? 0 : 1,
+          // 선택된 항목의 배경
+          Positioned(
+            top: (screenHeight * 0.3 - 45) / 2, // Picker 중앙에 위치
+            left: 8,
+            right: 8,
+            child: Container(
+              height: 45, // 선택된 행의 높이 (itemExtent와 동일)
+              decoration: BoxDecoration(
+                // color: Color(0xffE9EEFF), // 선택된 행 배경 색상 - 하늘색
+                color: Colors.grey.withOpacity(0.2), // 선택된 행 배경 색상 - 회색
+                borderRadius: BorderRadius.circular(12), // 선택된 행 모서리 둥글게
               ),
-              children: ["오전", "오후"]
-                  .map((period) => Center(
-                          child: Text(
-                        period,
-                        style: TextStyle(
-                          fontSize: _selectedAmPm == period ? 36 : 24,
-                          fontWeight: _selectedAmPm == period
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      )))
-                  .toList(),
             ),
           ),
-          Expanded(
-            child: CupertinoPicker(
-              itemExtent: 75,
-              onSelectedItemChanged: (index) {
-                setState(() => _selectedHour = (index % 12) + 1); // 1~12 순환
-              },
-              scrollController: FixedExtentScrollController(
-                initialItem: _selectedHour - 1,
+          Row(
+            children: [
+              // AM/PM Picker
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 45, // 행 높이
+                  selectionOverlay: null,
+                  onSelectedItemChanged: (index) {
+                    setState(() => _selectedAmPm = index == 0 ? "오전" : "오후");
+                  },
+                  scrollController: FixedExtentScrollController(
+                    initialItem: _selectedAmPm == "오전" ? 0 : 1,
+                  ),
+                  children: ["오전", "오후"]
+                      .map((period) => Center(
+                              child: Text(
+                            period,
+                            style: TextStyle(
+                              fontSize: 24, // 텍스트 크기
+                              fontWeight: FontWeight.normal, // 텍스트 두께
+                              color: Colors.black, // 텍스트 색상
+                            ),
+                          )))
+                      .toList(),
+                ),
               ),
-              children: List.generate(12, (i) => i + 1)
-                  .map((hour) => Center(
-                          child: Text(
-                        '$hour',
-                        style: TextStyle(
-                          fontSize: _selectedHour == hour ? 40 : 30,
-                          fontWeight: _selectedHour == hour
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      )))
-                  .toList(),
-            ),
-          ),
-          Text(':', style: TextStyle(fontSize: 30)),
-          Expanded(
-            child: CupertinoPicker(
-              itemExtent: 75,
-              onSelectedItemChanged: (index) {
-                setState(() => _selectedMinute = index % 60); // 0~59 순환
-              },
-              scrollController: FixedExtentScrollController(
-                initialItem: _selectedMinute,
+              // 시간 Picker
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 45, // 행 높이
+                  selectionOverlay: null,
+                  onSelectedItemChanged: (index) {
+                    setState(() => _selectedHour = (index % 12) + 1); // 1~12 순환
+                  },
+                  scrollController: FixedExtentScrollController(
+                    initialItem: _selectedHour - 1,
+                  ),
+                  children: List.generate(12, (i) => i + 1)
+                      .map((hour) => Center(
+                              child: Text(
+                            '$hour',
+                            style: TextStyle(
+                              fontSize: 24, // 텍스트 크기
+                              fontWeight: FontWeight.normal, // 텍스트 두께
+                              color: Colors.black, // 텍스트 색상
+                            ),
+                          )))
+                      .toList(),
+                ),
               ),
-              children: List.generate(60, (i) => i)
-                  .map((minute) => Center(
-                          child: Text(
-                        '$minute',
-                        style: TextStyle(
-                          fontSize: _selectedMinute == minute ? 40 : 30,
-                          fontWeight: _selectedMinute == minute
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      )))
-                  .toList(),
-            ),
+              // 구분자 (:)
+              Text(':', style: TextStyle(fontSize: 24, color: Colors.black)),
+              // 분 Picker
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 45, // 행 높이
+                  selectionOverlay: null,
+                  onSelectedItemChanged: (index) {
+                    setState(() => _selectedMinute = index % 60); // 0~59 순환
+                  },
+                  scrollController: FixedExtentScrollController(
+                    initialItem: _selectedMinute,
+                  ),
+                  children: List.generate(60, (i) => i)
+                      .map((minute) => Center(
+                              child: Text(
+                            '${minute.toString().padLeft(2, '0')}', // 두 자리로 포맷
+                            style: TextStyle(
+                              fontSize: 24, // 텍스트 크기
+                              fontWeight: FontWeight.normal, // 텍스트 두께
+                              color: Colors.black, // 텍스트 색상
+                            ),
+                          )))
+                      .toList(),
+                ),
+              ),
+            ],
           ),
         ],
       ),
