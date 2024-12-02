@@ -224,11 +224,11 @@ class _MyPageState extends State<MyPage> {
                 ),
                 GestureDetector(
                   onTap: widget.onNavigateMyPlaylistPage,
-                  child: buildNavigationRow("내 뉴스 목록 보기"),
+                  child: buildNavigationRow("마이 플레이리스트 보기"),
                 ),
                 GestureDetector(
                   onTap: widget.onNavigateToPlaylistPage,
-                  child: buildNavigationRow("플레이리스트 보기"),
+                  child: buildNavigationRow("구독한 플레이리스트 보기"),
                 ),
               ],
             ),

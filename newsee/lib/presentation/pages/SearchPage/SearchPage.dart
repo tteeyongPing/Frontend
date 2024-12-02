@@ -432,9 +432,8 @@ class _SearchPageState extends State<SearchPage> {
                                       Text(_allNewsData[index]['title'],
                                           style: const TextStyle(fontSize: 20)),
                                       Text(
-                                        _allNewsData[index]['date'].length > 43
-                                            ? '${_allNewsData[index]['date'].substring(0, 43)}...'
-                                            : _allNewsData[index]['date'],
+                                        _allNewsData[index]['date'],
+                                        overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                             fontSize: 12, color: Colors.grey),
                                       ),
@@ -473,12 +472,8 @@ class _SearchPageState extends State<SearchPage> {
                                   Text(_allPlayListData[index]['playlistName'],
                                       style: const TextStyle(fontSize: 20)),
                                   Text(
-                                    _allPlayListData[index]['description']
-                                                .length >
-                                            43
-                                        ? '${_allPlayListData[index]['description'].substring(0, 43)}...'
-                                        : _allPlayListData[index]
-                                            ['description'],
+                                    _allPlayListData[index]['description'],
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                         fontSize: 12, color: Colors.grey),
                                   ),
