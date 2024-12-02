@@ -3,8 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:newsee/Api/RootUrlProvider.dart';
-import 'package:newsee/models/News.dart';
 import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
+import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:newsee/presentation/pages/PlaylistPage/playlistDetailPage/playlist_detail_page.dart';
 
 late ScrollController _scrollController;
 
@@ -42,11 +43,20 @@ void _showErrorDialog(String message, BuildContext context) {
 
 class _SearchPageState extends State<SearchPage> {
   TextEditingController _searchController = TextEditingController();
-  List<News> _searchResults = [];
+
   bool isLoading = false;
   late List<Map<String, dynamic>> _allNewsData = [];
-  late List<Map<String, dynamic>> _allPlayListData = [];
+  late List<Playlist> _allPlayListData = [];
   bool isNewsSelected = true;
+  // 플레이리스트 클릭 시 상세 페이지로 이동
+  void _navigateToPlaylistDetail(Playlist playlist) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaylistDetailPage(playlist: playlist),
+      ),
+    );
+  }
 
   Future<void> loadSearchNewsData(String input) async {
     setState(() => isLoading = true); // 로딩 상태 시작
@@ -110,17 +120,9 @@ class _SearchPageState extends State<SearchPage> {
       if (response.statusCode == 200) {
         var data = json.decode(utf8.decode(response.bodyBytes)); // UTF-8로 디코딩
         setState(() {
-          _allPlayListData =
-              List<Map<String, dynamic>>.from(data['data'].map((item) {
-            return {
-              'playlistId': item['playlistId'],
-              'playlistName': item['playlistName'],
-              'description': item['description'],
-              'userId': item['userId'],
-              'userName': item['userName'],
-              'newsList': item['newsList']
-            };
-          }));
+          _allPlayListData = List<Playlist>.from(
+            data['data'].map((item) => Playlist.fromJson(item)),
+          );
         });
       } else {
         _showErrorDialog('플레이리스트 검색 데이터를 불러오는 데 실패했습니다.', context);
@@ -441,57 +443,81 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 )));
                       } else {
-                        return Container(
-                            margin: const EdgeInsets.only(
-                                top: 10, left: 24, right: 24, bottom: 10),
-                            padding: const EdgeInsets.only(
-                                top: 12,
-                                left: 17,
-                                right: 17,
-                                bottom: 12), // 왼쪽, 오른쪽, 아래쪽에만 마진
-
+                        return GestureDetector(
+                          onTap: () => _navigateToPlaylistDetail(
+                              _allPlayListData[index]),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(10),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 0,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child: SizedBox(
-                              height: 113, // 원하는 고정 높이를 설정
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(_allPlayListData[index]['playlistName'],
-                                      style: const TextStyle(fontSize: 20)),
-                                  Text(
-                                    _allPlayListData[index]['description'],
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.grey),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "게시자: " +
-                                            _allPlayListData[index]['userName']
-                                                .toString(),
-                                        style: const TextStyle(fontSize: 14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // 제목 및 카운트
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        _allPlayListData[index].playlistName,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "(${_allPlayListData[index].newsList?.length ?? 0})",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                // 설명
+                                Text(
+                                  _allPlayListData[index].description.length >
+                                          60
+                                      ? '${_allPlayListData[index].description.substring(0, 60)}...'
+                                      : _allPlayListData[index].description,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
                                   ),
-                                ],
-                              ),
-                            ));
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 12),
+                                // 게시자 정보
+                                Text(
+                                  "게시자: ${_allPlayListData[index].userName}",
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
                       }
                     },
                   ),

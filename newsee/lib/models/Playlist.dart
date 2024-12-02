@@ -41,7 +41,7 @@ class News {
   final String title;
   final String date;
   final String company;
-  final String category;
+  final String? category;
   final String content;
   bool selected; // Make selected mutable
 
@@ -50,7 +50,7 @@ class News {
     required this.title,
     required this.date,
     required this.company,
-    required this.category,
+    this.category,
     required this.content,
     this.selected = false, // Default value set to false
   });
