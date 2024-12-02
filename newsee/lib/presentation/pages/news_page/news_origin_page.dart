@@ -6,6 +6,224 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
+import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+
+class PlaylistDialog extends StatefulWidget {
+  final List<Playlist> playlists;
+  final int newsId;
+  PlaylistDialog({Key? key, required this.playlists, required this.newsId})
+      : super(key: key);
+
+  @override
+  _PlaylistDialogState createState() => _PlaylistDialogState();
+}
+
+Future<Map<String, dynamic>> getTokenAndUserId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return {
+    'token': prefs.getString('token'),
+    'userId': prefs.getInt('userId'),
+  };
+}
+
+class _PlaylistDialogState extends State<PlaylistDialog> {
+  bool _isLoading = false;
+  int selectedIndex = -1; // 선택된 항목 인덱스 초기화
+  Future<void> _addNews(int PlaylisyId, int NewsId) async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/news/add');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({
+          "playlistId": PlaylisyId,
+          "newsIdList": [NewsId]
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+
+        // 나의 플레이리스트 처리
+      } else {
+        //showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+      //showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: EdgeInsets.zero, // 팝업 외부 패딩 제거
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16), // 테두리 둥글게
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16), // 팝업 테두리 둥글게
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        width: 300, // 원하는 너비
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 제목 영역
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16), // 위쪽 테두리 둥글게
+                ),
+              ),
+              child: const Text(
+                '뉴스를 추가하고자 하는\n플레이리스트를 선택해주세요.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            // 내용 영역
+            Container(
+              width: double.infinity,
+              height: 400, // 원하는 높이
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: widget.playlists.length,
+                      itemBuilder: (context, index) {
+                        final playlist = widget.playlists[index];
+                        bool isSelected = selectedIndex == playlist.playlistId;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.blue.withOpacity(0.1)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color:
+                                  isSelected ? Colors.blue : Colors.transparent,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            title: Text(playlist.playlistName),
+                            subtitle: Text(playlist.description),
+                            onTap: () {
+                              setState(() {
+                                selectedIndex = playlist.playlistId;
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // 하단 버튼 영역
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Colors.grey), // 위쪽 테두리
+                        right: BorderSide(color: Colors.grey), // 오른쪽 테두리
+                      ),
+                    ),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20), // 왼쪽 위 둥글게
+                          ),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("취소",
+                          style: TextStyle(color: Colors.black)),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Colors.grey), // 위쪽 테두리
+                        left: BorderSide(color: Colors.grey), // 왼쪽 테두리
+                      ),
+                    ),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(20), // 오른쪽 위 둥글게
+                          ),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      onPressed: () {
+                        _addNews(selectedIndex, widget.newsId);
+                        Navigator.pop(context);
+                      },
+                      child: const Text("뉴스 추가",
+                          style: TextStyle(color: Colors.red)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+late List<Playlist> playlists = []; // 플레이리스트 목록
 
 class NewsOriginPage extends StatefulWidget {
   final int newsId;
@@ -28,6 +246,43 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
       'token': prefs.getString('token'),
       'userId': prefs.getInt('userId'),
     };
+  }
+
+  Future<void> _loadMyPlaylist() async {
+    setState(() => _isLoading = true);
+    playlists.clear();
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/list');
+      final response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+
+        // 나의 플레이리스트 처리
+        setState(() {
+          playlists = List<Playlist>.from(
+            data['data'].map((item) => Playlist.fromJson(item)),
+          );
+        });
+        print("My");
+        print(playlists.toString());
+      } else {
+        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   // Fetch news data
@@ -61,6 +316,21 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+/*돌아와 */
+  void _addPlaylist(BuildContext context) async {
+    await _loadMyPlaylist();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PlaylistDialog(
+          playlists: playlists,
+          newsId: widget.newsId,
+        );
+      },
+    );
   }
 
 // Fetch news data
@@ -411,13 +681,15 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.more_vert),
+                                  icon: const Icon(Icons.playlist_add),
                                   onPressed: () {
+                                    _addPlaylist(context);
                                     // 기타 옵션 추가
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.edit_note), // 펜 아이콘
+                                  icon: const Icon(
+                                      Icons.add_comment_outlined), // 펜 아이콘
                                   onPressed: _editNote, // 메모 작성 호출
                                 ),
                               ],

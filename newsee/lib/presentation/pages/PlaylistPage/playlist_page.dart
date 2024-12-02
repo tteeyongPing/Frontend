@@ -109,7 +109,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     }
   }
 
-  void _editDescription(BuildContext context) async {
+  void _makeNewPlaylist(BuildContext context) async {
     String _title = "";
     String _description = "";
     TextEditingController titleController = TextEditingController(text: "");
@@ -611,7 +611,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   // 플레이리스트 추가 동작
-                                  _editDescription(context);
+                                  _makeNewPlaylist(context);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
