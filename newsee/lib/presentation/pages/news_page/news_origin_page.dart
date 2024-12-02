@@ -547,20 +547,42 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('메모 작성'),
-          content: TextField(
-            controller: noteController,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              hintText: '뉴스 기사에 대한 메모를 작성하세요.',
+          title: const Text(
+            '메모 작성',
+            style: TextStyle(
+              fontSize: 16, // 제목 폰트 크기
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: TextField(
+              controller: noteController,
+              maxLines: 5,
+              style: const TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
+              decoration: InputDecoration(
+                hintText: '뉴스 기사에 대한 메모를 작성하세요.',
+                hintStyle: const TextStyle(color: Colors.grey), // 힌트 스타일
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8), // 둥근 테두리
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                      color: Color(0xFF4D71F6), width: 2), // 포커스 시 테두리
+                ),
+                contentPadding: const EdgeInsets.all(12), // 내부 여백
+              ),
             ),
           ),
           actions: [
+            // 취소 버튼
             TextButton(
-              onPressed: () => Navigator.pop(context), // 취소 버튼
-              child: const Text('취소'),
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                '취소',
+                style: TextStyle(color: Colors.red, fontSize: 14), // 취소 버튼 스타일
+              ),
             ),
-            TextButton(
+            // 저장 버튼
+            ElevatedButton(
               onPressed: () {
                 if (noteController.text.isNotEmpty) {
                   _editMemo(noteController.text);
@@ -569,9 +591,24 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
                   showErrorDialog(context, '메모 내용이 비어 있습니다.');
                 }
               },
-              child: const Text('저장'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4D71F6), // 버튼 배경색
+                foregroundColor: Colors.white, // 버튼 텍스트 색상
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 10), // 버튼 내부 여백
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // 버튼 모서리 둥글게
+                ),
+              ),
+              child: const Text(
+                '저장',
+                style: TextStyle(fontSize: 14), // 저장 버튼 폰트 크기
+              ),
             ),
           ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12), // 다이얼로그 모서리 둥글게
+          ),
         );
       },
     );
