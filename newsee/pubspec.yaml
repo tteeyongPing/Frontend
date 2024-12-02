@@ -80,6 +80,11 @@ flutter:
       - assets/SampleSubscribePlayList.json
       - assets/category/list.json
       - assets/images/app_icon.png
+
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/PretendardVariable.ttf
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
