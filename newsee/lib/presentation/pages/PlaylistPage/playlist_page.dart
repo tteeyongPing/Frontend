@@ -120,48 +120,85 @@ class PlaylistPageState extends State<PlaylistPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('플레이리스트 생성'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 제목 입력
-              TextField(
-                controller: titleController,
-                maxLines: 1,
-                decoration: const InputDecoration(
-                  hintText: '제목을 입력하세요',
+          title: Text(
+            '플레이리스트 생성',
+            style: TextStyle(
+              fontSize: 16, // 제목 폰트 크기
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 제목 입력
+                TextField(
+                  controller: titleController,
+                  style: TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
+                  decoration: InputDecoration(
+                    labelText: '제목',
+                    hintText: '제목을 입력하세요',
+                    labelStyle: TextStyle(fontSize: 14), // 레이블 폰트 크기
+                    floatingLabelStyle: TextStyle(color: Color(0xFF4D71F6)),
+                    hintStyle: TextStyle(fontSize: 12), // 힌트 폰트 크기
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              // 설명 입력
-              TextField(
-                controller: descriptionController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  hintText: '새로운 설명을 입력하세요',
+                const SizedBox(height: 16),
+                // 설명 입력
+                TextField(
+                  controller: descriptionController,
+                  style: TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
+                  decoration: InputDecoration(
+                    labelText: '설명',
+                    hintText: '플레이리스트 설명을 입력하세요',
+                    labelStyle: TextStyle(fontSize: 14), // 레이블 폰트 크기
+                    floatingLabelStyle: TextStyle(color: Color(0xFF4D71F6)),
+                    hintStyle: TextStyle(fontSize: 12), // 힌트 폰트 크기
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             // 취소 버튼
             TextButton(
               onPressed: () => Navigator.pop(context), // 다이얼로그 닫기
-              child: const Text('취소'),
+              child: Text(
+                '취소',
+                style: TextStyle(fontSize: 14, color: Colors.black), // 버튼 폰트 크기
+              ),
             ),
             // 생성 버튼
-            TextButton(
+            ElevatedButton(
               onPressed: () async {
-                // 제목과 설명 업데이트
                 _title = titleController.text;
                 _description = descriptionController.text;
-
-                // 비동기적으로 다른 함수 호출
                 await _navigateToAddPlaylist(_title, _description);
-
                 Navigator.pop(context); // 다이얼로그 닫기
               },
-              child: const Text('생성'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4D71F6), // 버튼 색상 설정
+                foregroundColor: Colors.white, // 버튼 텍스트 색상
+              ),
+              child: Text(
+                '생성',
+                style: TextStyle(fontSize: 14), // 버튼 폰트 크기
+              ),
             ),
           ],
         );
@@ -391,7 +428,7 @@ class PlaylistPageState extends State<PlaylistPage> {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
       final url = Uri.parse(
-          '${RootUrlProvider.baseURL}/subscribe/cancel?playlistId=$id');
+          '${RootUrlProvider.baseURL}/playlist/subscribe/cancel?playlistId=$id');
       final response = await http.post(
         url,
         headers: {
