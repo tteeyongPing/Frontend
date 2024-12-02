@@ -120,48 +120,85 @@ class PlaylistPageState extends State<PlaylistPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('플레이리스트 생성'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 제목 입력
-              TextField(
-                controller: titleController,
-                maxLines: 1,
-                decoration: const InputDecoration(
-                  hintText: '제목을 입력하세요',
+          title: Text(
+            '플레이리스트 생성',
+            style: TextStyle(
+              fontSize: 16, // 제목 폰트 크기
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 제목 입력
+                TextField(
+                  controller: titleController,
+                  style: TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
+                  decoration: InputDecoration(
+                    labelText: '제목',
+                    hintText: '제목을 입력하세요',
+                    labelStyle: TextStyle(fontSize: 14), // 레이블 폰트 크기
+                    floatingLabelStyle: TextStyle(color: Color(0xFF4D71F6)),
+                    hintStyle: TextStyle(fontSize: 12), // 힌트 폰트 크기
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              // 설명 입력
-              TextField(
-                controller: descriptionController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  hintText: '새로운 설명을 입력하세요',
+                const SizedBox(height: 16),
+                // 설명 입력
+                TextField(
+                  controller: descriptionController,
+                  style: TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
+                  decoration: InputDecoration(
+                    labelText: '설명',
+                    hintText: '플레이리스트 설명을 입력하세요',
+                    labelStyle: TextStyle(fontSize: 14), // 레이블 폰트 크기
+                    floatingLabelStyle: TextStyle(color: Color(0xFF4D71F6)),
+                    hintStyle: TextStyle(fontSize: 12), // 힌트 폰트 크기
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             // 취소 버튼
             TextButton(
               onPressed: () => Navigator.pop(context), // 다이얼로그 닫기
-              child: const Text('취소'),
+              child: Text(
+                '취소',
+                style: TextStyle(fontSize: 14, color: Colors.black), // 버튼 폰트 크기
+              ),
             ),
             // 생성 버튼
-            TextButton(
+            ElevatedButton(
               onPressed: () async {
-                // 제목과 설명 업데이트
                 _title = titleController.text;
                 _description = descriptionController.text;
-
-                // 비동기적으로 다른 함수 호출
                 await _navigateToAddPlaylist(_title, _description);
-
                 Navigator.pop(context); // 다이얼로그 닫기
               },
-              child: const Text('생성'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4D71F6), // 버튼 색상 설정
+                foregroundColor: Colors.white, // 버튼 텍스트 색상
+              ),
+              child: Text(
+                '생성',
+                style: TextStyle(fontSize: 14), // 버튼 폰트 크기
+              ),
             ),
           ],
         );
@@ -311,6 +348,114 @@ class PlaylistPageState extends State<PlaylistPage> {
     return isDeleted; // Return whether the delete action was successful
   }
 
+  Future<bool> _showDeleteSubDialog(int id) async {
+    bool isDeleted = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              contentPadding: EdgeInsets.zero,
+              actionsPadding: EdgeInsets.zero,
+              content: Container(
+                width: 260,
+                height: 80,
+                child: Center(
+                  child: Text(
+                    "구독을 취소하시겠습니까?",
+                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              actions: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                            right: BorderSide(color: Colors.grey, width: 0.5),
+                          ),
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(
+                                context, false); // Cancel action returns false
+                          },
+                          child:
+                              Text("취소", style: TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                            left: BorderSide(color: Colors.grey, width: 0.5),
+                          ),
+                        ),
+                        child: TextButton(
+                          onPressed: () async {
+                            await deleteSubPlaylist(
+                                id); // Perform delete operation
+                            Navigator.pop(
+                                context, true); // Delete action returns true
+                          },
+                          child:
+                              Text("삭제", style: TextStyle(color: Colors.red)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Default return value is false if user cancels
+
+    return isDeleted; // Return whether the delete action was successful
+  }
+
+  Future<void> deleteSubPlaylist(int id) async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse(
+          '${RootUrlProvider.baseURL}/playlist/subscribe/cancel?playlistId=$id');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      print(url);
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+
+        // 나의 플레이리스트 처리
+        setState(() {
+          subscribePlaylists
+              .removeWhere((playlist) => playlist.playlistId == id);
+        });
+      } else {
+        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> deleteMyPlaylist(int id) async {
     setState(() => _isLoading = true);
 
@@ -345,7 +490,6 @@ class PlaylistPageState extends State<PlaylistPage> {
     }
   }
 
-  // 플레이리스트 클릭 시 상세 페이지로 이동
 // 플레이리스트 클릭 시 상세 페이지로 이동
   void _navigateToPlaylistDetail(Playlist playlist) {
     Navigator.push(
@@ -525,49 +669,19 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       ),
                                       IconButton(
                                         icon: const Icon(
-                                          Icons.more_vert,
+                                          Icons.close,
                                           size: 20,
                                         ),
                                         onPressed: () async {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return Wrap(
-                                                children: [
-                                                  isMyPlaylistSelected
-                                                      ? ListTile(
-                                                          leading: const Icon(
-                                                              Icons.edit),
-                                                          title:
-                                                              const Text('수정'),
-                                                          onTap: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                        )
-                                                      : Row(),
-                                                  ListTile(
-                                                    leading: const Icon(
-                                                        Icons.delete),
-                                                    title: const Text('삭제'),
-                                                    onTap: () async {
-                                                      if (isMyPlaylistSelected) {
-                                                        await _showDeleteMyDialog(
-                                                            playlist
-                                                                .playlistId);
-                                                        Navigator.pop(context);
-                                                      } else {
-                                                        await deleteMyPlaylist(
-                                                            playlist
-                                                                .playlistId);
-                                                        Navigator.pop(context);
-                                                      }
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
+                                          if (isMyPlaylistSelected) {
+                                            await _showDeleteMyDialog(
+                                                playlist.playlistId);
+                                            Navigator.pop(context);
+                                          } else {
+                                            await _showDeleteSubDialog(
+                                                playlist.playlistId);
+                                            Navigator.pop(context);
+                                          }
                                         },
                                       ),
                                     ],

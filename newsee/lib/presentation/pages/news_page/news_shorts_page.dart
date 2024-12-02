@@ -223,6 +223,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
 }
 
 late List<Playlist> playlists = []; // 플레이리스트 목록
+bool isBookmark = false;
 
 class NewsShortsPage extends StatefulWidget {
   final int newsId;
@@ -378,6 +379,78 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
     );
   }
 
+  Future<void> _isBookmark() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse(
+          '${RootUrlProvider.baseURL}/bookmark/status?newsId=${widget.newsId}');
+      final response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
+      );
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+        print(data['data']);
+        setState(() {
+          isBookmark = data['data'];
+        });
+      } else {
+        //showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+      // showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+// Fetch news data
+  Future<void> changeBookmark() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      final String? token = credentials['token'];
+      final String url = isBookmark
+          ? '${RootUrlProvider.baseURL}/bookmark/delete'
+          : '${RootUrlProvider.baseURL}/bookmark/add';
+
+      final response = await (isBookmark ? http.delete : http.post)(
+        Uri.parse(url),
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode([
+          {'newsId': widget.newsId}
+        ]),
+      );
+
+      if (response.statusCode == 200) {
+        final successMessage = isBookmark ? '북마크 삭제 성공.' : '북마크 등록 성공.';
+        showErrorDialog(context, successMessage);
+        isBookmark = !isBookmark;
+      } else {
+        final errorMessage = isBookmark ? '북마크 삭제 실패.' : '북마크 등록 실패.';
+        showErrorDialog(context, errorMessage);
+      }
+    } catch (e) {
+      debugPrint('Error updating bookmark: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
 /*돌아와 */
   void _addPlaylist(BuildContext context) async {
     await _loadMyPlaylist();
@@ -504,6 +577,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
     super.initState();
     _loadShortsPage(); // Load the news data when the page is initialized
     _recordViewCount(); // Record the view count when the page is initialized
+    _isBookmark();
   }
 
   @override
@@ -641,10 +715,12 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                                         },
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.bookmark_border),
+                                        icon: isBookmark
+                                            ? const Icon(Icons.bookmark)
+                                            : const Icon(Icons.bookmark_border),
                                         onPressed: () {
-                                          addBookmark();
-                                          // Add favorite functionality here
+                                          // 즐겨찾기 기능 추가
+                                          changeBookmark();
                                         },
                                       ),
                                       IconButton(
