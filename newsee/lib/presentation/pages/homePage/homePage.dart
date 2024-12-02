@@ -360,49 +360,96 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 20),
                         // 뉴스 소비량 그래프
                         Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(24),
                           child: SizedBox(
                             height: 200,
-                            child: LineChart(
-                              LineChartData(
-                                lineBarsData: [
+                            child: BarChart(
+                              BarChartData(
+                                barGroups: [
                                   // 이번 주 데이터
-                                  LineChartBarData(
-                                    spots: [
-                                      FlSpot(0, 9),
-                                      FlSpot(1, 4),
-                                      FlSpot(2, 5),
-                                      FlSpot(3, 6),
-                                      FlSpot(4, 8),
-                                      FlSpot(5, 7),
-                                      FlSpot(6, 3),
+                                  BarChartGroupData(
+                                    x: 0,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 9,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
                                     ],
-                                    isCurved: true,
-                                    color: Colors.blue,
-                                    barWidth: 4,
-                                    belowBarData: BarAreaData(show: false),
                                   ),
-                                  // 저번 주 데이터
-                                  LineChartBarData(
-                                    spots: [
-                                      FlSpot(0, 7),
-                                      FlSpot(1, 5),
-                                      FlSpot(2, 6),
-                                      FlSpot(3, 4),
-                                      FlSpot(4, 6),
-                                      FlSpot(5, 5),
-                                      FlSpot(6, 2),
+                                  BarChartGroupData(
+                                    x: 1,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 4,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
                                     ],
-                                    isCurved: true,
-                                    color: Colors.red,
-                                    barWidth: 4,
-                                    belowBarData: BarAreaData(show: false),
+                                  ),
+                                  BarChartGroupData(
+                                    x: 2,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 5,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ],
+                                  ),
+                                  BarChartGroupData(
+                                    x: 3,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 6,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ],
+                                  ),
+                                  BarChartGroupData(
+                                    x: 4,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 8,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ],
+                                  ),
+                                  BarChartGroupData(
+                                    x: 5,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 7,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ],
+                                  ),
+                                  BarChartGroupData(
+                                    x: 6,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: 3,
+                                        color: Colors.blue,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ],
                                   ),
                                 ],
                                 titlesData: FlTitlesData(
                                   bottomTitles: AxisTitles(
                                     sideTitles: SideTitles(
                                       showTitles: true,
+                                      interval: 1,
                                       getTitlesWidget: (value, meta) {
                                         const days = [
                                           '월',
@@ -413,34 +460,46 @@ class _HomePageState extends State<HomePage> {
                                           '토',
                                           '일'
                                         ];
-                                        return Text(
-                                          days[value.toInt()],
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        );
+                                        if (value.toInt() >= 0 &&
+                                            value.toInt() < days.length) {
+                                          return Text(
+                                            days[value.toInt()],
+                                            style:
+                                                const TextStyle(fontSize: 12),
+                                          );
+                                        }
+                                        return const SizedBox.shrink();
                                       },
                                     ),
                                   ),
+                                  topTitles: AxisTitles(
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
                                   leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: 28,
-                                      getTitlesWidget: (value, meta) {
-                                        return Text(
-                                          value.toInt().toString(),
-                                          style: TextStyle(fontSize: 12),
-                                        );
-                                      },
-                                    ),
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
+                                  rightTitles: AxisTitles(
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border:
+                                      Border.all(color: Colors.grey, width: 1),
+                                ),
+                                gridData: FlGridData(show: true),
+                                barTouchData: BarTouchData(
+                                  touchTooltipData: BarTouchTooltipData(
+                                    // tooltipBgColor: Colors.blueAccent,
+                                    getTooltipItem:
+                                        (group, groupIndex, rod, rodIndex) {
+                                      return BarTooltipItem(
+                                        rod.toY.toString(),
+                                        const TextStyle(color: Colors.white),
+                                      );
+                                    },
                                   ),
                                 ),
-                                gridData: FlGridData(show: false),
-                                borderData: FlBorderData(show: false),
-                                minX: 0,
-                                maxX: 6,
-                                minY: 0,
-                                maxY: 10,
                               ),
                             ),
                           ),
