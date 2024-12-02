@@ -21,18 +21,12 @@ class Footer extends StatelessWidget {
       child: BottomNavigationBar(
         items: List.generate(menus.length, (index) {
           return BottomNavigationBarItem(
-            icon: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  menus[index]['icon'],
-                  size: 30, // 아이콘 크기 설정
-                  color: selectedIndex == index
-                      ? const Color(0xFF619EF7)
-                      : const Color(0xFF707070),
-                ),
-                SizedBox(height: 4), // 아이콘과 레이블 사이의 간격 설정
-              ],
+            icon: Icon(
+              menus[index]['icon'],
+              size: 30, // 아이콘 크기 설정
+              color: selectedIndex == index
+                  ? const Color(0xFF619EF7)
+                  : const Color(0xFF707070),
             ),
             label: menus[index]['text'],
           );
@@ -40,12 +34,15 @@ class Footer extends StatelessWidget {
         currentIndex: selectedIndex,
         onTap: onItemTapped,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(
-            fontSize: 12,
-            color: Color(0xFF619EF7),
-            fontWeight: FontWeight.bold), // 선택된 레이블 크기
-        unselectedLabelStyle:
-            TextStyle(fontSize: 12, color: Color(0xFF707070)), // 선택되지 않은 레이블 크기
+        selectedItemColor: const Color(0xFF619EF7), // 선택된 텍스트 색상 설정
+        unselectedItemColor: const Color(0xFF707070), // 선택되지 않은 텍스트 색상 설정
+        selectedLabelStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold, // 선택된 레이블의 폰트 스타일
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 12,
+        ),
         backgroundColor: Colors.white, // 배경색을 하얀색으로 설정
       ),
     );
