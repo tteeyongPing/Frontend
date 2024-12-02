@@ -40,6 +40,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   void initState() {
     super.initState(); // print(widget.isMine);
     _initializeData();
+    isSubscribe();
   }
 
   Future<void> _initializeData() async {
@@ -90,6 +91,39 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           _playlistName = name;
           _description = description;
           selectedNews.clear(); // Clear selected items when editing
+        });
+      } else {
+        //showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+      // showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> isSubscribe() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse(
+          '${RootUrlProvider.baseURL}/playlist/subscribe/status?playlistId=${widget.playlist.playlistId}');
+      final response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
+      );
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+        print(data['data']);
+        setState(() {
+          isFavorite = !data['data'];
         });
       } else {
         //showErrorDialog(context, '뉴스 검색 결과가 없습니다.');

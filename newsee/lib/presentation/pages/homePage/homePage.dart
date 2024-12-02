@@ -21,28 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late List<Map<String, dynamic>> interests;
   bool isLoading = false;
-  final List<Map<String, dynamic>> sliderData = [
-    {
-      'newspaper': '농민신문생활',
-      'image': 'assets/logo.png', // 적절한 경로로 수정
-      'title': '보름달 보며 소원 빌기 좋은 곳은 어디?… ‘달맞이 명소’ 6곳',
-      'description':
-          '경기관광공사, ‘달맞이 명소’ 6곳 추천 \n가평 별빛정원, SNS서 별의 성지로 입소문\n수원화성 서장대, 성곽의 운치와 야경 일품',
-    },
-    {
-      'newspaper': '농민신문생활',
-      'image': 'assets/logo.png',
-      'title': '집에서 조용히 쉴래요',
-      'description':
-          '경기관광공사, ‘달맞이 명소’ 6곳 추천 \n가평 별빛정원, SNS서 별의 성지로 입소문\n수원화성 서장대, 성곽의 운치와 야경 일품',
-    },
-    {
-      'newspaper': '농민신문생활',
-      'image': 'assets/logo.png',
-      'title': '제목 3',
-      'description': '이것은 세 번째 슬라이드의 내용입니다.',
-    },
-  ];
+  List<Map<String, dynamic>> sliderData = [];
 
   final PageController _pageController = PageController();
   int _currentIndex = 0;
@@ -56,6 +35,42 @@ class _HomePageState extends State<HomePage> {
     Icons.sports_basketball_outlined,
     Icons.palette_outlined,
   ];
+
+  Future<void> loadBanner() async {
+    setState(() => isLoading = true);
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+
+      var url = Uri.parse('${RootUrlProvider.baseURL}/banner/list');
+      var response = await http.get(url, headers: {
+        'accept': '*/*',
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          sliderData = List<Map<String, dynamic>>.from(data['data'].asMap().map(
+            (index, item) {
+              return MapEntry(index, {
+                'imageUrl': item['imageUrl'],
+                'title': item['title'],
+                'shorts': item['shorts'],
+              });
+            },
+          ).values);
+        });
+      } else {
+        _showErrorDialog('관심사를 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      _showErrorDialog('데이터를 불러오는 중 문제가 발생했습니다.');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   Future<Map<String, dynamic>> getTokenAndUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -127,6 +142,7 @@ class _HomePageState extends State<HomePage> {
         // 완료된 후 UI 업데이트
       });
     });
+    loadBanner();
   }
 
   @override
@@ -172,56 +188,73 @@ class _HomePageState extends State<HomePage> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.asset(
-                                sliderData[index]['image']!,
+                              Image.network(
+                                "https://search.pstatic.net/sunny/?src=https%3A%2F%2Fpng.pngtree.com%2Fthumb_back%2Ffw800%2Fbackground%2F20210902%2Fpngtree-blue-technology-news-background-image_782264.jpg&type=l340_165",
                                 fit: BoxFit.cover,
                               ),
                               Container(
-                                color: Colors.black.withOpacity(0.8),
+                                color: Colors.black.withOpacity(0.5),
                               ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24),
-                                    child: Text(
-                                      sliderData[index]['newspaper']!,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 30),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceEvenly, // spaceEvenly 유지
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30),
+                                      child: Container(
+                                        width: double.infinity, // 전체 너비 100%
+                                        child: Text(
+                                          "오늘의 뉴스",
+                                          //sliderData[index]['title']!,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
                                       ),
-                                      textAlign: TextAlign.left,
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24),
-                                    child: Text(
-                                      sliderData[index]['title']!,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 19,
+                                    if (sliderData[index]['title'] != null)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 30),
+                                        child: Container(
+                                          width: double.infinity, // 전체 너비 100%
+                                          child: Text(
+                                            sliderData[index]['title']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 27,
+                                            ),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
                                       ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24),
-                                    child: Text(
-                                      sliderData[index]['description']!,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        height: 1.5,
+                                    const SizedBox(height: 8),
+                                    if (sliderData[index]['title'] != null)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 30),
+                                        child: Container(
+                                          width: double.infinity, // 전체 너비 100%
+                                          child: Text(
+                                            sliderData[index]['shorts']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              height: 1.5,
+                                            ),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
                                       ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              )
                             ],
                           ),
                         );
@@ -235,8 +268,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.only(left: 20, top: 10),
                           child: Text(
                             '나의 관심분야',
                             style: TextStyle(fontSize: 18),

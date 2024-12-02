@@ -72,7 +72,7 @@ class PlaylistPageState extends State<PlaylistPage> {
 
   Future<void> _loadSubPlaylist() async {
     setState(() => _isLoading = true);
-
+    subscribePlaylists.clear();
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -346,13 +346,17 @@ class PlaylistPageState extends State<PlaylistPage> {
   }
 
   // 플레이리스트 클릭 시 상세 페이지로 이동
+// 플레이리스트 클릭 시 상세 페이지로 이동
   void _navigateToPlaylistDetail(Playlist playlist) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PlaylistDetailPage(playlist: playlist),
       ),
-    );
+    ).then((_) {
+      // 상세 페이지에서 돌아온 후 _loadMyPlaylist() 호출
+      _loadSubPlaylist();
+    });
   }
 
   @override

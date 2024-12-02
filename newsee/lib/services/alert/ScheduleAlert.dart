@@ -5,9 +5,13 @@ import 'package:intl/intl.dart'; // 시간을 포맷팅하기 위해 사용
 import 'package:timezone/timezone.dart' as tz;
 import 'package:newsee/services/alert/AlertDatabase.dart';
 import 'package:newsee/presentation/pages/Main/Main.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 임포트
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:http/http.dart' as http;
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+
 Future<void> scheduleNotifications() async {
   tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
@@ -30,6 +34,8 @@ Future<void> scheduleNotifications() async {
     android: androidNotificationDetails,
     iOS: iosNotificationDetails,
   );
+
+  await loadAlertData();
 
   for (var alarm in alarms) {
     if (alarm['active'] == 1) {
@@ -56,8 +62,8 @@ Future<void> scheduleNotifications() async {
 
         await flutterLocalNotificationsPlugin.zonedSchedule(
           alarm['alarmId'],
-          '오늘의 뉴스',
-          "\"마구 버려지는 플라스틱\"...바다는 해양쓰레기로 '몸살'[짤막영상]",
+          AlarmTitle,
+          AlarmContent,
           tz.TZDateTime.from(alarmDateTime, tz.local),
           notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -71,12 +77,50 @@ Future<void> scheduleNotifications() async {
   }
 }
 
-// 모든 예약된 알림을 취소
+String AlarmTitle = "";
+String AlarmContent = "";
+
+Future<Map<String, dynamic>> getTokenAndUserId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return {
+    'token': prefs.getString('token'),
+    'userId': prefs.getInt('userId'),
+  };
+}
+
+Future<void> loadAlertData() async {
+  // 로딩 상태 업데이트 (상태 관리 필요시 수정)
+  try {
+    final credentials = await getTokenAndUserId();
+    String? token = credentials['token'];
+    final url = Uri.parse('${RootUrlProvider.baseURL}/banner/alarm/news');
+    final response = await http.get(
+      url,
+      headers: {
+        'accept': '*/*',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      var data = json.decode(utf8.decode(response.bodyBytes));
+      AlarmTitle = data['data']['title'];
+      AlarmContent = data['data']['content'];
+      debugPrint('알림 데이터 로드 성공: Title: $AlarmTitle, Content: $AlarmContent');
+    } else {
+      debugPrint('Error: 뉴스 로드 실패');
+      // 필요시 에러 처리
+    }
+  } catch (e) {
+    debugPrint('Error loading alert data: $e');
+    // 필요시 에러 처리
+  }
+}
+
 Future<void> cancelAllNotifications() async {
   await flutterLocalNotificationsPlugin.cancelAll();
 }
 
-// 알림을 즉시 보여주는 함수
 Future<void> showNotification({
   required int id,
   required String title,
@@ -110,7 +154,6 @@ Future<void> showNotification({
   );
 }
 
-// 요일 문자열을 숫자 (1-7)로 변환하는 함수
 int getDayOfWeekFromString(String day) {
   switch (day) {
     case '일':
