@@ -85,6 +85,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: createMaterialColor(
             Color.fromARGB(255, 13, 20, 45)), // Custom MaterialColor
         scaffoldBackgroundColor: Colors.white, // 모든 페이지의 배경색을 하얀색으로 설정
+        fontFamily: 'Pretendard', // 전체 폰트 Pretendard로 설정
       ),
       home: LoginPage(),
     );
