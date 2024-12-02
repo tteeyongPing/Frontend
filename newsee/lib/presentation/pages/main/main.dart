@@ -15,7 +15,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   int? _initialSelectedInterestId = null; // Example initial ID
-
+  bool _isMine = true;
   late List<Widget> _pages;
 
   @override
@@ -28,14 +28,21 @@ class _MainPageState extends State<MainPage> {
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
       BookmarkPage(),
-      PlaylistPage(),
+      PlaylistPage(isMine: _isMine),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
         onNavigateToBookmark: () => _onItemTapped(2),
-        onNavigateMyPlaylistPage: () => _onItemTapped(3),
-        onNavigateToPlaylistPage: () => _onItemTapped(3),
+        onNavigateMyPlaylistPage: () => _onItemTappedPlaylistPage(true),
+        onNavigateToPlaylistPage: () => _onItemTappedPlaylistPage(false),
       ),
     ];
+  }
+
+  void _onItemTappedPlaylistPage(bool id) {
+    setState(() {
+      _selectedIndex = 3; // Update selected index
+      _isMine = id; // Dynamically set the isMine value
+    });
   }
 
   void _onItemTapped(int index) {
@@ -63,12 +70,12 @@ class _MainPageState extends State<MainPage> {
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
       BookmarkPage(),
-      PlaylistPage(),
+      PlaylistPage(isMine: _isMine),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
         onNavigateToBookmark: () => _onItemTapped(2),
-        onNavigateMyPlaylistPage: () => _onItemTapped(3),
-        onNavigateToPlaylistPage: () => _onItemTapped(3),
+        onNavigateMyPlaylistPage: () => _onItemTappedPlaylistPage(true),
+        onNavigateToPlaylistPage: () => _onItemTappedPlaylistPage(false),
       ),
     ];
 
