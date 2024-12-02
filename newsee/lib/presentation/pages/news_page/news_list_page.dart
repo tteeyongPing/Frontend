@@ -319,6 +319,7 @@ class NewsListPageState extends State<NewsListPage> {
                         );
 
                         if (result == true) {
+                          _selectedInterest = null;
                           loadMyInterests(); // Reload the list after adding interest
                         }
                       },

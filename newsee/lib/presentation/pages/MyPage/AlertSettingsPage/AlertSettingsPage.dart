@@ -143,6 +143,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
           // 성공하면 알람의 상태를 active로 업데이트
           setState(() {
             alarm['on'] = active;
+            _isEditing = false;
           });
         } else {
           _showErrorDialog('알림 상태를 변경하는 데 실패했습니다.');
