@@ -278,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.05,
+          horizontal: screenWidth * 0.045,
           vertical: screenWidth * 0.02,
         ),
         height: kToolbarHeight,
@@ -290,12 +290,12 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.04),
+              style: TextStyle(fontSize: 16),
             ),
             Icon(
               Icons.arrow_forward_ios,
-              size: screenWidth * 0.03,
-              color: Colors.black,
+              size: screenWidth * 0.04,
+              color: Color(0xFFB0B0B0),
             ),
           ],
         ),
@@ -363,7 +363,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _navigateToEditNamePage();
           }),
           SizedBox(
-            height: kToolbarHeight / 2,
+            height: kToolbarHeight / 2.6,
           ),
           buildNavigationRow('로그아웃', onTap: _showLogoutDialog),
           buildNavigationRow('회원 탈퇴', onTap: _showUnsubscribeDialog),

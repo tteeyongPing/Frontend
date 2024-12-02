@@ -121,12 +121,12 @@ class _MyPageState extends State<MyPage> {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: screenWidth * 0.04),
+              style: TextStyle(fontSize: 16),
             ),
             Icon(
               Icons.arrow_forward_ios,
               size: screenWidth * 0.04,
-              color: Colors.black,
+              color: Color(0xFFB0B0B0),
             ),
           ],
         ),
@@ -142,14 +142,24 @@ class _MyPageState extends State<MyPage> {
       decoration: BoxDecoration(
         color: Colors.white,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        // horizontal: screenWidth * 0.05, // 여기서 좌우 패딩 설정
+        vertical: 10,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-                fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
+          Padding(
+            padding: EdgeInsets.only(
+                top: 12.0,
+                bottom: 12.0,
+                left: screenWidth * 0.05), // 섹션 제목의 아래쪽 여백 추가
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
           ),
           ...items,
         ],
@@ -172,8 +182,8 @@ class _MyPageState extends State<MyPage> {
               ),
               height: kToolbarHeight,
               padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05,
-                vertical: screenWidth * 0.02,
+                horizontal: 0,
+                vertical: 0,
               ),
               child: buildNavigationRow(
                 nickName ?? '로딩 중...',
@@ -195,7 +205,7 @@ class _MyPageState extends State<MyPage> {
               ),
             ),
             SizedBox(
-              height: kToolbarHeight / 2,
+              height: kToolbarHeight / 2.6,
             ),
             buildSection(
               title: "뉴스 탐색",
@@ -213,7 +223,7 @@ class _MyPageState extends State<MyPage> {
               ],
             ),
             SizedBox(
-              height: kToolbarHeight / 2,
+              height: kToolbarHeight / 2.6,
             ),
             buildSection(
               title: "나의 뉴스 관리",
@@ -233,7 +243,7 @@ class _MyPageState extends State<MyPage> {
               ],
             ),
             SizedBox(
-              height: kToolbarHeight / 2,
+              height: kToolbarHeight / 2.6,
             ),
             buildSection(
               title: "설정",
@@ -256,7 +266,7 @@ class _MyPageState extends State<MyPage> {
               ],
             ),
             SizedBox(
-              height: kToolbarHeight / 2,
+              height: kToolbarHeight / 2.6,
             ),
           ],
         ),
