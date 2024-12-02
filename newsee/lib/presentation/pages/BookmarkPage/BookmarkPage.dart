@@ -64,7 +64,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
   // 북마크 데이터 로드
   Future<void> _loadBookmarks() async {
     setState(() => _isLoading = true);
-
+    allNewsData.clear();
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -162,7 +162,10 @@ class _BookmarkPageState extends State<BookmarkPage> {
           MaterialPageRoute(
             builder: (context) => NewsShortsPage(newsId: news.newsId),
           ),
-        );
+        ).then((_) {
+          // 상세 페이지에서 돌아온 후 _loadMyPlaylist() 호출
+          _loadBookmarks();
+        });
       },
       child: Container(
         height: 140,
