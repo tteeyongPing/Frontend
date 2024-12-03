@@ -93,6 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'Authorization': 'Bearer $token',
         },
       );
+      print(url);
 
       if (response.statusCode == 200) {
         print('회원 탈퇴 성공');

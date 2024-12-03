@@ -489,7 +489,7 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 10),
                           child: Text(
-                            '나의 뉴스 소비량',
+                            'Newsee를 통한 뉴스 소비량',
                             style: TextStyle(fontSize: 16),
                             textAlign: TextAlign.left,
                           ),
