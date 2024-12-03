@@ -25,7 +25,7 @@ const YOUR_JAVASCRIPT_APP_KEY = '2c8616b833de5f755af7e399d420eea6';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await NewsCounter.resetDailyCounts();
+  await NewsCounter.resetTodayCount();
 
   // Flutter SDK 초기화
   KakaoSdk.init(

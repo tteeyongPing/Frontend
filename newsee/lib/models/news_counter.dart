@@ -61,6 +61,21 @@ class NewsCounter {
     await prefs.setStringList(_dailyTotalKey, dailyTotals);
   }
 
+  // 오늘 날짜의 조회수를 0으로 설정하는 함수
+  static Future<void> resetTodayCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DateTime now = DateTime.now();
+    String todayString = _formatDate(now);
+
+    // 오늘 날짜와 관련된 모든 뉴스 조회수 초기화
+    Set<String> keys = prefs.getKeys();
+    for (String key in keys) {
+      if (key.contains(todayString)) {
+        await prefs.setInt(key, 0); // 오늘 날짜의 조회수 초기화
+      }
+    }
+  }
+
   // 2주 동안의 총 조회수 합산 계산
   static Future<int> getTwoWeekTotal() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
