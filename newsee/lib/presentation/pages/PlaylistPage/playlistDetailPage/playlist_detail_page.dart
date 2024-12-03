@@ -698,7 +698,7 @@ class NewsCard extends StatelessWidget {
         );
       },
       child: Container(
-        height: 150,
+        height: 113,
         margin: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 20),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
