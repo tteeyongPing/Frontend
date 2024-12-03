@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart'; // 권한 요청을
 import 'package:newsee/presentation/pages/loginPage/login.dart';
 import 'package:newsee/presentation/pages/Main/Main.dart'; // MainPage 임포트
 import 'package:newsee/presentation/pages/MyPage/AlertSettingsPage/AlertSettingsPage.dart'; // MainPage 임포트
+import 'package:newsee/models/news_counter.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -23,6 +24,8 @@ const YOUR_JAVASCRIPT_APP_KEY = '2c8616b833de5f755af7e399d420eea6';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await NewsCounter.resetDailyCounts();
 
   // Flutter SDK 초기화
   KakaoSdk.init(

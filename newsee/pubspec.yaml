@@ -84,8 +84,10 @@ flutter:
   fonts:
     - family: Pretendard
       fonts:
-        - asset: assets/fonts/PretendardVariable.ttf
-  #   - images/a_dot_burr.jpeg
+        - asset: assets/fonts/Pretendard-Regular.ttf
+          weight: 400 # Regular weight
+        - asset: assets/fonts/Pretendard-Bold.ttf
+          weight: 700 # Bold weight  #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
