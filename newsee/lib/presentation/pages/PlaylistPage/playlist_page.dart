@@ -499,6 +499,7 @@ class PlaylistPageState extends State<PlaylistPage> {
       ),
     ).then((_) {
       // 상세 페이지에서 돌아온 후 _loadMyPlaylist() 호출
+      _loadMyPlaylist();
       _loadSubPlaylist();
     });
   }

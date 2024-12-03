@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
 
 class PlaylistDialog extends StatefulWidget {
   final List<Playlist> playlists;
@@ -313,6 +314,46 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
       }
     } catch (e) {
       debugPrint('Error loading news data: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> share() async {
+    setState(() => _isLoading = true);
+    playlists.clear();
+    try {
+      // 카카오톡 실행 가능 여부 확인
+      bool isKakaoTalkSharingAvailable =
+          await ShareClient.instance.isKakaoTalkSharingAvailable();
+
+      if (isKakaoTalkSharingAvailable) {
+        try {
+          Uri uri = await ShareClient.instance.shareDefault(
+              template: TextTemplate(
+                  text: 'Newsee\n친구가 뉴스를 공유했어요!\n${news['title']}',
+                  link: Link(),
+                  buttonTitle: "뉴스 보러가기"));
+          await ShareClient.instance.launchKakaoTalk(uri);
+          print('카카오톡 공유 완료');
+        } catch (error) {
+          print('카카오톡 공유 실패 $error');
+        }
+      } else {
+        try {
+          Uri shareUrl = await WebSharerClient.instance.makeDefaultUrl(
+              template: TextTemplate(
+                  text: 'Newsee\n친구가 뉴스를 공유했어요!\n${news['title']}',
+                  link: Link(),
+                  buttonTitle: "뉴스 보러가기"));
+          await launchBrowserTab(shareUrl, popupOpen: true);
+        } catch (error) {
+          print('카카오톡 공유 실패 $error');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
       showErrorDialog(context, '에러가 발생했습니다: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -742,11 +783,12 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
                                 IconButton(
                                   icon: const Icon(Icons.share),
                                   onPressed: () {
+                                    share();
                                     // 공유 기능
-                                    Share.share(
+                                    /*Share.share(
                                       'Check out this news from ${news['company']}:\n\n${news['title']}\n\n${news['content']}',
                                       subject: 'News from ${news['company']}',
-                                    );
+                                    );*/
                                   },
                                 ),
                                 IconButton(

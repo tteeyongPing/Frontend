@@ -6,6 +6,7 @@ import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:newsee/presentation/pages/news_page/news_shorts_page.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
 
 bool _isEditing = false; // 편집 상태를 추적
 final newsList = [];
@@ -29,8 +30,8 @@ Future<Map<String, dynamic>> getTokenAndUserId() async {
 }
 
 class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
-  late String _description;
-  late String _playlistName;
+  late String _description = "";
+  late String _playlistName = "";
   bool _isLoading = false;
   bool isFavorite = false;
   // Keep track of selected news items
@@ -145,6 +146,46 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
         selectedNews.clear();
       }
     });
+  }
+
+  Future<void> share() async {
+    setState(() => _isLoading = true);
+    playlists.clear();
+    try {
+      // 카카오톡 실행 가능 여부 확인
+      bool isKakaoTalkSharingAvailable =
+          await ShareClient.instance.isKakaoTalkSharingAvailable();
+
+      if (isKakaoTalkSharingAvailable) {
+        try {
+          Uri uri = await ShareClient.instance.shareDefault(
+              template: TextTemplate(
+                  text: 'Newsee\n친구가 플레이 리스트를 공유했어요!\n$_playlistName',
+                  link: Link(),
+                  buttonTitle: "플레이 리스트 보러가기"));
+          await ShareClient.instance.launchKakaoTalk(uri);
+          print('카카오톡 공유 완료');
+        } catch (error) {
+          print('카카오톡 공유 실패 $error');
+        }
+      } else {
+        try {
+          Uri shareUrl = await WebSharerClient.instance.makeDefaultUrl(
+              template: TextTemplate(
+                  text: 'Newsee\n친구가 플레이 리스트를 공유했어요!\n$_playlistName',
+                  link: Link(),
+                  buttonTitle: "플레이 리스트 보러가기"));
+          await launchBrowserTab(shareUrl, popupOpen: true);
+        } catch (error) {
+          print('카카오톡 공유 실패 $error');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading bookmarks: $e');
+      //showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   void _sharePlaylist() {
@@ -485,7 +526,9 @@ ${widget.playlist.newsList?.map((news) => '- ${news.title}').join('\n') ?? '뉴�
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton.icon(
-                                onPressed: _sharePlaylist,
+                                onPressed: () {
+                                  share();
+                                },
                                 icon: const Icon(Icons.share,
                                     size: 18, color: Colors.white),
                                 label: const Text(
