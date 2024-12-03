@@ -405,8 +405,8 @@ ${widget.playlist.newsList?.map((news) => '- ${news.title}').join('\n') ?? 'ë‰´ì
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
                       border: Border(
-                        bottom: BorderSide(color: Color(0xFFD4D4D4), width: 1),
-                      ),
+                          //bottom: BorderSide(color: Color(0xFFD4D4D4), width: 1),
+                          ),
                     ),
                     child: Container(
                       width: double.infinity,
