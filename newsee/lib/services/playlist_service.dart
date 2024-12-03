@@ -4,6 +4,7 @@ import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:newsee/utils/auth_utils.dart';
 import 'package:newsee/models/Playlist.dart';
 
+// Playlist Page
 // 플레이리스트 목록 불러오기
 Future<List<Playlist>> fetchPlaylists(bool isMine) async {
   final credentials = await getTokenAndUserId();
@@ -73,4 +74,74 @@ Future<void> deletePlaylist(int id, bool isMine) async {
   if (response.statusCode != 200) {
     throw Exception('Failed to delete playlist');
   }
+}
+
+// Playlist Detail Page
+// 플레이리스트 편집
+Future<http.Response> editPlaylist(
+    String token, int playlistId, String name, String description) async {
+  final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/edit');
+  return await http.patch(
+    url,
+    headers: {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      "playlistId": playlistId,
+      "playlistName": name,
+      "description": description,
+    }),
+  );
+}
+
+// 플레이리스트 구독자
+Future<http.Response> getSubscriptionStatus(
+    String token, int playlistId) async {
+  final url = Uri.parse(
+      '${RootUrlProvider.baseURL}/playlist/subscribe/status?playlistId=$playlistId');
+  return await http.get(
+    url,
+    headers: {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+}
+
+//플레이리스트 구독 변경
+Future<http.Response> changeSubscription(
+    String token, int playlistId, bool subscribe) async {
+  final endpoint =
+      subscribe ? '/playlist/subscribe' : '/playlist/subscribe/cancel';
+  final url =
+      Uri.parse('${RootUrlProvider.baseURL}$endpoint?playlistId=$playlistId');
+
+  return await http.post(
+    url,
+    headers: {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+    },
+  );
+}
+
+//플레이리스트 뉴스 삭제
+Future<http.Response> deleteNewsItem(
+    String token, int playlistId, int newsId) async {
+  final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/news/remove');
+  return await http.delete(
+    url,
+    headers: {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      'playlistId': playlistId,
+      "newsIdList": [newsId],
+    }),
+  );
 }

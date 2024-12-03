@@ -7,11 +7,11 @@ void showErrorDialog(BuildContext context, String message,
     builder: (context) => AlertDialog(
       title: Text(
         title ?? '오류',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
       content: Text(
         message,
-        style: TextStyle(fontSize: 16, color: Colors.black54),
+        style: const TextStyle(fontSize: 16, color: Colors.black54),
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -21,7 +21,7 @@ void showErrorDialog(BuildContext context, String message,
           onPressed: () => Navigator.of(context).pop(),
           child: Text(
             confirmButtonText,
-            style: TextStyle(color: Colors.blue),
+            style: const TextStyle(color: Colors.blue),
           ),
         ),
       ],

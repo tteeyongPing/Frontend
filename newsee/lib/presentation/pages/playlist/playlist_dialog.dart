@@ -12,7 +12,7 @@ Future<void> showPlaylistDialog(BuildContext context,
       return AlertDialog(
         title: const Text(
           '플레이리스트 생성',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -22,11 +22,19 @@ Future<void> showPlaylistDialog(BuildContext context,
               // 제목 입력
               TextField(
                 controller: titleController,
+                style: const TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
                 decoration: InputDecoration(
                   labelText: '제목',
                   hintText: '제목을 입력하세요',
+                  labelStyle: const TextStyle(fontSize: 14), // 레이블 폰트 크기
+                  floatingLabelStyle: const TextStyle(color: Color(0xFF4D71F6)),
+                  hintStyle: const TextStyle(fontSize: 12), // 힌트 폰트 크기
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
                   ),
                 ),
               ),
@@ -34,11 +42,19 @@ Future<void> showPlaylistDialog(BuildContext context,
               // 설명 입력
               TextField(
                 controller: descriptionController,
+                style: const TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
                 decoration: InputDecoration(
                   labelText: '설명',
                   hintText: '플레이리스트 설명을 입력하세요',
+                  labelStyle: const TextStyle(fontSize: 14), // 레이블 폰트 크기
+                  floatingLabelStyle: const TextStyle(color: Color(0xFF4D71F6)),
+                  hintStyle: const TextStyle(fontSize: 12), // 힌트 폰트 크기
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
                   ),
                 ),
               ),
@@ -47,8 +63,11 @@ Future<void> showPlaylistDialog(BuildContext context,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context), // 다이얼로그 닫기
-            child: const Text('취소'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              '취소',
+              style: TextStyle(fontSize: 14, color: Colors.black),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -63,7 +82,14 @@ Future<void> showPlaylistDialog(BuildContext context,
               Navigator.pop(context); // 다이얼로그 닫기
               onSubmit(title, description); // 입력 데이터를 콜백으로 전달
             },
-            child: const Text('생성'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4D71F6), // 버튼 색상 설정
+              foregroundColor: Colors.white,
+            ),
+            child: const Text(
+              '생성',
+              style: TextStyle(fontSize: 14), // 버튼 폰트 크기
+            ),
           ),
         ],
       );
@@ -83,7 +109,7 @@ Future<bool> showDeleteDialog({
             backgroundColor: Colors.white,
             contentPadding: EdgeInsets.zero,
             actionsPadding: EdgeInsets.zero,
-            content: Container(
+            content: SizedBox(
               width: 260,
               height: 80,
               child: Center(
@@ -100,7 +126,7 @@ Future<bool> showDeleteDialog({
                   Expanded(
                     child: Container(
                       height: 50,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           top: BorderSide(color: Colors.grey),
                           right: BorderSide(color: Colors.grey, width: 0.5),
@@ -118,7 +144,7 @@ Future<bool> showDeleteDialog({
                   Expanded(
                     child: Container(
                       height: 50,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           top: BorderSide(color: Colors.grey),
                           left: BorderSide(color: Colors.grey, width: 0.5),

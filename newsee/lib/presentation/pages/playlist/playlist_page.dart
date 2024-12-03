@@ -258,6 +258,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                                 }
                                               },
                                             );
+                                            if (!mounted) return;
                                             if (isDeleted) {
                                               await _loadPlaylists(); // 삭제 후 목록 갱신
                                             }
