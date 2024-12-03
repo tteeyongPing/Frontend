@@ -690,9 +690,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                   const SizedBox(height: 8),
                                   // 설명
                                   Text(
-                                    playlist.description.length > 60
-                                        ? '${playlist.description.substring(0, 60)}...'
-                                        : playlist.description,
+                                    playlist.description,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey,

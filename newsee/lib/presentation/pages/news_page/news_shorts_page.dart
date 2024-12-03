@@ -239,7 +239,7 @@ class NewsShortsPage extends StatefulWidget {
 }
 
 class _NewsShortsPageState extends State<NewsShortsPage> {
-  late Map<String, dynamic>? news; // news를 nullable로 설정
+  late Map<String, dynamic>? news = null; // news를 nullable로 설정
   bool _isLoading = false;
 
   // View count recording
@@ -441,7 +441,10 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
 
       if (response.statusCode == 200) {
         final successMessage = isBookmark ? '북마크 삭제 성공.' : '북마크 등록 성공.';
-        showErrorDialog(context, successMessage);
+        showErrorDialog(
+          context,
+          successMessage,
+        );
         isBookmark = !isBookmark;
       } else {
         final errorMessage = isBookmark ? '북마크 삭제 실패.' : '북마크 등록 실패.';
@@ -594,34 +597,51 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
     text: '$title\n$content',
     link: Link(),
   );
-
-  // Error dialog
-  void showErrorDialog(BuildContext context, String message,
-      {String? title, String confirmButtonText = '확인'}) {
+  // 로그아웃 팝업을 표시하는 메서드
+  void showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          title ?? '오류',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        content: Text(
-          message,
-          style: TextStyle(fontSize: 16, color: Colors.black54),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              confirmButtonText,
-              style: TextStyle(color: Colors.blue),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          contentPadding: EdgeInsets.zero,
+          actionsPadding: EdgeInsets.zero,
+          content: Container(
+            width: 260,
+            height: 80,
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        ],
-      ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Colors.grey),
+                        right: BorderSide(color: Colors.grey, width: 0.5),
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("확인", style: TextStyle(color: Colors.black)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
