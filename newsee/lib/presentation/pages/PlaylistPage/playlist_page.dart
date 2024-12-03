@@ -677,11 +677,9 @@ class PlaylistPageState extends State<PlaylistPage> {
                                           if (isMyPlaylistSelected) {
                                             await _showDeleteMyDialog(
                                                 playlist.playlistId);
-                                            Navigator.pop(context);
                                           } else {
                                             await _showDeleteSubDialog(
                                                 playlist.playlistId);
-                                            Navigator.pop(context);
                                           }
                                         },
                                       ),

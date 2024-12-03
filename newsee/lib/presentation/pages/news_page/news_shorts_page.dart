@@ -12,6 +12,52 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
 
 String title = "";
 String content = "";
+void showErrorDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        contentPadding: EdgeInsets.zero,
+        actionsPadding: EdgeInsets.zero,
+        content: Container(
+          width: 260,
+          height: 80,
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.black),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Colors.grey),
+                      right: BorderSide(color: Colors.grey, width: 0.5),
+                    ),
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("확인", style: TextStyle(color: Colors.black)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
+}
 
 class PlaylistDialog extends StatefulWidget {
   final List<Playlist> playlists;
@@ -55,6 +101,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
       );
 
       if (response.statusCode == 200) {
+        //showErrorDialog(context, '뉴스가 플레이리스트에 저장되었습니다.');
         var data = json.decode(utf8.decode(response.bodyBytes));
       } else {
         //showErrorDialog(context, '뉴스 검색 결과가 없습니다.');

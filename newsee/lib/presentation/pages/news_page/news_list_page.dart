@@ -459,20 +459,20 @@ class NewsListPageState extends State<NewsListPage> {
                                     Text(
                                       news.company,
                                       style: const TextStyle(fontSize: 14),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
                                 Text(
-                                  news.title.runes.take(1500).length > 60
-                                      ? '${String.fromCharCodes(news.title.runes.take(1000).toList()).substring(0, 51)}...'
-                                      : news.title,
+                                  news.title,
                                   style: const TextStyle(
                                       fontSize: 20, color: Colors.black),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
                                 Text(
-                                  news.content.length > 43
-                                      ? '${news.content.substring(0, 53)}...' // 내용이 길면 잘라서 표시
-                                      : news.content,
+                                  news.content,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.grey),
                                 ),
