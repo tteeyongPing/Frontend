@@ -138,6 +138,20 @@ class LoginPage extends StatelessWidget {
                 width: buttonWidth,
               ),
             ),
+
+            // 임시 이동 버튼
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
+              },
+              child: Text(
+                "임시 이동 버튼",
+                style: TextStyle(fontSize: textFontSize),
+              ),
+            ),
           ],
         ),
       ),

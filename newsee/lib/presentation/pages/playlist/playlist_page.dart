@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:newsee/models/Playlist.dart';
 import 'package:newsee/presentation/pages/playlist/playlist_detail/playlist_detail_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:newsee/Api/RootUrlProvider.dart';
-import 'package:http/http.dart' as http;
+import 'package:newsee/services/playlist_service.dart';
+import 'package:newsee/presentation/pages/playlist/playlist_dialog.dart';
+import 'package:newsee/utils/dialog_utils.dart';
 
 late ScrollController _scrollController;
 
@@ -17,44 +15,6 @@ class PlaylistPage extends StatefulWidget {
   PlaylistPageState createState() => PlaylistPageState();
 }
 
-Future<Map<String, dynamic>> getTokenAndUserId() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return {
-    'token': prefs.getString('token'),
-    'userId': prefs.getInt('userId'),
-  };
-}
-
-// 공용 ErrorDialog 유틸 함수
-void showErrorDialog(BuildContext context, String message,
-    {String? title, String confirmButtonText = '확인'}) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(
-        title ?? '오류',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-      ),
-      content: Text(
-        message,
-        style: TextStyle(fontSize: 16, color: Colors.black54),
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            confirmButtonText,
-            style: TextStyle(color: Colors.blue),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class PlaylistPageState extends State<PlaylistPage> {
   late List<Playlist> playlists = []; // 플레이리스트 목록
   late List<Playlist> subscribePlaylists = []; // 구독한 플레이리스트 목록
@@ -64,444 +24,49 @@ class PlaylistPageState extends State<PlaylistPage> {
   @override
   void initState() {
     super.initState();
-    print(widget.isMine);
     isMyPlaylistSelected = widget.isMine;
-    _loadMyPlaylist();
-    _loadSubPlaylist(); // 플레이리스트 데이터 로드
+    _loadPlaylists();
   }
 
-  Future<void> _loadSubPlaylist() async {
+  Future<void> _loadPlaylists() async {
     setState(() => _isLoading = true);
-    subscribePlaylists.clear();
     try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url =
-          Uri.parse('${RootUrlProvider.baseURL}/playlist/subscribe/list');
-      final response = await http.get(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-
-        // 나의 플레이리스트 처리
-        setState(() {
-          subscribePlaylists = List<Playlist>.from(
-            data['data'].map((item) => Playlist.fromJson(item)),
-          );
-        });
-        print("Sub");
-        print(playlists);
-      } else if (response.statusCode == 404) {
+      if (isMyPlaylistSelected) {
+        playlists = await fetchPlaylists(true);
       } else {
-        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
+        subscribePlaylists = await fetchPlaylists(false);
       }
     } catch (e) {
-      debugPrint('Error loading bookmarks: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
+      showErrorDialog(context, '플레이리스트를 불러오는 중 문제가 발생했습니다: $e');
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  void _makeNewPlaylist(BuildContext context) async {
-    String _title = "";
-    String _description = "";
-    TextEditingController titleController = TextEditingController(text: "");
-    TextEditingController descriptionController =
-        TextEditingController(text: "");
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            '플레이리스트 생성',
-            style: TextStyle(
-              fontSize: 16, // 제목 폰트 크기
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 제목 입력
-                TextField(
-                  controller: titleController,
-                  style: TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
-                  decoration: InputDecoration(
-                    labelText: '제목',
-                    hintText: '제목을 입력하세요',
-                    labelStyle: TextStyle(fontSize: 14), // 레이블 폰트 크기
-                    floatingLabelStyle: TextStyle(color: Color(0xFF4D71F6)),
-                    hintStyle: TextStyle(fontSize: 12), // 힌트 폰트 크기
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // 설명 입력
-                TextField(
-                  controller: descriptionController,
-                  style: TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
-                  decoration: InputDecoration(
-                    labelText: '설명',
-                    hintText: '플레이리스트 설명을 입력하세요',
-                    labelStyle: TextStyle(fontSize: 14), // 레이블 폰트 크기
-                    floatingLabelStyle: TextStyle(color: Color(0xFF4D71F6)),
-                    hintStyle: TextStyle(fontSize: 12), // 힌트 폰트 크기
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Color(0xFF4D71F6), width: 2), // 선택 시 테두리 색상
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            // 취소 버튼
-            TextButton(
-              onPressed: () => Navigator.pop(context), // 다이얼로그 닫기
-              child: Text(
-                '취소',
-                style: TextStyle(fontSize: 14, color: Colors.black), // 버튼 폰트 크기
-              ),
-            ),
-            // 생성 버튼
-            ElevatedButton(
-              onPressed: () async {
-                _title = titleController.text;
-                _description = descriptionController.text;
-                await _navigateToAddPlaylist(_title, _description);
-                Navigator.pop(context); // 다이얼로그 닫기
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4D71F6), // 버튼 색상 설정
-                foregroundColor: Colors.white, // 버튼 텍스트 색상
-              ),
-              child: Text(
-                '생성',
-                style: TextStyle(fontSize: 14), // 버튼 폰트 크기
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _navigateToAddPlaylist(String name, String desc) async {
+  Future<void> _createPlaylist(String name, String desc) async {
     setState(() => _isLoading = true);
-
     try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/create');
-      final response = await http.post(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json'
-        },
-        body: jsonEncode(
-            {"playlistName": name, "description": desc, "newsIdList": []}),
-      );
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-        _loadMyPlaylist();
-      } else {
-        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
-      }
+      await createPlaylist(name, desc);
+      await _loadPlaylists(); // 생성 후 목록 갱신
+      showErrorDialog(context, '플레이리스트가 생성되었습니다!', title: '성공');
     } catch (e) {
-      debugPrint('Error loading bookmarks: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
+      showErrorDialog(context, '플레이리스트 생성에 실패했습니다: $e');
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _loadMyPlaylist() async {
-    setState(() => _isLoading = true);
-    playlists.clear();
-    try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/list');
-      final response = await http.get(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-
-        // 나의 플레이리스트 처리
-        setState(() {
-          playlists = List<Playlist>.from(
-            data['data'].map((item) => Playlist.fromJson(item)),
-          );
-        });
-        print("My");
-        print(playlists);
-      } else {
-        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
-      }
-    } catch (e) {
-      debugPrint('Error loading bookmarks: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<bool> _showDeleteMyDialog(int id) async {
-    bool isDeleted = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              contentPadding: EdgeInsets.zero,
-              actionsPadding: EdgeInsets.zero,
-              content: Container(
-                width: 260,
-                height: 80,
-                child: Center(
-                  child: Text(
-                    "플레이리스트를 삭제하시겠습니까?",
-                    style: TextStyle(color: Colors.black),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              actions: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                            right: BorderSide(color: Colors.grey, width: 0.5),
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(
-                                context, false); // Cancel action returns false
-                          },
-                          child:
-                              Text("취소", style: TextStyle(color: Colors.black)),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                            left: BorderSide(color: Colors.grey, width: 0.5),
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () async {
-                            await deleteMyPlaylist(
-                                id); // Perform delete operation
-                            Navigator.pop(
-                                context, true); // Delete action returns true
-                          },
-                          child:
-                              Text("삭제", style: TextStyle(color: Colors.red)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ) ??
-        false; // Default return value is false if user cancels
-
-    return isDeleted; // Return whether the delete action was successful
-  }
-
-  Future<bool> _showDeleteSubDialog(int id) async {
-    bool isDeleted = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              contentPadding: EdgeInsets.zero,
-              actionsPadding: EdgeInsets.zero,
-              content: Container(
-                width: 260,
-                height: 80,
-                child: Center(
-                  child: Text(
-                    "구독을 취소하시겠습니까?",
-                    style: TextStyle(color: Colors.black),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              actions: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                            right: BorderSide(color: Colors.grey, width: 0.5),
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(
-                                context, false); // Cancel action returns false
-                          },
-                          child:
-                              Text("취소", style: TextStyle(color: Colors.black)),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                            left: BorderSide(color: Colors.grey, width: 0.5),
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () async {
-                            await deleteSubPlaylist(
-                                id); // Perform delete operation
-                            Navigator.pop(
-                                context, true); // Delete action returns true
-                          },
-                          child:
-                              Text("삭제", style: TextStyle(color: Colors.red)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ) ??
-        false; // Default return value is false if user cancels
-
-    return isDeleted; // Return whether the delete action was successful
-  }
-
-  Future<void> deleteSubPlaylist(int id) async {
-    setState(() => _isLoading = true);
-
-    try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url = Uri.parse(
-          '${RootUrlProvider.baseURL}/playlist/subscribe/cancel?playlistId=$id');
-      final response = await http.post(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      print(url);
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-
-        // 나의 플레이리스트 처리
-        setState(() {
-          subscribePlaylists
-              .removeWhere((playlist) => playlist.playlistId == id);
-        });
-      } else {
-        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
-      }
-    } catch (e) {
-      debugPrint('Error loading bookmarks: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> deleteMyPlaylist(int id) async {
-    setState(() => _isLoading = true);
-
-    try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url = Uri.parse(
-          '${RootUrlProvider.baseURL}/playlist/remove?playlistId=$id');
-      final response = await http.delete(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-
-        // 나의 플레이리스트 처리
-        setState(() {
-          playlists.removeWhere((playlist) => playlist.playlistId == id);
-        });
-      } else {
-        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
-      }
-    } catch (e) {
-      debugPrint('Error loading bookmarks: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-// 플레이리스트 클릭 시 상세 페이지로 이동
-  void _navigateToPlaylistDetail(Playlist playlist) {
-    Navigator.push(
+  void _navigateToPlaylistDetail(Playlist playlist) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PlaylistDetailPage(playlist: playlist),
       ),
-    ).then((_) {
-      // 상세 페이지에서 돌아온 후 _loadMyPlaylist() 호출
-      _loadMyPlaylist();
-      _loadSubPlaylist();
-    });
+    );
+
+    if (result == true) {
+      await _loadPlaylists(); // 단일화된 함수 호출
+    }
   }
 
   @override
@@ -618,101 +183,116 @@ class PlaylistPageState extends State<PlaylistPage> {
                               ? playlists[index]
                               : subscribePlaylists[index];
                           return GestureDetector(
-                            onTap: () => _navigateToPlaylistDetail(playlist),
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 제목 및 카운트 + 버튼
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                playlist.playlistName,
+                              onTap: () => _navigateToPlaylistDetail(playlist),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 제목 및 카운트 + 버튼
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  playlist.playlistName,
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                "(${playlist.newsList?.length})",
                                                 style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
                                                   color: Colors.black,
                                                 ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ),
-                                            const SizedBox(width: 8),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            size: 20,
+                                          ),
+                                          onPressed: () async {
+                                            bool isDeleted =
+                                                await showDeleteDialog(
+                                              context: context,
+                                              message: isMyPlaylistSelected
+                                                  ? "플레이리스트를 삭제하시겠습니까?"
+                                                  : "구독을 취소하시겠습니까?",
+                                              onDelete: () async {
+                                                if (isMyPlaylistSelected) {
+                                                  await deletePlaylist(
+                                                      playlist.playlistId,
+                                                      true);
+                                                } else {
+                                                  await deletePlaylist(
+                                                      playlist.playlistId,
+                                                      false);
+                                                }
+                                              },
+                                            );
+                                            if (isDeleted) {
+                                              await _loadPlaylists(); // 삭제 후 목록 갱신
+                                            }
+                                          },
+                                        ),
+
+                                        const SizedBox(height: 8),
+                                        // 설명
+                                        Text(
+                                          playlist.description,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // 게시자
+                                        Row(
+                                          children: [
                                             Text(
-                                              "(${playlist.newsList?.length})",
+                                              "게시자: ${playlist.userName}",
                                               style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black,
+                                                fontSize: 10,
+                                                color: Colors.black54,
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.close,
-                                          size: 20,
-                                        ),
-                                        onPressed: () async {
-                                          if (isMyPlaylistSelected) {
-                                            await _showDeleteMyDialog(
-                                                playlist.playlistId);
-                                          } else {
-                                            await _showDeleteSubDialog(
-                                                playlist.playlistId);
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  // 설명
-                                  Text(
-                                    playlist.description,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+                                      ],
                                     ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // 게시자
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "게시자: ${playlist.userName}",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                                  ],
+                                ),
+                              ));
                         },
                       ),
                       if (isMyPlaylistSelected) // isMyPlaylistSelected일 때만 생성 버튼 표시
@@ -725,8 +305,11 @@ class PlaylistPageState extends State<PlaylistPage> {
                               width: double.infinity, // 버튼의 너비를 100%로 설정
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // 플레이리스트 추가 동작
-                                  _makeNewPlaylist(context);
+                                  showPlaylistDialog(context,
+                                      (title, description) async {
+                                    await _createPlaylist(
+                                        title, description); // 입력값 전달
+                                  });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
