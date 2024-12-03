@@ -212,7 +212,12 @@ class _BookmarkPageState extends State<BookmarkPage> {
               news.title.length > 60
                   ? '${news.title.substring(0, 60)}...'
                   : news.title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontVariations: [
+                  FontVariation('wght', 700), // wght 축을 사용하여 굵기 조정
+                ],
+              ),
             ),
             SizedBox(height: 8),
             Text(
@@ -255,7 +260,12 @@ class _BookmarkPageState extends State<BookmarkPage> {
               child: Center(
                 child: Text(
                   "나의 북마크",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontVariations: [
+                      FontVariation('wght', 700), // wght 축을 사용하여 굵기 조정
+                    ],
+                  ),
                 ),
               ),
             ),
