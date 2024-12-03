@@ -85,7 +85,7 @@ class _SearchPageState extends State<SearchPage> {
               'title': item['title'],
               'date': item['date'],
               'company': item['company'],
-              'shorts': item['title']
+              'shorts': item['content']
             };
           }));
         });
@@ -432,9 +432,11 @@ class _SearchPageState extends State<SearchPage> {
                                         ],
                                       ),
                                       Text(_allNewsData[index]['title'],
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
                                           style: const TextStyle(fontSize: 20)),
                                       Text(
-                                        _allNewsData[index]['date'],
+                                        _allNewsData[index]['shorts'],
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                             fontSize: 12, color: Colors.grey),
@@ -488,22 +490,19 @@ class _SearchPageState extends State<SearchPage> {
                                         fontSize: 16,
                                         color: Colors.black,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
                                 // 설명
                                 Text(
-                                  _allPlayListData[index].description.length >
-                                          60
-                                      ? '${_allPlayListData[index].description.substring(0, 60)}...'
-                                      : _allPlayListData[index].description,
+                                  _allPlayListData[index].description,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 12),
                                 // 게시자 정보
