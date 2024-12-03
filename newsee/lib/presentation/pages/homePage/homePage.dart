@@ -122,32 +122,75 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> loadChartData() async {
+  Future<void> generateAndSaveDummyData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> dailyTotals =
-        prefs.getStringList('daily_total_count_queue') ?? [];
-
-    // 현재 날짜를 기준으로 14일 데이터 생성
     DateTime today = DateTime.now();
-    List<String> last14Dates = List.generate(
-      14,
-      (index) => DateFormat('MM/dd')
+
+    // 어제까지의 더미 데이터를 생성
+    List<String> last13Dates = List.generate(
+      13,
+      (index) => DateFormat('yyyy-MM-dd')
           .format(today.subtract(Duration(days: 13 - index))),
     );
 
-    // 데이터 매핑
-    List<int> counts = List.generate(14, (index) {
-      int queueIndex = dailyTotals.length - 14 + index;
-      if (queueIndex >= 0 && queueIndex < dailyTotals.length) {
-        return int.tryParse(dailyTotals[queueIndex]) ?? 0;
+    // 더미 데이터: 각 날짜에 랜덤 조회수 추가
+    List<int> dummyCounts = List.generate(
+      13,
+      (index) => (index + 1) * 2 - index % 4, // 5, 10, 15, ...
+    );
+
+    // SharedPreferences에 저장
+    for (int i = 0; i < last13Dates.length; i++) {
+      await prefs.setInt('dummy_${last13Dates[i]}', dummyCounts[i]);
+      print("Saved dummy data: ${last13Dates[i]} - ${dummyCounts[i]}");
+    }
+  }
+
+  void loadChartData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DateTime today = DateTime.now();
+
+    // 전날까지의 더미 데이터 가져오기
+    List<String> last13Dates = List.generate(
+      13,
+      (index) => DateFormat('yyyy-MM-dd')
+          .format(today.subtract(Duration(days: 13 - index))),
+    );
+
+    List<int> counts = [];
+    for (String date in last13Dates) {
+      int? count = prefs.getInt('dummy_$date');
+      counts.add(count ?? 0); // 데이터가 없으면 0으로 추가
+      print("Loaded data for $date: ${count ?? 0}");
+    }
+
+    // 오늘 날짜 데이터를 계산하여 추가
+    String todayDate = DateFormat('yyyy-MM-dd').format(today);
+    int todayTotal = 0;
+
+    // SharedPreferences에서 오늘 날짜 데이터 가져오기
+    for (String key in prefs.getKeys()) {
+      if (key.contains(todayDate)) {
+        todayTotal += prefs.getInt(key) ?? 0;
       }
-      return 0; // 없는 데이터는 0으로 설정
-    });
+    }
+
+    counts.add(todayTotal); // 오늘 데이터를 추가
+    print("Today's data: $todayTotal");
 
     setState(() {
-      dates = last14Dates;
-      dailyCounts = counts;
+      dates = [
+        ...last13Dates
+            .map((date) => DateFormat('MM/dd').format(DateTime.parse(date))),
+        DateFormat('MM/dd').format(today),
+      ];
+      dailyCounts = counts.isEmpty
+          ? List.filled(14, 0) // 데이터가 비어있으면 0으로 채움
+          : counts;
     });
+
+    print("Final dates: $dates");
+    print("Final dailyCounts: $dailyCounts");
   }
 
   void _showErrorDialog(String message) {
@@ -166,26 +209,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _loadDummyData() {
-    DateTime today = DateTime.now();
-
-    // 현재 날짜를 기준으로 14일간의 더미 데이터 생성
-    dates = List.generate(
-      14,
-      (index) => DateFormat('MM/dd')
-          .format(today.subtract(Duration(days: 13 - index))),
-    );
-
-    // 더미 데이터: 각 날짜에 랜덤 조회수 추가
-    dailyCounts =
-        List.generate(14, (index) => (index + 1) * 5); // 5, 10, 15, ...
-    setState(() {});
-  }
-
   void _scrollToRight() {
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     }
+  }
+
+  Future<void> _initializeData() async {
+    await generateAndSaveDummyData(); // 더미 데이터 생성 완료 후
+    loadChartData(); // 차트 데이터 로드
+    loadBanner(); // 배너 데이터 로드
   }
 
   @override
@@ -199,11 +232,11 @@ class _HomePageState extends State<HomePage> {
       });
     });
     _scrollController = ScrollController(); // 초기화
-    _loadDummyData(); // 더미 데이터를 로드합니다.
+    _initializeData(); // 데이터 초기화 함수
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToRight(); // 화면 로드 후 오른쪽으로 스크롤
     });
-    loadBanner();
   }
 
   @override

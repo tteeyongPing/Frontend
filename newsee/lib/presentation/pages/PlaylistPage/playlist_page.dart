@@ -717,7 +717,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                           );
                         },
                       ),
-                      if (isMyPlaylistSelected) // isMyPlaylistSelected일 때만 추가 버튼 표시
+                      if (isMyPlaylistSelected) // isMyPlaylistSelected일 때만 생성 버튼 표시
                         Align(
                           alignment: Alignment.bottomCenter, // 하단에 고정
                           child: Padding(
@@ -743,7 +743,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                   ),
                                 ),
                                 child: const Text(
-                                  '플레이리스트 추가',
+                                  '플레이리스트 생성',
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),
