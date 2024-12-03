@@ -713,6 +713,7 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const SizedBox(height: 16),
                             // Company
                             Text(
                               news['company'],

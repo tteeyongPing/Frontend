@@ -708,6 +708,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  const SizedBox(height: 16),
                                   // Newspaper
                                   Text(
                                     news!['company'],
