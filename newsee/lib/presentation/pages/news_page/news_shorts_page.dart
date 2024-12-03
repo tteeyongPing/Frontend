@@ -734,15 +734,12 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(
+                            height: 15,
+                          ),
                           // If news is null, show an error message
                           if (news == null)
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                '뉴스를 불러오는 중 오류가 발생했습니다.',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            )
+                            Center(child: CircularProgressIndicator())
                           else ...[
                             // Newspaper, Title, and Info Section
                             Container(

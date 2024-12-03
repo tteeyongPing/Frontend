@@ -702,6 +702,7 @@ class _NewsOriginPageState extends State<NewsOriginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: 15),
                       // Company, Title, and Info Section
                       Container(
                         width: screenWidth,
