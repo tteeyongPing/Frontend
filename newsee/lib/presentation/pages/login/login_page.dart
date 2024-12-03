@@ -2,40 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:newsee/presentation/pages/Main/Main.dart';
 import 'package:newsee/presentation/pages/select_interests/select_interests_page.dart';
-import 'package:newsee/Api/RootUrlProvider.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 임포트
+import 'package:newsee/services/login_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
-import 'package:newsee/services/alert/load_alert.dart';
-import 'package:newsee/services/alert/schedule_alert.dart';
-
-// 토큰 저장 함수
-Future<void> saveToken(String token, int userId) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString('token', token);
-  await prefs.setInt('userId', userId);
-
-  print('토큰 저장 완료: $token');
-  print('userId 저장 완료: $userId');
-}
-
-// 앱 시작 시 토큰을 확인하는 함수
-Future<void> checkToken(BuildContext context) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('token');
-
-  if (token != null) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SelectInterests(visibilityFlag: 0),
-      ),
-    );
-  }
-}
+import 'package:logger/logger.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -44,48 +13,21 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> initializeNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('app_icon');
-  final InitializationSettings initializationSettings =
+  const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 
-Future<void> sendData(String token, BuildContext context) async {
-  var url =
-      Uri.parse('${RootUrlProvider.baseURL}/kakao/token/login?token=$token');
-  print('URL=$url');
-  try {
-    var response = await http.post(url);
-
-    if (response.statusCode == 200) {
-      var responseData = json.decode(response.body);
-      print('로그인 성공: ${responseData}');
-
-      String newToken = responseData['data']['token'];
-      int userId = responseData['data']['userId'];
-      saveToken(newToken, userId); // 토큰 저장
-      await cancelAllNotifications(); // 알림 취소
-      await LoadAlert(); // 알림 로드
-      await scheduleNotifications(); // 알림 예약
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SelectInterests(visibilityFlag: 0),
-        ),
-      );
-    } else {
-      print('로그인 실패: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('오류 발생: $e');
-  }
-}
-
 class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  static final Logger _logger = Logger();
+
   @override
   Widget build(BuildContext context) {
     // 앱 시작 시 토큰 확인
-    checkToken(context);
+    _checkAndNavigate(context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -95,7 +37,6 @@ class LoginPage extends StatelessWidget {
     double textFontSize = screenWidth * 0.05;
     double subtitleFontSize = screenWidth * 0.04;
     double buttonWidth = screenWidth * 0.7;
-    double buttonHeight = screenHeight * 0.07;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -109,7 +50,6 @@ class LoginPage extends StatelessWidget {
               width: logoWidth,
             ),
             SizedBox(height: screenHeight * 0.04),
-            // 타이틀 텍스트 크기 조정
             Text(
               '당신만을 위한 뉴스',
               style: TextStyle(fontSize: textFontSize),
@@ -122,17 +62,7 @@ class LoginPage extends StatelessWidget {
 
             // 카카오 로그인 버튼 크기 조정
             InkWell(
-              onTap: () async {
-                try {
-                  // 카카오 로그인
-                  OAuthToken token =
-                      await UserApi.instance.loginWithKakaoAccount();
-                  print('카카오계정으로 로그인 성공 ${token.accessToken}');
-                  sendData(token.accessToken, context);
-                } catch (error) {
-                  print('카카오계정으로 로그인 실패 $error');
-                }
-              },
+              onTap: () => _handleKakaoLogin(context),
               child: Image.asset(
                 'assets/kakaoLoginButton.png',
                 width: buttonWidth,
@@ -156,5 +86,35 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _checkAndNavigate(BuildContext context) async {
+    if (await LoginService.hasValidToken()) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SelectInterests(visibilityFlag: 0),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleKakaoLogin(BuildContext context) async {
+    try {
+      OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+      _logger.i('카카오계정으로 로그인 성공 ${token.accessToken}');
+
+      bool success = await LoginService.loginWithKakaoToken(token.accessToken);
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectInterests(visibilityFlag: 0),
+          ),
+        );
+      }
+    } catch (error) {
+      _logger.e('카카오계정으로 로그인 실패', error: error);
+    }
   }
 }
