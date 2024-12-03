@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/widgets/header/header.dart';
 import 'package:newsee/presentation/widgets/footer/footer.dart';
-import 'package:newsee/presentation/pages/homePage/homePage.dart';
-import 'package:newsee/presentation/pages/news_page/news_list_page.dart';
-import 'package:newsee/presentation/pages/BookmarkPage/BookmarkPage.dart';
-import 'package:newsee/presentation/pages/PlaylistPage/playlist_page.dart';
-import 'package:newsee/presentation/pages/MyPage/MyPage.dart';
+import 'package:newsee/presentation/pages/home/home_page.dart';
+import 'package:newsee/presentation/pages/news/news_list_page.dart';
+import 'package:newsee/presentation/pages/bookmark/bookmark_page.dart';
+import 'package:newsee/presentation/pages/playlist/playlist_page.dart';
+import 'package:newsee/presentation/pages/mypage/my_page.dart';
 
 class MainPage extends StatefulWidget {
   @override

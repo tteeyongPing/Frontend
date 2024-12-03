@@ -4,9 +4,9 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:permission_handler/permission_handler.dart'; // 권한 요청을 위한 패키지 임포트
-import 'package:newsee/presentation/pages/loginPage/login.dart';
+import 'package:newsee/presentation/pages/login/login_page.dart';
 import 'package:newsee/presentation/pages/Main/Main.dart'; // MainPage 임포트
-import 'package:newsee/presentation/pages/MyPage/AlertSettingsPage/AlertSettingsPage.dart'; // MainPage 임포트
+import 'package:newsee/presentation/pages/mypage/alert_setting/alert_setting_page.dart'; // MainPage 임포트
 import 'package:newsee/models/news_counter.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
