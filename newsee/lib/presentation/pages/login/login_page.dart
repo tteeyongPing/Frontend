@@ -114,7 +114,7 @@ class LoginPage extends StatelessWidget {
         );
       }
     } catch (error) {
-      _logger.e('카카오계정으로 로그인 실패', error: error);
+      //_logger.e('카카오계정으로 로그인 실패', error: error);
     }
   }
 }
