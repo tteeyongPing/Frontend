@@ -53,7 +53,7 @@ class LoginService {
         return false;
       }
     } catch (e) {
-      _logger.e('오류 발생', error: e);
+      //_logger.e('오류 발생', error: e);
       return false;
     }
   }
