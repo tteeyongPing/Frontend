@@ -5,56 +5,72 @@ import 'package:intl/intl.dart';
 class TimePickerWidget extends StatefulWidget {
   final Function(DateTime) onTimeSelected;
 
-  // 콜백을 받아오는 생성자
-  TimePickerWidget({required this.onTimeSelected});
+  const TimePickerWidget({
+    super.key,
+    required this.onTimeSelected,
+  });
 
   @override
-  _TimePickerWidgetState createState() => _TimePickerWidgetState();
+  TimePickerWidgetState createState() => TimePickerWidgetState();
 }
 
-class _TimePickerWidgetState extends State<TimePickerWidget> {
-  DateTime time = DateTime.now(); // 현재 시간으로 초기화
+class TimePickerWidgetState extends State<TimePickerWidget> {
+  static const double _activeItemFontSize = 30.0;
+  static const double _inactiveItemFontSize = 20.0;
+  static const double _itemExtent = 54.0;
+
+  final DateTime _initialDate = DateTime.now();
+  final DateTime _minDate = DateTime(2024, 1, 1, 0, 0);
+  final DateTime _maxDate = DateTime(2024, 1, 1, 23, 59);
+
+  late DateTime _selectedTime = _initialDate;
+
+  TextStyle _getTextStyle({
+    required bool isActive,
+    required bool isDisabled,
+  }) {
+    if (isDisabled) {
+      return const TextStyle(
+        fontSize: _inactiveItemFontSize,
+        fontWeight: FontWeight.normal,
+        color: Colors.grey,
+      );
+    }
+
+    return TextStyle(
+      fontSize: isActive ? _activeItemFontSize : _inactiveItemFontSize,
+      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+      color: isActive ? Colors.black : Colors.lightGreenAccent,
+    );
+  }
+
+  void _handleTimeChange(DateTime datetime) {
+    setState(() {
+      _selectedTime = datetime;
+    });
+    widget.onTimeSelected(_selectedTime);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ScrollDateTimePicker(
-      itemExtent: 54, // 항목의 높이
-      infiniteScroll: true, // 무한 스크롤
+      itemExtent: _itemExtent,
+      infiniteScroll: true,
       dateOption: DateTimePickerOption(
-        dateFormat: DateFormat('hh:mm a'), // 시간만 포맷 (AM/PM 뒤에 오도록)
-        minDate: DateTime(2024, 1, 1, 0, 0), // 최소시간
-        maxDate: DateTime(2024, 1, 1, 23, 59), // 최대시간
-        initialDate: time, // initialDate는 최초 선택된 시간
+        dateFormat: DateFormat('hh:mm a'),
+        minDate: _minDate,
+        maxDate: _maxDate,
+        initialDate: _initialDate,
       ),
-      onChange: (datetime) {
-        setState(() {
-          time = datetime; // 시간 업데이트
-        });
-        widget.onTimeSelected(time); // 선택된 시간을 콜백을 통해 부모로 전달
-      },
+      onChange: _handleTimeChange,
       itemBuilder: (context, pattern, text, isActive, isDisabled) {
-        // `isDisabled`가 true일 때 비활성화 상태인 항목을 구별하기 위해
-        if (isDisabled) {
-          return Text(
-            text,
-            style: TextStyle(
-              fontSize: 20, // 비활성화된 항목의 폰트 크기
-              fontWeight: FontWeight.normal,
-              color: Colors.grey, // 비활성화된 항목은 회색
-            ),
-          );
-        } else {
-          return Text(
-            text,
-            style: TextStyle(
-              fontSize: isActive ? 30 : 20, // 활성화된 항목은 더 크게 표시
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive
-                  ? Colors.black // 활성화된 항목은 검은색
-                  : Colors.lightGreenAccent, // 비활성화된 항목은 연두색
-            ),
-          );
-        }
+        return Text(
+          text,
+          style: _getTextStyle(
+            isActive: isActive,
+            isDisabled: isDisabled,
+          ),
+        );
       },
     );
   }
