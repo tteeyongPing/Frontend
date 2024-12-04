@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:newsee/presentation/widgets/news_consumption_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'package:newsee/Api/RootUrlProvider.dart';
-import 'package:http/http.dart' as http;
 import 'package:newsee/presentation/pages/select_interests/select_interests_page.dart';
-import 'package:newsee/presentation/pages/news/news_list_page.dart';
 import 'package:intl/intl.dart';
+import 'package:newsee/services/api_service.dart';
+import 'package:logger/logger.dart';
 
 class HomePage extends StatefulWidget {
-  final Function(int) onNavigateToNews; // 콜백 타입 정의
+  final Function(int) onNavigateToNews;
 
   const HomePage({
+    super.key,
     required this.onNavigateToNews,
   });
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   late List<Map<String, dynamic>> interests;
   bool isLoading = false;
 
@@ -30,7 +29,6 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> sliderData = [];
 
   final PageController _pageController = PageController();
-  int _currentIndex = 0;
   final List<IconData> icons = [
     Icons.add,
     Icons.trending_up_outlined,
@@ -42,44 +40,17 @@ class _HomePageState extends State<HomePage> {
     Icons.palette_outlined,
   ];
 
-  Future<Map<String, dynamic>> getTokenAndUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return {
-      'token': prefs.getString('token'),
-      'userId': prefs.getInt('userId'),
-    };
-  }
+  final logger = Logger();
 
   Future<void> loadBanner() async {
     setState(() => isLoading = true);
     try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-
-      var url = Uri.parse('${RootUrlProvider.baseURL}/banner/list');
-      var response = await http.get(url, headers: {
-        'accept': '*/*',
-        'Authorization': 'Bearer $token',
+      final data = await ApiService.getBannerList();
+      setState(() {
+        sliderData = data;
       });
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          sliderData = List<Map<String, dynamic>>.from(data['data'].asMap().map(
-            (index, item) {
-              return MapEntry(index, {
-                'imageUrl': item['imageUrl'],
-                'title': item['title'],
-                'shorts': item['shorts'],
-              });
-            },
-          ).values);
-        });
-      } else {
-        _showErrorDialog('관심사를 불러오는 데 실패했습니다.');
-      }
     } catch (e) {
-      print('오류 발생: $e');
+      logger.e('오류 발생: $e');
       _showErrorDialog('데이터를 불러오는 중 문제가 발생했습니다.');
     } finally {
       setState(() => isLoading = false);
@@ -89,33 +60,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> loadMyInterests() async {
     setState(() => isLoading = true);
     try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-
-      var url = Uri.parse('${RootUrlProvider.baseURL}/category/my');
-      var response = await http.get(url, headers: {
-        'accept': '*/*',
-        'Authorization': 'Bearer $token',
+      final data = await ApiService.getMyInterests(icons);
+      setState(() {
+        interests = data;
       });
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          interests = List<Map<String, dynamic>>.from(data['data'].asMap().map(
-            (index, item) {
-              return MapEntry(index, {
-                'categoryId': item['categoryId'],
-                'icon': icons[(item['categoryId'] % icons.length)],
-                'text': item['categoryName'],
-              });
-            },
-          ).values);
-        });
-      } else {
-        _showErrorDialog('관심사를 불러오는 데 실패했습니다.');
-      }
     } catch (e) {
-      print('오류 발생: $e');
+      logger.e('오류 발생: $e');
       _showErrorDialog('데이터를 불러오는 중 문제가 발생했습니다.');
     } finally {
       setState(() => isLoading = false);
@@ -142,7 +92,7 @@ class _HomePageState extends State<HomePage> {
     // SharedPreferences에 저장
     for (int i = 0; i < last13Dates.length; i++) {
       await prefs.setInt('dummy_${last13Dates[i]}', dummyCounts[i]);
-      print("Saved dummy data: ${last13Dates[i]} - ${dummyCounts[i]}");
+      logger.e('Saved dummy data: ${last13Dates[i]} - ${dummyCounts[i]}');
     }
   }
 
@@ -161,7 +111,7 @@ class _HomePageState extends State<HomePage> {
     for (String date in last13Dates) {
       int? count = prefs.getInt('dummy_$date');
       counts.add(count ?? 0); // 데이터가 없으면 0으로 추가
-      print("Loaded data for $date: ${count ?? 0}");
+      logger.e("Loaded data for $date: ${count ?? 0}");
     }
 
     // 오늘 날짜 데이터를 계산하여 추가
@@ -176,7 +126,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     counts.add(todayTotal); // 오늘 데이터를 추가
-    print("Today's data: $todayTotal");
+    logger.e("Today's data: $todayTotal");
 
     setState(() {
       dates = [
@@ -189,20 +139,20 @@ class _HomePageState extends State<HomePage> {
           : counts;
     });
 
-    print("Final dates: $dates");
-    print("Final dailyCounts: $dailyCounts");
+    logger.e("Final dates: $dates");
+    logger.e("Final dailyCounts: $dailyCounts");
   }
 
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('오류'),
+        title: const Text('오류'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: const Text('확인'),
           ),
         ],
       ),
@@ -246,7 +196,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onInterestTap(String text, int id) {
-    print(id);
+    logger.e(id);
     widget.onNavigateToNews(id);
     /*Navigator.push(
       context,
@@ -255,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                 initialSelectedInterestId: id,
               )),
     );*/
-    print('$text 클릭됨');
+    logger.e('$text 클릭됨');
   }
 
   @override
@@ -277,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                       controller: _pageController,
                       itemCount: sliderData.length,
                       itemBuilder: (context, index) {
-                        return Container(
+                        return SizedBox(
                           width: double.infinity,
                           child: Stack(fit: StackFit.expand, children: [
                             Image.network(
@@ -293,15 +243,15 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment: MainAxisAlignment
                                     .spaceEvenly, // spaceEvenly 유지
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 30),
-                                    child: Container(
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 30),
+                                    child: SizedBox(
                                       width: double.infinity, // 전체 너비 100%
                                       child: Text(
                                         "오늘의 뉴스",
                                         //sliderData[index]['title']!,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         ),
@@ -313,7 +263,7 @@ class _HomePageState extends State<HomePage> {
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 30),
-                                      child: Container(
+                                      child: SizedBox(
                                         width: double.infinity, // 전체 너비 100%
                                         child: Text(
                                           sliderData[index]['title']!,
@@ -330,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 30),
-                                      child: Container(
+                                      child: SizedBox(
                                         width: double.infinity, // 전체 너비 100%
                                         child: Text(
                                           sliderData[index]['shorts']!,
@@ -357,9 +307,9 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 6),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
+                        const SizedBox(height: 6),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
                               horizontal: 24, vertical: 10),
                           child: Text(
                             '나의 관심분야',
@@ -367,7 +317,7 @@ class _HomePageState extends State<HomePage> {
                             textAlign: TextAlign.left,
                           ),
                         ),
-                        Container(
+                        const SizedBox(
                           width: double.infinity,
                           child: Divider(
                             color: Color(0xFFE8E8E8),
@@ -376,12 +326,12 @@ class _HomePageState extends State<HomePage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 4),
-                          child: Container(
+                          child: SizedBox(
                             height: 100,
                             child: GridView.builder(
                               scrollDirection: Axis.horizontal,
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 1,
                                 childAspectRatio: 1.3,
                                 mainAxisSpacing: 1.0,
@@ -403,7 +353,7 @@ class _HomePageState extends State<HomePage> {
                                       );
 
                                       if (result == true) {
-                                        loadMyInterests(); // 돌아왔을 때 목록 다시 로드
+                                        loadMyInterests(); // 아왔을 때 목록 다시 로드
                                       }
                                     },
                                     child: Container(
@@ -418,17 +368,17 @@ class _HomePageState extends State<HomePage> {
                                             width: 70,
                                             height: 70,
                                             decoration: BoxDecoration(
-                                              color: Color(0xFFF2F2F2),
+                                              color: const Color(0xFFF2F2F2),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.add,
                                               size: 40,
                                               color: Colors.black,
                                             ),
                                           ),
-                                          Text(
+                                          const Text(
                                             "추가하기",
                                             style: TextStyle(fontSize: 16),
                                             textAlign: TextAlign.center,
@@ -456,7 +406,7 @@ class _HomePageState extends State<HomePage> {
                                           width: 70,
                                           height: 70,
                                           decoration: BoxDecoration(
-                                            color: Color(0xFFF2F2F2),
+                                            color: const Color(0xFFF2F2F2),
                                             borderRadius:
                                                 BorderRadius.circular(20),
                                           ),
@@ -466,10 +416,10 @@ class _HomePageState extends State<HomePage> {
                                             color: Colors.black,
                                           ),
                                         ),
-                                        SizedBox(height: 0),
+                                        const SizedBox(height: 0),
                                         Text(
                                           interests[index]['text']!,
-                                          style: TextStyle(fontSize: 16),
+                                          style: const TextStyle(fontSize: 16),
                                           textAlign: TextAlign.center,
                                         ),
                                       ],
@@ -482,11 +432,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Container(
                           height: kToolbarHeight / 2.6,
-                          color: Color(0xFFF2F2F2), // 원하는 색상
+                          color: const Color(0xFFF2F2F2), // 원하는 색상
                         ),
-                        SizedBox(height: 6),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
+                        const SizedBox(height: 6),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
                               horizontal: 24, vertical: 10),
                           child: Text(
                             'Newsee를 통한 뉴스 소비량',
@@ -494,121 +444,16 @@ class _HomePageState extends State<HomePage> {
                             textAlign: TextAlign.left,
                           ),
                         ),
-                        Container(
+                        const SizedBox(
                           width: double.infinity,
                           child: Divider(
                             color: Color(0xFFE8E8E8),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16), // 전체 패딩을 줄임
-                          child: SingleChildScrollView(
-                            controller: _scrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: SizedBox(
-                              width: 750, // 그래프 가로 길이를 줄임
-                              height: 180, // 그래프 세로 길이를 줄임
-                              child: BarChart(
-                                BarChartData(
-                                  barGroups: List.generate(
-                                    dailyCounts.length,
-                                    (index) => BarChartGroupData(
-                                      x: index,
-                                      barRods: [
-                                        BarChartRodData(
-                                          toY: dailyCounts[index].toDouble(),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Color(0xFF0038FF),
-                                              Color(0xFF4D71F6),
-                                            ],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
-                                          ), // 막대 그라데이션 적용
-                                          width: 15, // 막대의 폭을 줄임
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        interval: 0.8,
-                                        getTitlesWidget: (value, meta) {
-                                          if (value.toInt() >= 0 &&
-                                              value.toInt() < dates.length) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 4.0),
-                                              child: Text(
-                                                dates[value.toInt()],
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color:
-                                                      Colors.black, // 축 텍스트 색상
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                          return const SizedBox.shrink();
-                                        },
-                                        reservedSize: 20, // 아래 공간을 줄임
-                                      ),
-                                    ),
-                                    topTitles: AxisTitles(
-                                      sideTitles: SideTitles(showTitles: false),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 28,
-                                        getTitlesWidget: (value, meta) {
-                                          return Text(
-                                            value.toInt().toString(),
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 10,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    rightTitles: AxisTitles(
-                                      sideTitles: SideTitles(showTitles: false),
-                                    ),
-                                  ),
-                                  borderData: FlBorderData(
-                                    show: false, // 테두리 제거
-                                  ),
-                                  gridData: FlGridData(
-                                    show: false, // 격자선 제거
-                                  ),
-                                  barTouchData: BarTouchData(
-                                    touchTooltipData: BarTouchTooltipData(
-                                      tooltipPadding: const EdgeInsets.all(6),
-                                      fitInsideHorizontally:
-                                          true, // 툴팁이 화면 바깥으로 나가지 않도록 설정
-                                      fitInsideVertically:
-                                          true, // 툴팁이 화면 위/아래로 나가지 않도록 설정
-                                      getTooltipItem:
-                                          (group, groupIndex, rod, rodIndex) {
-                                        return BarTooltipItem(
-                                          '${dates[groupIndex]}: ${rod.toY.toInt()}',
-                                          const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        NewsConsumptionChart(
+                          dailyCounts: dailyCounts,
+                          dates: dates,
+                          scrollController: _scrollController,
                         ),
                       ],
                     ),
