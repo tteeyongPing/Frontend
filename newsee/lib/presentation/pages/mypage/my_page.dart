@@ -3,7 +3,7 @@ import 'package:newsee/presentation/pages/mypage/profile/profile_page.dart';
 import 'package:newsee/presentation/pages/select_interests/select_interests_page.dart';
 import 'package:newsee/presentation/pages/mypage/alert_setting/alert_setting_page.dart';
 import 'package:newsee/presentation/pages/search/search_page.dart';
-import 'package:newsee/services/my_page_service.dart';
+import 'package:newsee/services/my_page/my_page_service.dart';
 
 class MyPage extends StatefulWidget {
   final VoidCallback onNavigateToNews;
