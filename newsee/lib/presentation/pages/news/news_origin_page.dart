@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:newsee/models/news1.dart';
+import 'package:newsee/models/news.dart';
 import 'package:newsee/presentation/pages/news/news_list_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
