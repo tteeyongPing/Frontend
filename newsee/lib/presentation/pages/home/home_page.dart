@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:newsee/presentation/widgets/news_consumption_chart.dart';
+import 'package:newsee/presentation/pages/home/news_consumption_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/presentation/pages/select_interests/select_interests_page.dart';
 import 'package:intl/intl.dart';

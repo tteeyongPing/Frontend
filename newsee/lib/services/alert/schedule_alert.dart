@@ -62,15 +62,15 @@ Future<void> scheduleNotifications() async {
 
         await flutterLocalNotificationsPlugin.zonedSchedule(
           alarm['alarmId'],
-          AlarmTitle,
-          AlarmContent,
+          null, // Title은 비워둡니다
+          null, // Content도 비워둡니다
           tz.TZDateTime.from(alarmDateTime, tz.local),
           notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time,
-          payload: 'detail_page', // MainPage로 이동하는 payload
+          payload: alarm['alarmId'].toString(), // 알림 ID만 전달
         );
       }
     }
@@ -79,6 +79,7 @@ Future<void> scheduleNotifications() async {
 
 String AlarmTitle = "";
 String AlarmContent = "";
+String AlarmId = "";
 
 Future<Map<String, dynamic>> getTokenAndUserId() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -104,6 +105,7 @@ Future<void> loadAlertData() async {
     );
     if (response.statusCode == 200) {
       var data = json.decode(utf8.decode(response.bodyBytes));
+      AlarmId = data['data']['id'].toString();
       AlarmTitle = data['data']['title'];
       AlarmContent = data['data']['content'];
       debugPrint('알림 데이터 로드 성공: Title: $AlarmTitle, Content: $AlarmContent');
@@ -172,5 +174,53 @@ int getDayOfWeekFromString(String day) {
       return DateTime.saturday;
     default:
       return DateTime.monday; // 기본값
+  }
+}
+
+void initializeNotificationHandler() {
+  flutterLocalNotificationsPlugin.initialize(
+    InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(),
+    ),
+    onDidReceiveNotificationResponse: (NotificationResponse response) async {
+      if (response.payload != null) {
+        String alarmId = response.payload!;
+        await fetchAndShowNotificationDetails(alarmId);
+      }
+    },
+  );
+}
+
+Future<void> fetchAndShowNotificationDetails(String alarmId) async {
+  try {
+    final credentials = await getTokenAndUserId();
+    String? token = credentials['token'];
+    final url =
+        Uri.parse('${RootUrlProvider.baseURL}/banner/alarm/news/$alarmId');
+    final response = await http.get(
+      url,
+      headers: {
+        'accept': '*/*',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      var data = json.decode(utf8.decode(response.bodyBytes));
+      String title = data['data']['title'];
+      String content = data['data']['content'];
+
+      // 새 알림을 사용자에게 표시
+      await showNotification(
+        id: int.parse(alarmId),
+        title: title,
+        body: content,
+      );
+    } else {
+      debugPrint('Error: 알림 데이터 로드 실패');
+    }
+  } catch (e) {
+    debugPrint('Error fetching notification details: $e');
   }
 }
