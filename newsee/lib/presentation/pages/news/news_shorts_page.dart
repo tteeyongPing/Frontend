@@ -579,6 +579,17 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
               template: TextTemplate(
                   text: 'Newsee\n친구가 뉴스를 공유했어요!\n$title',
                   link: Link(),
+                  buttons: [
+                    Button(
+                      title: '뉴스 보러가기',
+                      link: Link(
+                        androidExecutionParams: {
+                          'key1': 'news',
+                          'key2': widget.newsId.toString()
+                        },
+                      ),
+                    ),
+                  ],
                   buttonTitle: "뉴스 보러가기"));
           await ShareClient.instance.launchKakaoTalk(uri);
           print('카카오톡 공유 완료');
