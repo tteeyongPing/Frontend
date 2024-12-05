@@ -45,10 +45,9 @@ class _BookmarkPageState extends State<BookmarkPage> {
       debugPrint('Error loading bookmarks: $e');
       if (!mounted) return;
       showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
     }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   // 선택 상태 토글

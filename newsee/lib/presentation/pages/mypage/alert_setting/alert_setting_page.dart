@@ -13,7 +13,6 @@ class AlertSettingsPage extends StatefulWidget {
 }
 
 class _AlertSettingsPageState extends State<AlertSettingsPage> {
-  TextEditingController _controller = TextEditingController();
   bool isLoading = false; // 로딩 상태 관리
 
   @override
@@ -215,12 +214,12 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('오류'),
+          title: const Text('오류'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'),
+              child: const Text('확인'),
             ),
           ],
         );
@@ -255,15 +254,15 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           '뉴스 알림 설정',
           style: TextStyle(
             color: Colors.black,
@@ -271,7 +270,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
           ),
         ),
         centerTitle: true, // 제목을 정확히 가운데 정렬
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
         ),
@@ -304,10 +303,10 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                   ? Icons.check_circle
                                   : Icons.radio_button_unchecked, // O 체크박스 구현
                               size: 30,
-                              color: Color(0xFF4D71F6),
+                              color: const Color(0xFF4D71F6),
                             ),
                           ) // 편집 모드일 때 편집 텍스트는 없애고, O 체크박스 아이콘 추가
-                        : Text(
+                        : const Text(
                             '편집',
                             style: TextStyle(
                               color: Color(0xFF4D71F6),
@@ -316,7 +315,8 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                   ),
                   // + 버튼을 눌러 SetAlert 페이지로 이동
                   IconButton(
-                    icon: Icon(Icons.add, size: 20, color: Color(0xFF4D71F6)),
+                    icon: const Icon(Icons.add,
+                        size: 20, color: Color(0xFF4D71F6)),
                     onPressed: () async {
                       final result = await Navigator.push(
                         context,
@@ -380,7 +380,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                           color: Colors.black.withOpacity(0.1),
                           spreadRadius: 0,
                           blurRadius: 8,
-                          offset: Offset(0, 4), // 그림자 아래로
+                          offset: const Offset(0, 4), // 그림자 아래로
                         ),
                       ],
                     ),
@@ -408,7 +408,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                                 ? Icons.check_circle
                                                 : Icons.radio_button_unchecked,
                                             color: alarm['selected']
-                                                ? Color(0xFF4D71F6)
+                                                ? const Color(0xFF4D71F6)
                                                 : Colors.grey,
                                             size: 30,
                                           ),
@@ -452,8 +452,8 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                     style: TextStyle(
                                         fontSize: screenWidth * 0.03,
                                         color: isSelected
-                                            ? Color(0xFF0038FF)
-                                            : Color(0xFFB0B0B0),
+                                            ? const Color(0xFF0038FF)
+                                            : const Color(0xFFB0B0B0),
                                         fontWeight: isSelected
                                             ? FontWeight.bold
                                             : FontWeight.normal),
@@ -512,9 +512,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                         '알림 상태를 변경하는 중 오류가 발생했습니다.');
                                   }
                                 },
-                                activeTrackColor: Color(0xFF4D71F6),
+                                activeTrackColor: const Color(0xFF4D71F6),
                                 inactiveThumbColor: Colors.white,
-                                inactiveTrackColor: Color(0XffD3D3D3),
+                                inactiveTrackColor: const Color(0XffD3D3D3),
                               ),
                           ],
                         ),
@@ -527,9 +527,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
             // 삭제 버튼 (편집 모드일 때만)
             if (_isEditing && _selectedAlarms.isNotEmpty)
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 width: screenWidth * 1,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                   boxShadow: [
@@ -556,13 +556,13 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.alarm_outlined,
+                              const Icon(Icons.alarm_outlined,
                                   size: 24, color: Color(0xFF0038FF)), // 아이콘
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 '켜기',
                                 style: TextStyle(
-                                  color: Color(0xFF0038FF),
+                                  color: const Color(0xFF0038FF),
                                   fontSize: screenWidth * 0.05,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -585,13 +585,13 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.alarm_off_outlined,
+                              const Icon(Icons.alarm_off_outlined,
                                   size: 24, color: Color(0xFF0038FF)), // 아이콘
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 '끄기',
                                 style: TextStyle(
-                                  color: Color(0xFF0038FF),
+                                  color: const Color(0xFF0038FF),
                                   fontSize: screenWidth * 0.05,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -615,13 +615,13 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.delete_outline,
+                              const Icon(Icons.delete_outline,
                                   size: 24, color: Color(0xFF0038FF)), // 아이콘
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 '삭제',
                                 style: TextStyle(
-                                  color: Color(0xFF0038FF),
+                                  color: const Color(0xFF0038FF),
                                   fontSize: screenWidth * 0.05,
                                   fontWeight: FontWeight.bold,
                                 ),

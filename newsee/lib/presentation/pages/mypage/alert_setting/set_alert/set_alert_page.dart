@@ -6,7 +6,6 @@ import 'dart:convert'; // JSON 변환을 위한 import
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/services/alert/load_alert.dart';
 import 'package:newsee/services/alert/schedule_alert.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class SetAlertPage extends StatefulWidget {
   final List<Map<String, dynamic>>? alarms; // 알람 데이터를 nullable로 변경
@@ -67,12 +66,12 @@ class _SetAlertPageState extends State<SetAlertPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('오류'),
+          title: const Text('오류'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'),
+              child: const Text('확인'),
             ),
           ],
         );
@@ -167,26 +166,26 @@ class _SetAlertPageState extends State<SetAlertPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           widget.alarms != null ? '알림 수정' : '알림 추가',
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
         ),
         centerTitle: true, // 제목을 정확히 가운데 정렬
       ),
       body: Column(
         children: [
-          Divider(color: Colors.grey, thickness: 1, height: 1),
+          const Divider(color: Colors.grey, thickness: 1, height: 1),
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               child: Column(
                 children: [
                   // 시간 선택 Picker
                   _buildTimePicker(screenWidth, screenHeight),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // 요일 선택 UI
                 ],
               ),
@@ -198,7 +197,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
               width: screenWidth,
               height: screenHeight * 0.5, // 하단에 배치할 Container 크기
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color(0xffE9EEFF),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
@@ -213,10 +212,8 @@ class _SetAlertPageState extends State<SetAlertPage> {
                           height: 40, // 고정된 세로 크기
                           margin: const EdgeInsets.only(left: 16, top: 10),
                           child: Text(
-                            "매주 " +
-                                _selectedDays.toString().substring(
-                                    1, _selectedDays.toString().length - 1),
-                            style: TextStyle(fontSize: 16),
+                            "매주 ${_selectedDays.toString().substring(1, _selectedDays.toString().length - 1)}",
+                            style: const TextStyle(fontSize: 16),
                             textAlign: TextAlign.left,
                           ),
                         )
@@ -224,20 +221,20 @@ class _SetAlertPageState extends State<SetAlertPage> {
                           width: screenWidth, // 화면 너비 설정
                           height: 40, // 고정된 세로 크기
                           margin: const EdgeInsets.only(left: 16, top: 10),
-                          child: Text(
+                          child: const Text(
                             "요일을 선택해주세요.",
                             style: TextStyle(fontSize: 16),
                             textAlign: TextAlign.left,
                           ),
                         ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
-                  Container(
+                  SizedBox(
                     width: screenWidth * 0.9,
                     child: _buildDayPicker(screenWidth),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildActionButton(screenWidth),
                 ],
               ),
@@ -290,7 +287,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
                       .map((period) => Center(
                               child: Text(
                             period,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 24, // 텍스트 크기
                               fontWeight: FontWeight.normal, // 텍스트 두께
                               color: Colors.black, // 텍스트 색상
@@ -314,7 +311,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
                       .map((hour) => Center(
                               child: Text(
                             '$hour',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 24, // 텍스트 크기
                               fontWeight: FontWeight.normal, // 텍스트 두께
                               color: Colors.black, // 텍스트 색상
@@ -324,7 +321,8 @@ class _SetAlertPageState extends State<SetAlertPage> {
                 ),
               ),
               // 구분자 (:)
-              Text(':', style: TextStyle(fontSize: 24, color: Colors.black)),
+              const Text(':',
+                  style: TextStyle(fontSize: 24, color: Colors.black)),
               // 분 Picker
               Expanded(
                 child: CupertinoPicker(
@@ -339,8 +337,8 @@ class _SetAlertPageState extends State<SetAlertPage> {
                   children: List.generate(60, (i) => i)
                       .map((minute) => Center(
                               child: Text(
-                            '${minute.toString().padLeft(2, '0')}', // 두 자리로 포맷
-                            style: TextStyle(
+                            minute.toString().padLeft(2, '0'), // 두 자리로 포맷
+                            style: const TextStyle(
                               fontSize: 24, // 텍스트 크기
                               fontWeight: FontWeight.normal, // 텍스트 두께
                               color: Colors.black, // 텍스트 색상
@@ -364,14 +362,14 @@ class _SetAlertPageState extends State<SetAlertPage> {
         return GestureDetector(
           onTap: () => _toggleDay(day),
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 300), // 애니메이션 지속 시간 설정
+            duration: const Duration(milliseconds: 300), // 애니메이션 지속 시간 설정
             width: screenWidth / 11,
             height: screenWidth / 11,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
               border: Border.all(
                 color: isSelected
-                    ? Color(0xFF0038FF)
+                    ? const Color(0xFF0038FF)
                     : Colors.transparent, // 선택된 상태에 따라 테두리 색상 변경
                 width: 1, // 테두리 두께 설정
               ),
@@ -381,7 +379,7 @@ class _SetAlertPageState extends State<SetAlertPage> {
               child: Text(
                 day,
                 style: TextStyle(
-                    color: isSelected ? Color(0xFF0038FF) : Colors.black,
+                    color: isSelected ? const Color(0xFF0038FF) : Colors.black,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal),
               ),
@@ -403,13 +401,13 @@ class _SetAlertPageState extends State<SetAlertPage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: isLoading || _selectedDays.isEmpty
               ? Colors.grey
-              : Color(0xFF0038FF),
+              : const Color(0xFF0038FF),
         ),
         child: isLoading
-            ? CircularProgressIndicator(color: Colors.white)
+            ? const CircularProgressIndicator(color: Colors.white)
             : Text(
                 widget.alarms != null ? '수정' : '저장',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                style: const TextStyle(fontSize: 18, color: Colors.white),
               ),
       ),
     );
