@@ -85,6 +85,7 @@ class _SearchPageState extends State<SearchPage> {
               'title': item['title'],
               'date': item['date'],
               'company': item['company'],
+              'reporter': item['reporter'],
               'shorts': item['content']
             };
           }));
