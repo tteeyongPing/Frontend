@@ -6,7 +6,7 @@ class News {
   final String date;
   final String content;
   final String company;
-  final String reporter;
+  final String? reporter;
   final String shorts;
   bool selected;
 
@@ -17,7 +17,7 @@ class News {
     required this.date,
     required this.content,
     required this.company,
-    required this.reporter,
+    this.reporter,
     required this.shorts,
     this.selected = false,
   });
