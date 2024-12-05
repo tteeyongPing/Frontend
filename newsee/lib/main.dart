@@ -6,7 +6,7 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임�
 import 'package:permission_handler/permission_handler.dart'; // 권한 요청을 위한 패키지 임포트
 import 'package:newsee/presentation/pages/login/login_page.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // NewsShortsPage 임포트
-import 'package:newsee/presentation/pages/mypage/alert_setting/alert_setting_page.dart'; // AlertSettingPage 임포트
+// AlertSettingPage 임포트
 import 'package:newsee/models/news_counter.dart';
 import 'package:app_links/app_links.dart';
 
@@ -31,8 +31,8 @@ void main() async {
 
   // Flutter SDK 초기화
   KakaoSdk.init(
-    nativeAppKey: '${YOUR_NATIVE_APP_KEY}',
-    javaScriptAppKey: '${YOUR_JAVASCRIPT_APP_KEY}',
+    nativeAppKey: YOUR_NATIVE_APP_KEY,
+    javaScriptAppKey: YOUR_JAVASCRIPT_APP_KEY,
   );
 
   // 알림 권한 요청
@@ -58,7 +58,7 @@ void main() async {
     onDidReceiveNotificationResponse: onSelectNotification,
   );
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 // Android 알림 권한 요청 함수
@@ -80,6 +80,8 @@ class MyApp extends StatelessWidget {
   // NavigatorKey 추가
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -155,11 +157,7 @@ Future<void> _initAppLinks() async {
   print("link" + initialLink.toString());
   // 백그라운드에서 실행될 때 링크를 받을 수 있도록 처리
   _appLinks.uriLinkStream.listen((link) {
-    if (link != null) {
-      _handleLink(link.toString());
-    } else {
-      print("Received null link");
-    }
+    _handleLink(link.toString());
   });
 }
 

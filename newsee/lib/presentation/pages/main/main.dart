@@ -10,13 +10,15 @@ import 'package:app_links/app_links.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // MainPage 임포트
 
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
-  int? _initialSelectedInterestId = null; // Example initial ID
+  int? _initialSelectedInterestId; // Example initial ID
   bool _isMine = true;
   late List<Widget> _pages;
 
@@ -29,7 +31,7 @@ class _MainPageState extends State<MainPage> {
             _onItemTappedNews(id), // Pass the correct callback
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
-      BookmarkPage(),
+      const BookmarkPage(),
       PlaylistPage(isMine: _isMine),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
@@ -71,7 +73,7 @@ class _MainPageState extends State<MainPage> {
         onNavigateToNews: (id) => _onItemTappedNews(id),
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
-      BookmarkPage(),
+      const BookmarkPage(),
       PlaylistPage(isMine: _isMine),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
@@ -85,9 +87,9 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: SizedBox.shrink(),
-        flexibleSpace: Header(),
-        bottom: PreferredSize(
+        leading: const SizedBox.shrink(),
+        flexibleSpace: const Header(),
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(
             color: Colors.grey,

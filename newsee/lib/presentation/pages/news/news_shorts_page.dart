@@ -101,7 +101,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
               ),
             ),
             // 내용 영역
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 400, // 원하는 높이
               child: SingleChildScrollView(
@@ -109,7 +109,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                   children: [
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: widget.playlists.length,
                       itemBuilder: (context, index) {
                         final playlist = widget.playlists[index];
@@ -135,7 +135,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                                 color: Colors.grey.withOpacity(0.2),
                                 spreadRadius: 2,
                                 blurRadius: 5,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -169,7 +169,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                     child: TextButton(
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
+                        shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(20), // 왼쪽 위 둥글게
                           ),
@@ -195,7 +195,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                     child: TextButton(
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
+                        shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
                             bottomRight: Radius.circular(20), // 오른쪽 위 둥글게
                           ),
@@ -292,93 +292,6 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
     } finally {
       setState(() => _isLoading = false);
     }
-  }
-
-  Future<void> _navigateToAddPlaylist(String name, String desc) async {
-    setState(() => _isLoading = true);
-
-    try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url = Uri.parse('${RootUrlProvider.baseURL}/playlist/create');
-      final response = await http.post(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json'
-        },
-        body: jsonEncode(
-            {"playlistName": name, "description": desc, "newsIdList": []}),
-      );
-
-      if (response.statusCode == 200) {
-        json.decode(utf8.decode(response.bodyBytes));
-      } else {
-        showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
-      }
-    } catch (e) {
-      debugPrint('Error loading bookmarks: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  void _makeNewPlaylist(BuildContext context) async {
-    TextEditingController titleController = TextEditingController(text: "");
-    TextEditingController descriptionController =
-        TextEditingController(text: "");
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('플레이리스트 생성'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 제목 입력
-              TextField(
-                controller: titleController,
-                maxLines: 1,
-                decoration: const InputDecoration(
-                  hintText: '제목을 입력하세요',
-                ),
-              ),
-              const SizedBox(height: 8),
-              // 설명 입력
-              TextField(
-                controller: descriptionController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  hintText: '새로운 설명을 입력하세요',
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            // 취소 버튼
-            TextButton(
-              onPressed: () => Navigator.pop(context), // 다이얼로그 닫기
-              child: const Text('취소'),
-            ),
-            // 생성 버튼
-            TextButton(
-              onPressed: () async {
-                // 제목과 설명 업데이트
-
-                // 비동기적으로 다른 함수 호출
-                //await _navigateToAddPlaylist(_title, _description);
-
-                Navigator.pop(context); // 다이얼로그 닫기
-              },
-              child: const Text('생성'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> _isBookmark() async {
@@ -616,13 +529,13 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
           backgroundColor: Colors.white,
           contentPadding: EdgeInsets.zero,
           actionsPadding: EdgeInsets.zero,
-          content: Container(
+          content: SizedBox(
             width: 260,
             height: 80,
             child: Center(
               child: Text(
                 message,
-                style: TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -633,7 +546,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                 Expanded(
                   child: Container(
                     height: 50,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       border: Border(
                         top: BorderSide(color: Colors.grey),
                         right: BorderSide(color: Colors.grey, width: 0.5),
@@ -643,7 +556,8 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text("확인", style: TextStyle(color: Colors.black)),
+                      child: const Text("확인",
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ),
                 ),
@@ -658,35 +572,6 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
   String _note = ''; // 메모 내용을 저장할 변수
 
 // Fetch news data
-  Future<void> _loadMemo() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-      final url = Uri.parse(
-          '${RootUrlProvider.baseURL}/memo/read?newsId=${widget.newsId}');
-      final response = await http.get(
-        url,
-        headers: {
-          'accept': '*/*',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          _note = data['data'];
-        });
-      } else {}
-    } catch (e) {
-      debugPrint('Error loading news data: $e');
-      showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
 
   Future<void> _editMemo(String text) async {
     setState(() => _isLoading = true);
@@ -785,8 +670,8 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8), // 둥근 테두리
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(
                       color: Color(0xFF4D71F6), width: 2), // 포커스 시 테두리
                 ),
                 contentPadding: const EdgeInsets.all(12), // 내부 여백
@@ -813,7 +698,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4D71F6), // 버튼 배경색
+                backgroundColor: const Color(0xFF4D71F6), // 버튼 배경색
                 foregroundColor: Colors.white, // 버튼 텍스트 색상
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 10), // 버튼 내부 여백
@@ -853,16 +738,16 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
         backgroundColor: Colors.white,
         elevation: 0, // 그림자 제거
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black), // 뒤로가기 아이콘
+          icon: const Icon(Icons.arrow_back, color: Colors.black), // 뒤로가기 아이콘
           onPressed: () => Navigator.of(context).pop(), // 뒤로가기 처리
         ),
-        title: Text(
+        title: const Text(
           '뉴스 요약',
           style: TextStyle(color: Colors.black, fontSize: 20),
         ),
 
         centerTitle: true, // 제목을 정확히 가운데 정렬
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
         ),
@@ -872,17 +757,17 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
           children: [
             Expanded(
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator()) // 로딩 중 표시
+                  ? const Center(child: CircularProgressIndicator()) // 로딩 중 표시
                   : SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           // If news is null, show an error message
                           if (news == null)
-                            Center(child: CircularProgressIndicator())
+                            const Center(child: CircularProgressIndicator())
                           else ...[
                             // Newspaper, Title, and Info Section
                             Container(
@@ -1049,7 +934,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    backgroundColor: Color(0xFF333333),
+                                    backgroundColor: const Color(0xFF333333),
                                   ),
                                   child: const Text(
                                     '원본 기사로 이동',
@@ -1062,7 +947,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             // Display Notes

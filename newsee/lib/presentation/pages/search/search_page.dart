@@ -10,6 +10,8 @@ import 'package:newsee/presentation/pages/playlist/playlist_detail/playlist_deta
 late ScrollController _scrollController;
 
 class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -28,12 +30,12 @@ void _showErrorDialog(String message, BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('오류'),
+        title: const Text('오류'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: const Text('확인'),
           ),
         ],
       );
@@ -42,7 +44,7 @@ void _showErrorDialog(String message, BuildContext context) {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   bool isLoading = false;
   late List<Map<String, dynamic>> _allNewsData = [];
@@ -63,7 +65,6 @@ class _SearchPageState extends State<SearchPage> {
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
-      int? userId = credentials['userId'];
 
       var url =
           Uri.parse('${RootUrlProvider.baseURL}/search/news?input=$input');
@@ -106,7 +107,6 @@ class _SearchPageState extends State<SearchPage> {
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
-      int? userId = credentials['userId'];
 
       var url =
           Uri.parse('${RootUrlProvider.baseURL}/search/playlist?input=$input');
@@ -137,7 +137,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   List<String> _recentSearches = [];
-  FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
   bool isSearchOpen = false;
 
   // 최근 검색어를 SharedPreferences에서 불러오기
@@ -181,12 +181,6 @@ class _SearchPageState extends State<SearchPage> {
     _saveRecentSearch(query);
   }
 
-  void _toggleSearchList() {
-    setState(() {
-      isSearchOpen = !isSearchOpen;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -210,12 +204,12 @@ class _SearchPageState extends State<SearchPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double appBarHeight = AppBar().preferredSize.height;
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -230,7 +224,7 @@ class _SearchPageState extends State<SearchPage> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _focusNode,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: '뉴스 또는 플레이리스트 검색',
                   border: InputBorder.none,
                 ),
@@ -263,13 +257,13 @@ class _SearchPageState extends State<SearchPage> {
             },
             child: Icon(
               Icons.search,
-              color: Color(0xFF0038FF),
+              color: const Color(0xFF0038FF),
               size: screenWidth * 0.06,
             ),
           ),
           SizedBox(width: screenWidth * 0.05),
         ],
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
         ),
@@ -298,8 +292,8 @@ class _SearchPageState extends State<SearchPage> {
                       },
                       child: Container(
                         width: screenWidth * 0.5,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 20),
                         color: Colors.white,
                         child: Center(
                           child: Text(
@@ -311,7 +305,7 @@ class _SearchPageState extends State<SearchPage> {
                               fontSize: 16,
                               color: isNewsSelected
                                   ? Colors.black
-                                  : Color(0xFF707070),
+                                  : const Color(0xFF707070),
                             ),
                           ),
                         ),
@@ -326,8 +320,8 @@ class _SearchPageState extends State<SearchPage> {
                       },
                       child: Container(
                         width: screenWidth * 0.5,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 20),
                         color: Colors.white,
                         child: Center(
                           child: Text(
@@ -339,7 +333,7 @@ class _SearchPageState extends State<SearchPage> {
                               fontSize: 16,
                               color: !isNewsSelected
                                   ? Colors.black
-                                  : Color(0xFF707070),
+                                  : const Color(0xFF707070),
                             ),
                           ),
                         ),
@@ -539,7 +533,7 @@ class _SearchPageState extends State<SearchPage> {
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
+                            const Expanded(
                               flex: 1,
                               child: Center(
                                 child: Icon(
@@ -548,12 +542,12 @@ class _SearchPageState extends State<SearchPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 20),
+                            const SizedBox(width: 20),
                             Expanded(
                               flex: 8,
                               child: Text(
                                 _recentSearches[index],
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16.0,
                                   color: Colors.black,
                                 ),
@@ -571,7 +565,7 @@ class _SearchPageState extends State<SearchPage> {
                                       _recentSearches.removeAt(index);
                                     });
                                   },
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.clear,
                                     color: Color(0xFF707070),
                                     size: 24.0,
