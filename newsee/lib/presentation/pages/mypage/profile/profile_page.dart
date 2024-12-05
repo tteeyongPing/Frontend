@@ -6,7 +6,7 @@ import 'package:newsee/services/my_page/profile_page_service.dart'; // 새로운
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key); // Added key parameter
+  const ProfilePage({super.key}); // Added key parameter
 
   @override
   ProfilePageState createState() => ProfilePageState();

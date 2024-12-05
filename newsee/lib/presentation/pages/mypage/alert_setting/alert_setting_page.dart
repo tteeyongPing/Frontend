@@ -8,6 +8,8 @@ import 'package:newsee/services/alert/load_alert.dart';
 import 'package:newsee/services/alert/schedule_alert.dart';
 
 class AlertSettingsPage extends StatefulWidget {
+  const AlertSettingsPage({super.key});
+
   @override
   _AlertSettingsPageState createState() => _AlertSettingsPageState();
 }
@@ -65,7 +67,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
         _showErrorDialog('알림 목록을 불러오는 데 실패했습니다.');
       }
     } catch (e) {
-      print('오류 발생: $e');
+      // print('오류 발생: $e');
       _showErrorDialog('알림 목록을 불러오는 중 오류가 발생했습니다.');
     } finally {
       await cancelAllNotifications(); //알림 취소
@@ -81,7 +83,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
   }
 
   bool _isEditing = false; // 편집 모드 여부
-  List<int> _selectedAlarms = []; // 선택된 알람의 인덱스 리스트
+  final List<int> _selectedAlarms = []; // 선택된 알람의 인덱스 리스트
   bool _selectAll = false; // 전체 선택 여부
 
   String formatTime(String time) {
@@ -93,7 +95,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
     } else if (hour == 0) {
       hour = 12;
     }
-    return '$period ${hour}:${timeParts[1]}';
+    return '$period $hour:${timeParts[1]}';
   }
 
   void _toggleSelection(int index) {
@@ -149,7 +151,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
         }
       }
     } catch (e) {
-      print('오류 발생: $e');
+      // print('오류 발생: $e');
       _showErrorDialog('알림 상태를 변경하는 중 오류가 발생했습니다.');
     } finally {
       await cancelAllNotifications(); //알림 취소
@@ -171,9 +173,9 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
 
       // 알람 삭제 요청
       for (var index in _selectedAlarms) {
-        var url = Uri.parse('${RootUrlProvider.baseURL}/alarm/remove?alarmId=' +
-            alarms[index]['alarmId'].toString());
-        print(url);
+        var url = Uri.parse(
+            '${RootUrlProvider.baseURL}/alarm/remove?alarmId=${alarms[index]['alarmId']}');
+        // print(url);
         var response = await http.delete(
           url,
           headers: {
@@ -183,7 +185,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
         );
 
         if (response.statusCode == 200) {
-          print("알람 삭제 룰루");
+          // print("알람 삭제 룰루");
           alarms.removeAt(index); // 알람 목록에서 삭제
         } else {
           _showErrorDialog('알림을 삭제하는 데 실패했습니다.');
@@ -198,7 +200,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
         _updateSelectAll(); // 전체 선택 상태 업데이트
       });
     } catch (e) {
-      print('오류 발생: $e');
+      // print('오류 발생: $e');
       _showErrorDialog('알림 삭제 중 오류가 발생했습니다.');
     } finally {
       await cancelAllNotifications(); //알림 취소
@@ -320,7 +322,8 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                     onPressed: () async {
                       final result = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SetAlertPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const SetAlertPage()),
                       );
 
                       if (result == true) {
@@ -492,11 +495,11 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                     );
                                     if (response.statusCode == 200) {
                                       await cancelAllNotifications(); // 알림 취소
-                                      print('알림 취소 완료');
+                                      // print('알림 취소 완료');
                                       await LoadAlert(); // 알림 로드
-                                      print('알림 로드 완료');
+                                      // print('알림 로드 완료');
                                       await scheduleNotifications(); // 알림 예약
-                                      print('알림 예약 완료');
+                                      // print('알림 예약 완료');
                                     } else {
                                       setState(() {
                                         alarm['on'] = !value;
@@ -504,7 +507,7 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                                       _showErrorDialog('알림 상태를 변경하는 데 실패했습니다.');
                                     }
                                   } catch (e) {
-                                    print('오류 발생: $e');
+                                    // print('오류 발생: $e');
                                     setState(() {
                                       alarm['on'] = !value;
                                     });

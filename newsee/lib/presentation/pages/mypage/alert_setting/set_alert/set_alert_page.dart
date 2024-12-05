@@ -10,7 +10,7 @@ import 'package:newsee/services/alert/schedule_alert.dart';
 class SetAlertPage extends StatefulWidget {
   final List<Map<String, dynamic>>? alarms; // 알람 데이터를 nullable로 변경
 
-  SetAlertPage({this.alarms}); // 기본값 설정을 위해 nullable로 받음
+  const SetAlertPage({this.alarms}); // 기본값 설정을 위해 nullable로 받음
 
   @override
   _SetAlertPageState createState() => _SetAlertPageState();

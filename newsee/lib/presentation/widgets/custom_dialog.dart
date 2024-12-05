@@ -6,10 +6,10 @@ class CustomDialog extends StatelessWidget {
 
   // Pass 'key' directly to the super constructor
   const CustomDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.onConfirm,
-  }) : super(key: key); // 'key' is passed to the super constructor
+  }); // 'key' is passed to the super constructor
 
   @override
   Widget build(BuildContext context) {

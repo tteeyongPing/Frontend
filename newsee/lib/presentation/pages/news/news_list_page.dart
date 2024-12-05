@@ -110,7 +110,7 @@ class NewsListPageState extends State<NewsListPage> {
       }
     });
 
-    print(widget.initialSelectedInterestId);
+    //print(widget.initialSelectedInterestId);
 
     _displayedNews.clear();
     loadNews(true, 0);
@@ -166,7 +166,7 @@ class NewsListPageState extends State<NewsListPage> {
         _showErrorDialog('Failed to load interests.');
       }
     } catch (e) {
-      print('Error occurred: $e');
+      // print('Error occurred: $e');
       _showErrorDialog('Error while fetching data.');
     } finally {
       setState(() => isLoading = false);
@@ -316,7 +316,7 @@ class NewsListPageState extends State<NewsListPage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  SelectInterests(visibilityFlag: -1)),
+                                  const SelectInterests(visibilityFlag: -1)),
                         );
 
                         if (result == true) {

@@ -74,7 +74,7 @@ class LoginPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MainPage()),
+                  MaterialPageRoute(builder: (context) => const MainPage()),
                 );
               },
               child: Text(
@@ -93,7 +93,7 @@ class LoginPage extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => SelectInterests(visibilityFlag: 0),
+          builder: (context) => const SelectInterests(visibilityFlag: 0),
         ),
       );
     }
@@ -109,7 +109,7 @@ class LoginPage extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => SelectInterests(visibilityFlag: 0),
+            builder: (context) => const SelectInterests(visibilityFlag: 0),
           ),
         );
       }

@@ -6,8 +6,7 @@ import 'package:newsee/presentation/pages/news/news_list_page.dart';
 import 'package:newsee/presentation/pages/bookmark/bookmark_page.dart';
 import 'package:newsee/presentation/pages/playlist/playlist_page.dart';
 import 'package:newsee/presentation/pages/mypage/my_page.dart';
-import 'package:app_links/app_links.dart';
-import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // MainPage 임포트
+// MainPage 임포트
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -20,26 +19,10 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   int? _initialSelectedInterestId; // Example initial ID
   bool _isMine = true;
-  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    _pages = [
-      HomePage(
-        onNavigateToNews: (id) =>
-            _onItemTappedNews(id), // Pass the correct callback
-      ),
-      NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
-      const BookmarkPage(),
-      PlaylistPage(isMine: _isMine),
-      MyPage(
-        onNavigateToNews: () => _onItemTapped(1),
-        onNavigateToBookmark: () => _onItemTapped(2),
-        onNavigateMyPlaylistPage: () => _onItemTappedPlaylistPage(true),
-        onNavigateToPlaylistPage: () => _onItemTappedPlaylistPage(false),
-      ),
-    ];
   }
 
   void _onItemTappedPlaylistPage(bool id) {

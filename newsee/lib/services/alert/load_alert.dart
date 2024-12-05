@@ -5,8 +5,6 @@ import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:newsee/utils/auth_utils.dart';
 
 Future<void> printAlarms() async {
-  final dbHelper = AlarmDatabaseHelper();
-  final alarms = await dbHelper.getAlarms();
   // print(alarms); // DB에서 가져온 알림 리스트 출력
 }
 

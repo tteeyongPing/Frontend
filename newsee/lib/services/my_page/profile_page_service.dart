@@ -9,7 +9,9 @@ class UserService {
       await prefs.remove('token');
       await prefs.remove('userId');
       await prefs.remove('userName');
-    } catch (e) {}
+    } catch (e) {
+      // print("오류 발생");
+    }
   }
 
   static Future<String?> getUserName() async {

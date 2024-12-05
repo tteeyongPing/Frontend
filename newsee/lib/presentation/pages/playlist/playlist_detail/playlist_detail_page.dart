@@ -5,11 +5,9 @@ import 'package:newsee/models/news.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart';
 import 'package:newsee/presentation/widgets/news_card.dart';
 import 'package:newsee/services/playlist_service.dart';
-import 'package:newsee/services/share_service.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
-import 'package:url_launcher/url_launcher.dart';
 
 Playlist playlist = Playlist(
   playlistId: 0,
@@ -63,10 +61,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           'Authorization': 'Bearer $token',
         },
       );
-      print(url);
+      // print(url);
       if (response.statusCode == 200) {
         var data = json.decode(utf8.decode(response.bodyBytes))['data'];
-        print(data);
+        // print(data);
         setState(() {
           playlist = Playlist.fromJson(data);
           isLoading = false; // 데이터 로딩 완료
@@ -298,9 +296,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                   ],
                   buttonTitle: "플레이리스트 보러가기"));
           await ShareClient.instance.launchKakaoTalk(uri);
-          print('카카오톡 공유 완료');
+          // print('카카오톡 공유 완료');
         } catch (error) {
-          print('카카오톡 공유 실패 $error');
+          // print('카카오톡 공유 실패 $error');
         }
       } else {
         try {
@@ -311,7 +309,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                   buttonTitle: "플레이리스트 보러가기"));
           await launchBrowserTab(shareUrl, popupOpen: true);
         } catch (error) {
-          print('카카오톡 공유 실패 $error');
+          // print('카카오톡 공유 실패 $error');
         }
       }
     } catch (e) {

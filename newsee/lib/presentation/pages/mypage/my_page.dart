@@ -14,12 +14,12 @@ class MyPage extends StatefulWidget {
 
   // `key`를 추가하고, super 생성자에 전달
   const MyPage({
-    Key? key, // Key를 받아서
+    super.key, // Key를 받아서
     required this.onNavigateToNews,
     required this.onNavigateToBookmark,
     required this.onNavigateMyPlaylistPage,
     required this.onNavigateToPlaylistPage,
-  }) : super(key: key); // 부모 클래스의 생성자에 전달
+  }); // 부모 클래스의 생성자에 전달
 
   @override
   MyPageState createState() => MyPageState();
@@ -111,11 +111,11 @@ class MyPageState extends State<MyPage> {
       height: kToolbarHeight,
       padding: EdgeInsets.zero,
       child: buildNavigationRow(
-        isLoading ? '로딩 중...' : (nickName ?? '닉네임 없음'),
+        isLoading ? '로딩 중...' : (nickName),
         onTap: () async {
           final updatedNickName = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ProfilePage()),
+            MaterialPageRoute(builder: (context) => const ProfilePage()),
           );
           if (updatedNickName != null) {
             setState(() {
@@ -150,7 +150,7 @@ class MyPageState extends State<MyPage> {
                 buildNavigationRow("뉴스 검색하기", onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SearchPage()),
+                    MaterialPageRoute(builder: (context) => const SearchPage()),
                   );
                 }),
                 GestureDetector(
@@ -185,7 +185,7 @@ class MyPageState extends State<MyPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AlertSettingsPage()),
+                        builder: (context) => const AlertSettingsPage()),
                   );
                 }),
                 buildNavigationRow("나의 관심 분야 설정", onTap: () {
@@ -193,7 +193,7 @@ class MyPageState extends State<MyPage> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            SelectInterests(visibilityFlag: -1)),
+                            const SelectInterests(visibilityFlag: -1)),
                   );
                 }),
               ],
