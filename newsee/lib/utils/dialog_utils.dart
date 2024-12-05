@@ -14,7 +14,7 @@ void showErrorDialog(BuildContext context, String message,
         style: const TextStyle(fontSize: 16, color: Colors.black54),
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       actions: [
         TextButton(
