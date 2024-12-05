@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:newsee/models/Playlist.dart';
+import 'package:newsee/models/playlist.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart';
 import 'package:newsee/services/playlist_service.dart';
 import 'package:newsee/services/share_service.dart';
@@ -18,7 +18,6 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   String _description = "";
   String _playlistName = "";
   bool _isEditing = false;
-  bool _isLoading = false;
   bool isMine = false;
   bool isFavorite = false;
   List<News> selectedNews = [];
@@ -36,13 +35,12 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
     setState(() {
       isMine = widget.playlist.userId == userId;
-      _description = widget.playlist.description;
+      _description = widget.playlist.description!;
       _playlistName = widget.playlist.playlistName;
     });
   }
 
   Future<void> _editPlaylist() async {
-    setState(() => _isLoading = true);
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -59,13 +57,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       }
     } catch (e) {
       debugPrint('Error editing playlist: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   Future<void> _checkSubscriptionStatus() async {
-    setState(() => _isLoading = true);
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -84,15 +79,15 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       }
     } catch (e) {
       debugPrint('Error fetching subscription status: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   void resetSelected() {
     setState(() {
-      for (var news in widget.playlist.newsList) {
-        news.selected = false;
+      if (widget.playlist.newsList != null) {
+        for (var news in widget.playlist.newsList!) {
+          news.selected = false;
+        }
       }
       selectedNews.clear();
     });
@@ -180,7 +175,6 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 
   Future<void> changeFavorite(bool subscribe) async {
-    setState(() => _isLoading = true);
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -200,13 +194,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       }
     } catch (e) {
       debugPrint('Error changing subscription status: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   Future<void> deleteNews(int id) async {
-    setState(() => _isLoading = true);
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -216,7 +207,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
       if (response.statusCode == 200) {
         setState(() {
-          widget.playlist.newsList.removeWhere((news) => news.id == id);
+          widget.playlist.newsList?.removeWhere((news) => news.id == id);
           selectedNews.clear();
         });
       } else {
@@ -224,20 +215,15 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       }
     } catch (e) {
       debugPrint('Error deleting news: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   void _shareViaKakao() async {
-    setState(() => _isLoading = true);
     try {
       await shareViaKakaoTalk(_playlistName);
     } catch (e) {
       debugPrint('Error during KakaoTalk sharing: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   @override
@@ -593,7 +579,7 @@ class NewsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  news.company ?? 'Unknown',
+                  news.company,
                   style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.normal,
@@ -615,7 +601,7 @@ class NewsCard extends StatelessWidget {
                   )
                 else
                   Text(
-                    "${news.category ?? 'N/A'}",
+                    news.category ?? 'N/A',
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

@@ -6,7 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
-import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:newsee/models/playlist.dart'; // Playlist 모델
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
 
 class PlaylistDialog extends StatefulWidget {

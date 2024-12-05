@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart';
-import 'package:newsee/models/Playlist.dart'; // Playlist 모델
+import 'package:newsee/models/playlist.dart';
 import 'package:newsee/presentation/pages/playlist/playlist_detail/playlist_detail_page.dart';
 
 late ScrollController _scrollController;
@@ -497,7 +497,7 @@ class _SearchPageState extends State<SearchPage> {
                                 const SizedBox(height: 8),
                                 // 설명
                                 Text(
-                                  _allPlayListData[index].description,
+                                  _allPlayListData[index].description ?? ' ',
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 12,
