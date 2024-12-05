@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:newsee/models/news1.dart';
+import 'package:newsee/models/news.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart';
 
 class NewsCard extends StatelessWidget {

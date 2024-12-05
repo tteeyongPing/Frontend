@@ -433,10 +433,7 @@ class NewsListPageState extends State<NewsListPage> {
                           margin: const EdgeInsets.only(
                               top: 10, left: 24, right: 24, bottom: 10),
                           padding: const EdgeInsets.only(
-                              top: 12,
-                              left: 17,
-                              right: 17,
-                              bottom: 12), // 패딩 설정
+                              top: 12, left: 18, right: 18, bottom: 12),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
@@ -445,12 +442,12 @@ class NewsListPageState extends State<NewsListPage> {
                                 color: Colors.black.withOpacity(0.1),
                                 spreadRadius: 0,
                                 blurRadius: 8,
-                                offset: const Offset(0, 4), // 그림자 위치
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: SizedBox(
-                            height: 113, // 고정 높이 설정
+                            height: 120, // 고정 높이 설정
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:newsee/models/playlist.dart';
+import 'package:newsee/models/news.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart';
 import 'package:newsee/presentation/widgets/news_card.dart';
 import 'package:newsee/services/playlist_service.dart';
@@ -472,29 +473,32 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                       ),
                     ),
                   ),
-
                   // News List Section
-                  if (newsList!.isNotEmpty)
+                  if (newsList != null && newsList.isNotEmpty)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: SingleChildScrollView(
                         child: Column(
-                          children: newsList
-                              .map((news) => NewsCard(
-                                    news: news,
-                                    isEditing: _isEditing, // isEditing 상태 전달
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        news.selected = selected;
-                                        if (selected) {
-                                          selectedNews.add(news);
-                                        } else {
-                                          selectedNews.remove(news);
-                                        }
-                                      });
-                                    },
-                                  ))
-                              .toList(),
+                          children: newsList.map((news) {
+                            if (news is News) {
+                              return NewsCard(
+                                news: news,
+                                isEditing: _isEditing,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    news.selected = selected;
+                                    if (selected) {
+                                      selectedNews.add(news);
+                                    } else {
+                                      selectedNews.remove(news);
+                                    }
+                                  });
+                                },
+                              );
+                            } else {
+                              return const SizedBox();
+                            }
+                          }).toList(),
                         ),
                       ),
                     ),
