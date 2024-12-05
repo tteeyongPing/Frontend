@@ -48,8 +48,8 @@ class ApiService {
     if (response.statusCode == 200) {
       var data = json.decode(utf8.decode(response.bodyBytes));
       return List<Map<String, dynamic>>.from(data['data'].map((item) => {
-            'categoryId': item['categoryId'],
-            'icon': icons[(item['categoryId'] % icons.length)],
+            'categoryId': item['id'],
+            'icon': icons[(item['id'] % icons.length)],
             'text': item['categoryName'],
           }));
     }

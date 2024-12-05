@@ -37,7 +37,7 @@ class _SelectInterestsState extends State<SelectInterests> {
               .asMap()
               .map((index, item) {
                 return MapEntry(index, {
-                  'categoryId': item['categoryId'],
+                  'categoryId': item['id'],
                   'icon': icons[index % icons.length],
                   'text': item['categoryName'],
                 });
@@ -53,7 +53,7 @@ class _SelectInterestsState extends State<SelectInterests> {
           }
 
           selectedInterests = data.map<int>((item) {
-            var categoryId = item['categoryId'];
+            var categoryId = item['id'];
             return categoryId is String ? int.parse(categoryId) : categoryId;
           }).toList();
         }

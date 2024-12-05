@@ -193,7 +193,7 @@ class MyPageState extends State<MyPage> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            const SelectInterests(visibilityFlag: -1)),
+                            SelectInterests(visibilityFlag: -1)),
                   );
                 }),
               ],
