@@ -152,8 +152,18 @@ Future<bool> showDeleteDialog({
                       ),
                       child: TextButton(
                         onPressed: () async {
-                          await onDelete(); // 삭제 작업 수행
-                          Navigator.pop(context, true); // 성공적으로 삭제
+                          try {
+                            await onDelete(); // 삭제 작업 수행
+                            if (context.mounted) {
+                              // BuildContext가 여전히 유효한지 확인
+                              Navigator.pop(context, true); // 성공적으로 삭제
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              // BuildContext가 여전히 유효한지 확인
+                              showErrorDialog(context, '삭제 중 오류가 발생했습니다.');
+                            }
+                          }
                         },
                         child: const Text(
                           "삭제",

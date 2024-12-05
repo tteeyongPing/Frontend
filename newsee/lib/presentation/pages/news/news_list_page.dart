@@ -44,6 +44,18 @@ class News {
     required this.reporter,
     required this.date,
   });
+
+  factory News.fromJson(Map<String, dynamic> json) {
+    return News(
+      id: json['id'],
+      category: json['category'],
+      title: json['title'],
+      date: json['date'],
+      content: json['content'],
+      company: json['company'],
+      reporter: json['reporter'],
+    );
+  }
 }
 
 class Interest {
@@ -181,17 +193,8 @@ class NewsListPageState extends State<NewsListPage> {
     if (response.statusCode == 200) {
       var data = json.decode(utf8.decode(response.bodyBytes));
       setState(() {
-        _displayedNews.addAll(List<News>.from(data['data'].map((item) {
-          return News(
-            id: item['id'],
-            category: item['category'],
-            title: item['title'],
-            date: item['date'],
-            content: item['content'],
-            company: item['company'],
-            reporter: item['reporter'],
-          );
-        })));
+        _displayedNews.addAll(
+            List<News>.from(data['data'].map((item) => News.fromJson(item))));
       });
     } else {
       _showErrorDialog('Failed to load news.');

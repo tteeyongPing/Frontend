@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:newsee/utils/auth_utils.dart';
-import 'package:newsee/models/Playlist.dart';
+import 'package:newsee/models/playlist.dart';
 
 // Playlist Page
 // 플레이리스트 목록 불러오기

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:newsee/models/Playlist.dart';
+import 'package:newsee/models/playlist.dart';
 import 'package:newsee/presentation/pages/playlist/playlist_detail/playlist_detail_page.dart';
 import 'package:newsee/services/playlist_service.dart';
 import 'package:newsee/presentation/pages/playlist/playlist_dialog.dart';
 import 'package:newsee/utils/dialog_utils.dart';
-
-late ScrollController _scrollController;
 
 class PlaylistPage extends StatefulWidget {
   final bool isMine;
@@ -29,37 +27,44 @@ class PlaylistPageState extends State<PlaylistPage> {
   }
 
   Future<void> _loadPlaylists() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
+
     try {
       if (isMyPlaylistSelected) {
-        playlists = await fetchPlaylists(true);
+        playlists = (await fetchPlaylists(true)).cast<Playlist>();
       } else {
-        subscribePlaylists = await fetchPlaylists(false);
+        subscribePlaylists = (await fetchPlaylists(false)).cast<Playlist>();
       }
     } catch (e) {
+      if (!mounted) return;
       showErrorDialog(context, '플레이리스트를 불러오는 중 문제가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
     }
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   Future<void> _createPlaylist(String name, String desc) async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       await createPlaylist(name, desc);
-      await _loadPlaylists(); // 생성 후 목록 갱신
+      await _loadPlaylists();
+      if (!mounted) return;
       showErrorDialog(context, '플레이리스트가 생성되었습니다!', title: '성공');
     } catch (e) {
+      if (!mounted) return;
       showErrorDialog(context, '플레이리스트 생성에 실패했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
     }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   void _navigateToPlaylistDetail(Playlist playlist) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<bool>(
         builder: (context) => PlaylistDetailPage(playlist: playlist),
       ),
     );
@@ -171,7 +176,7 @@ class PlaylistPageState extends State<PlaylistPage> {
           // 플레이리스트 목록
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : Stack(
                     children: [
                       ListView.builder(
@@ -202,7 +207,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // 제목 및 카운트 + 버튼
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -235,10 +239,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                                           ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(
-                                            Icons.close,
-                                            size: 20,
-                                          ),
+                                          icon:
+                                              const Icon(Icons.close, size: 20),
                                           onPressed: () async {
                                             bool isDeleted =
                                                 await showDeleteDialog(
@@ -264,30 +266,27 @@ class PlaylistPageState extends State<PlaylistPage> {
                                             }
                                           },
                                         ),
-
-                                        const SizedBox(height: 8),
-                                        // 설명
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      playlist.description ?? ' ',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
                                         Text(
-                                          playlist.description,
+                                          "게시자: ${playlist.userName}",
                                           style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
+                                            fontSize: 10,
+                                            color: Colors.black54,
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        // 게시자
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "게시자: ${playlist.userName}",
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.black54,
-                                              ),
-                                            ),
-                                          ],
                                         ),
                                       ],
                                     ),
@@ -301,7 +300,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                           alignment: Alignment.bottomCenter, // 하단에 고정
                           child: Padding(
                             padding: const EdgeInsets.all(0),
-                            child: Container(
+                            child: SizedBox(
                               height: 50,
                               width: double.infinity, // 버튼의 너비를 100%로 설정
                               child: ElevatedButton(
@@ -314,8 +313,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      Color(0xFF4D71F6), // 배경색을 파란색으로 설정
-                                  shape: RoundedRectangleBorder(
+                                      const Color(0xFF4D71F6), // 배경색을 파란색으로 설정
+                                  shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
                                       topLeft:
                                           Radius.circular(20), // 위쪽 왼쪽 모서리 둥글게
