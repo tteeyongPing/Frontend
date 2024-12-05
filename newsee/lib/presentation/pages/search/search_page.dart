@@ -95,7 +95,7 @@ class _SearchPageState extends State<SearchPage> {
         _showErrorDialog('뉴스 검색 결과가 없습니다.', context);
       }
     } catch (e) {
-      print('오류 발생: $e');
+      // print('오류 발생: $e');
       _showErrorDialog('뉴스 검색 중 오류가 발생했습니다.$e', context);
     } finally {
       setState(() => isLoading = false); // 로딩 상태 종료
@@ -129,7 +129,7 @@ class _SearchPageState extends State<SearchPage> {
         _showErrorDialog('플레이리스트 검색 데이터를 불러오는 데 실패했습니다.', context);
       }
     } catch (e) {
-      print('오류 발생: $e');
+      // print('오류 발생: $e');
       _showErrorDialog('플레이리스트 검색 중 오류가 발생했습니다.$e', context);
     } finally {
       setState(() => isLoading = false); // 로딩 상태 종료
@@ -202,7 +202,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double appBarHeight = AppBar().preferredSize.height;
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
@@ -559,7 +558,7 @@ class _SearchPageState extends State<SearchPage> {
                                 child: GestureDetector(
                                   onTap: () {
                                     // 아이콘 클릭 시 실행할 함수
-                                    print("아이콘이 클릭되었습니다!");
+                                    // print("아이콘이 클릭되었습니다!");
                                     setState(() {
                                       // 해당 검색어를 리스트에서 제거
                                       _recentSearches.removeAt(index);

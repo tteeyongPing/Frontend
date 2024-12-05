@@ -70,9 +70,9 @@ Future<void> _requestNotificationPermission() async {
 
   // 권한이 승인되었는지 확인
   if (await Permission.notification.isGranted) {
-    print("알림 권한이 승인되었습니다.");
+    // ("알림 권한이 승인되었습니다.");
   } else {
-    print("알림 권한이 거부되었습니다.");
+    // print("알림 권한이 거부되었습니다.");
   }
 }
 
@@ -90,12 +90,12 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: createMaterialColor(
-            Color.fromARGB(255, 13, 20, 45)), // Custom MaterialColor
+            const Color.fromARGB(255, 13, 20, 45)), // Custom MaterialColor
         scaffoldBackgroundColor: Colors.white, // 모든 페이지의 배경색을 하얀색으로 설정
         fontFamily: 'Pretendard', // 전체 폰트 Pretendard로 설정
         dialogBackgroundColor: Colors.white,
       ),
-      home: LoginPage(),
+      home: const LoginPage(),
     );
   }
 
@@ -108,14 +108,14 @@ class MyApp extends StatelessWidget {
       strengths.add(0.1 * i);
     }
 
-    strengths.forEach((strength) {
+    for (var strength in strengths) {
       swatch[(strength * 1000).round()] = Color.fromRGBO(
         color.red,
         color.green,
         color.blue,
         strength,
       );
-    });
+    }
 
     return MaterialColor(color.value, swatch);
   }
@@ -136,11 +136,11 @@ Future<void> onSelectNotification(NotificationResponse response) async {
       );
     } catch (e) {
       // payload가 유효한 숫자 형태가 아닌 경우 처리
-      print("잘못된 payload 형식: $e");
+      // print("잘못된 payload 형식: $e");
       // 필요 시 사용자에게 오류를 알리거나 다른 처리 추가
     }
   } else {
-    print("payload가 null입니다.");
+    // print("payload가 null입니다.");
     // 필요 시 사용자에게 오류를 알리거나 다른 처리 추가
   }
 }
@@ -154,7 +154,7 @@ Future<void> _initAppLinks() async {
   if (initialLink != null) {
     _handleLink(initialLink.toString()); // 초기 링크 처리
   }
-  print("link" + initialLink.toString());
+  // print("link" + initialLink.toString());
   // 백그라운드에서 실행될 때 링크를 받을 수 있도록 처리
   _appLinks.uriLinkStream.listen((link) {
     _handleLink(link.toString());
@@ -166,7 +166,7 @@ void _handleLink(String link) {
   Uri uri = Uri.parse(link);
   String? key1 = uri.queryParameters['key1'];
   String? key2 = uri.queryParameters['key2'];
-  print("Handling link: $link 키는 /$key1/$key2");
+  // print("Handling link: $link 키는 /$key1/$key2");
 
   if (key1 == "news") {
     if (key2 != null) {
@@ -178,10 +178,10 @@ void _handleLink(String link) {
               builder: (context) => NewsShortsPage(newsId: newsId)),
         );
       } catch (e) {
-        print("Invalid key2 format: $e");
+        // print("Invalid key2 format: $e");
       }
     } else {
-      print("Invalid key2: $key2");
+      // print("Invalid key2: $key2");
     }
   } else if (key1 == 'play') {
     if (key2 != null) {
@@ -193,7 +193,7 @@ void _handleLink(String link) {
                 )),
       );
     } else {
-      print("Invalid key2: $key2");
+      // print("Invalid key2: $key2");
     }
   }
 }

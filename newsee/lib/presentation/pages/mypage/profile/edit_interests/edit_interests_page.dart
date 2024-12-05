@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:newsee/presentation/pages/mypage/my_page.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart'; // 패키지 임포트
 import 'package:typicons_flutter/typicons_flutter.dart';
 
 class EditInterestsPage extends StatefulWidget {
+  const EditInterestsPage({super.key});
+
   @override
   _EditInterestsPageState createState() => _EditInterestsPageState();
 }
 
 class _EditInterestsPageState extends State<EditInterestsPage> {
-  TextEditingController _controller = TextEditingController();
-
   // 관심 분야 목록
 // 관심 분야 목록
   final List<Map<String, dynamic>> interests = [
@@ -38,11 +37,11 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: null,
-        flexibleSpace: Center(
+        flexibleSpace: const Center(
           child: Text(
             '관심분야 수정',
             style: TextStyle(
@@ -57,21 +56,22 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // 헤더 추가
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               '당신의 관심 분야를 선택해주세요.',
               style: TextStyle(
                 fontSize: screenWidth * 0.045,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
               child: Center(
-                child: Container(
+                child: SizedBox(
                   width: screenWidth * 0.84,
                   child: GridView.builder(
                     itemCount: interests.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, // 한 줄에 3개
                       childAspectRatio: 1,
                     ),
@@ -87,17 +87,17 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Color(0xFFD0D9F6)
-                                : Color(0xFFE8E8E8),
+                                ? const Color(0xFFD0D9F6)
+                                : const Color(0xFFE8E8E8),
                             border: isSelected
                                 ? Border.all(
-                                    color: Color(0xFF0038FF),
+                                    color: const Color(0xFF0038FF),
                                     width: 2.0,
                                   )
                                 : null,
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          margin: EdgeInsets.all(6.0),
+                          margin: const EdgeInsets.all(6.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -106,16 +106,16 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
                                 interests[index]['icon'],
                                 size: screenWidth * 0.11,
                                 color: isSelected
-                                    ? Color(0xFF0038FF)
-                                    : Color(0xFF000000),
+                                    ? const Color(0xFF0038FF)
+                                    : const Color(0xFF000000),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 interests[index]['text'],
                                 style: TextStyle(
                                   fontSize: screenWidth * 0.035,
                                   color: isSelected
-                                      ? Color(0xFF0038FF)
+                                      ? const Color(0xFF0038FF)
                                       : Colors.black,
                                 ),
                               ),
@@ -128,8 +128,8 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
                 ),
               ),
             ),
-            SizedBox(height: 16),
-            Container(
+            const SizedBox(height: 16),
+            SizedBox(
               width: screenWidth * 0.84,
               height: screenWidth * 0.14,
               child: ElevatedButton(
@@ -138,16 +138,16 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
 
                   Navigator.pop(context); // 이름 변경 후 이전 페이지로 돌아가기
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0038FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
                 child: Text(
                   '저장하기',
                   style: TextStyle(
                       color: Colors.white, fontSize: screenWidth * 0.032),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF0038FF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
                 ),
               ),
             ),

@@ -139,14 +139,14 @@ class _SetAlertPageState extends State<SetAlertPage> {
       }
 
       if (response.statusCode == 200) {
-        print('${isUpdate ? "수정" : "추가"} 성공');
+        // print('${isUpdate ? "수정" : "추가"} 성공');
         await cancelAllNotifications(); //알림 취소
         await LoadAlert(); // 알림 로드
         await scheduleNotifications(); // 알림 예약
         Navigator.pop(context, true);
       } else {
-        print('응답 코드: ${response.statusCode}');
-        print('응답 내용: ${response.body}');
+        // print('응답 코드: ${response.statusCode}');
+        // print('응답 내용: ${response.body}');
         _showErrorDialog('${isUpdate ? "수정" : "추가"} 실패');
       }
     } catch (e) {
