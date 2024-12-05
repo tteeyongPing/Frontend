@@ -6,6 +6,8 @@ import 'package:newsee/presentation/pages/news/news_list_page.dart';
 import 'package:newsee/presentation/pages/bookmark/bookmark_page.dart';
 import 'package:newsee/presentation/pages/playlist/playlist_page.dart';
 import 'package:newsee/presentation/pages/mypage/my_page.dart';
+import 'package:app_links/app_links.dart';
+import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // MainPage 임포트
 
 class MainPage extends StatefulWidget {
   @override
