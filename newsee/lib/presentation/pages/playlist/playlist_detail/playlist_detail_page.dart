@@ -71,7 +71,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body)['data'];
         setState(() {
-          isFavorite = data;
+          isFavorite = !data;
         });
       } else {
         debugPrint(
@@ -187,7 +187,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
       if (response.statusCode == 200) {
         setState(() {
-          isFavorite = subscribe;
+          isFavorite = !subscribe;
         });
       } else {
         debugPrint('Failed to change favorite: ${response.statusCode}');
