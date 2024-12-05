@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'news_origin_page.dart';
 import 'package:newsee/models/news_counter.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:newsee/models/playlist.dart'; // Playlist 모델
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
-import 'package:newsee/utils/dialog_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 String title = "";
@@ -17,8 +14,8 @@ String content = "";
 class PlaylistDialog extends StatefulWidget {
   final List<Playlist> playlists;
   final int newsId;
-  PlaylistDialog({Key? key, required this.playlists, required this.newsId})
-      : super(key: key);
+  const PlaylistDialog(
+      {super.key, required this.playlists, required this.newsId});
 
   @override
   _PlaylistDialogState createState() => _PlaylistDialogState();
@@ -33,11 +30,8 @@ Future<Map<String, dynamic>> getTokenAndUserId() async {
 }
 
 class _PlaylistDialogState extends State<PlaylistDialog> {
-  bool _isLoading = false;
   int selectedIndex = -1; // 선택된 항목 인덱스 초기화
   Future<void> _addNews(int PlaylisyId, int NewsId) async {
-    setState(() => _isLoading = true);
-
     try {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
@@ -57,16 +51,14 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
 
       if (response.statusCode == 200) {
         //showErrorDialog(context, '뉴스가 플레이리스트에 저장되었습니다.');
-        var data = json.decode(utf8.decode(response.bodyBytes));
+        json.decode(utf8.decode(response.bodyBytes));
       } else {
         //showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
       }
     } catch (e) {
       debugPrint('Error loading bookmarks: $e');
       //showErrorDialog(context, '에러가 발생했습니다: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   @override
@@ -96,9 +88,9 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(16), // 위쪽 테두리 둥글게
                 ),
               ),
@@ -321,7 +313,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
       );
 
       if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
+        json.decode(utf8.decode(response.bodyBytes));
       } else {
         showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
       }
@@ -334,8 +326,6 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
   }
 
   void _makeNewPlaylist(BuildContext context) async {
-    String _title = "";
-    String _description = "";
     TextEditingController titleController = TextEditingController(text: "");
     TextEditingController descriptionController =
         TextEditingController(text: "");
@@ -377,8 +367,6 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
             TextButton(
               onPressed: () async {
                 // 제목과 설명 업데이트
-                _title = titleController.text;
-                _description = descriptionController.text;
 
                 // 비동기적으로 다른 함수 호출
                 //await _navigateToAddPlaylist(_title, _description);
@@ -667,6 +655,186 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
     );
   }
 
+  String _note = ''; // 메모 내용을 저장할 변수
+
+// Fetch news data
+  Future<void> _loadMemo() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse(
+          '${RootUrlProvider.baseURL}/memo/read?newsId=${widget.newsId}');
+      final response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          _note = data['data'];
+        });
+      } else {}
+    } catch (e) {
+      debugPrint('Error loading news data: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _editMemo(String text) async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse('${RootUrlProvider.baseURL}/memo/edit');
+      final response = await http.patch(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({
+          'newsId': widget.newsId,
+          'memo': text,
+        }),
+      );
+      print(url);
+      print(jsonEncode({
+        'newsId': widget.newsId,
+        'memo': text,
+      }));
+      if (response.statusCode == 200) {
+        setState(() {
+          _note = text;
+        });
+      } else {
+        showErrorDialog(context, '메모를 저장하는데 실패했습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading memo data: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _removeMemo() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url = Uri.parse('${RootUrlProvider.baseURL}/memo/remove');
+      final response = await http.delete(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode({
+          'newsId': widget.newsId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _note = ''; // 메모 삭제
+        });
+      } else {
+        showErrorDialog(context, '메모를 삭제하는데 실패했습니다.');
+      }
+    } catch (e) {
+      debugPrint('Error loading memo data: $e');
+      showErrorDialog(context, '에러가 발생했습니다: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _editNote() {
+    TextEditingController noteController = TextEditingController(text: _note);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            '메모 작성',
+            style: TextStyle(
+              fontSize: 16, // 제목 폰트 크기
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: TextField(
+              controller: noteController,
+              maxLines: 5,
+              style: const TextStyle(fontSize: 16), // 입력 텍스트 폰트 크기
+              decoration: InputDecoration(
+                hintText: '뉴스 기사에 대한 메모를 작성하세요.',
+                hintStyle: const TextStyle(color: Colors.grey), // 힌트 스타일
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8), // 둥근 테두리
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                      color: Color(0xFF4D71F6), width: 2), // 포커스 시 테두리
+                ),
+                contentPadding: const EdgeInsets.all(12), // 내부 여백
+              ),
+            ),
+          ),
+          actions: [
+            // 취소 버튼
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                '취소',
+                style: TextStyle(color: Colors.red, fontSize: 14), // 취소 버튼 스타일
+              ),
+            ),
+            // 저장 버튼
+            ElevatedButton(
+              onPressed: () {
+                if (noteController.text.isNotEmpty) {
+                  _editMemo(noteController.text);
+                  Navigator.pop(context); // 팝업 닫기
+                } else {
+                  showErrorDialog(context, '메모 내용이 비어 있습니다.');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4D71F6), // 버튼 배경색
+                foregroundColor: Colors.white, // 버튼 텍스트 색상
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 10), // 버튼 내부 여백
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // 버튼 모서리 둥글게
+                ),
+              ),
+              child: const Text(
+                '저장',
+                style: TextStyle(fontSize: 14), // 저장 버튼 폰트 크기
+              ),
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12), // 다이얼로그 모서리 둥글게
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -824,6 +992,11 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                                           // Add more options functionality here
                                         },
                                       ),
+                                      IconButton(
+                                        icon: const Icon(Icons
+                                            .add_comment_outlined), // 펜 아이콘
+                                        onPressed: _editNote, // 메모 작성 호출
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -891,7 +1064,40 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                             ),
                             SizedBox(
                               height: 20,
-                            )
+                            ),
+                            // Display Notes
+                            if (_note.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '메모:\n$_note',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: screenWidth * 0.04,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        _removeMemo();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ],
                       ),
