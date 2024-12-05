@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:newsee/presentation/pages/SearchPage/SearchPage.dart';
+import 'package:newsee/presentation/pages/search/search_page.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
   final int visibilityFlag;
 
   const Header({
-    Key? key,
+    super.key,
     this.visibilityFlag = 1,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SearchPage()),
+                    MaterialPageRoute(builder: (context) => const SearchPage()),
                   );
                 },
                 child: const Icon(

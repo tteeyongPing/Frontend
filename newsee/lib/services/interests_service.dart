@@ -1,41 +1,47 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
-import 'package:newsee/models/Interests.dart';
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:newsee/utils/auth_utils.dart';
 
-Future<List<Interest>> fetchInterests() async {
-  const String apiUrl = "YOUR_API_URL";
+// 관심사 데이터 로드
+Future<List<Map<String, dynamic>>> fetchInterests(String endpoint) async {
+  final credentials = await getTokenAndUserId();
+  String? token = credentials['token'];
 
-  final logger = Logger();
+  var url = Uri.parse('${RootUrlProvider.baseURL}/category/$endpoint');
+  var response = await http.get(
+    url,
+    headers: {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+    },
+  );
 
-  // 기본 관심 분야 데이터
-  const List<Map<String, dynamic>> defaultInterests = [
-    {"categoryId": 1, "categoryName": "정치"},
-    {"categoryId": 2, "categoryName": "경제"},
-    {"categoryId": 3, "categoryName": "사회"},
-    {"categoryId": 4, "categoryName": "국제"},
-    {"categoryId": 5, "categoryName": "스포츠"},
-    {"categoryId": 6, "categoryName": "문화/예술"},
-    {"categoryId": 7, "categoryName": "과학/기술"},
-    {"categoryId": 8, "categoryName": "건강/의료"},
-    {"categoryId": 9, "categoryName": "연예/오락"},
-    {"categoryId": 10, "categoryName": "환경"},
-  ];
-
-  try {
-    final response = await http.get(Uri.parse(apiUrl));
-
-    if (response.statusCode == 200) {
-      final result = jsonDecode(response.body);
-      return (result["data"] as List)
-          .map((item) => Interest.fromJson(item))
-          .toList();
-    } else {
-      throw Exception("Failed to load from server");
-    }
-  } catch (e) {
-    // 서버 연결 실패 시 기본 데이터 반환
-    logger.e("Error fetching interests: $e");
-    return defaultInterests.map((item) => Interest.fromJson(item)).toList();
+  if (response.statusCode == 200) {
+    var data = json.decode(utf8.decode(response.bodyBytes));
+    return List<Map<String, dynamic>>.from(data['data']);
+  } else {
+    throw Exception('Failed to load interests');
   }
+}
+
+// 관심사 데이터 저장
+Future<bool> saveInterests(List<int> selectedInterests) async {
+  final credentials = await getTokenAndUserId();
+  String? token = credentials['token'];
+  int? userId = credentials['userId'];
+
+  var url =
+      Uri.parse('${RootUrlProvider.baseURL}/category/edit?userId=$userId');
+  var response = await http.patch(
+    url,
+    headers: {
+      'accept': '*/*',
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(selectedInterests),
+  );
+
+  return response.statusCode == 200;
 }

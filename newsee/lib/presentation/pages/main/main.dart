@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/widgets/header/header.dart';
 import 'package:newsee/presentation/widgets/footer/footer.dart';
-import 'package:newsee/presentation/pages/homePage/homePage.dart';
-import 'package:newsee/presentation/pages/news_page/news_list_page.dart';
-import 'package:newsee/presentation/pages/BookmarkPage/BookmarkPage.dart';
-import 'package:newsee/presentation/pages/PlaylistPage/playlist_page.dart';
-import 'package:newsee/presentation/pages/MyPage/MyPage.dart';
+import 'package:newsee/presentation/pages/home/home_page.dart';
+import 'package:newsee/presentation/pages/news/news_list_page.dart';
+import 'package:newsee/presentation/pages/bookmark/bookmark_page.dart';
+import 'package:newsee/presentation/pages/playlist/playlist_page.dart';
+import 'package:newsee/presentation/pages/mypage/my_page.dart';
+// MainPage 임포트
 
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
-  int? _initialSelectedInterestId = null; // Example initial ID
+  int? _initialSelectedInterestId; // Example initial ID
   bool _isMine = true;
-  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    _pages = [
-      HomePage(
-        onNavigateToNews: (id) =>
-            _onItemTappedNews(id), // Pass the correct callback
-      ),
-      NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
-      BookmarkPage(),
-      PlaylistPage(isMine: _isMine),
-      MyPage(
-        onNavigateToNews: () => _onItemTapped(1),
-        onNavigateToBookmark: () => _onItemTapped(2),
-        onNavigateMyPlaylistPage: () => _onItemTappedPlaylistPage(true),
-        onNavigateToPlaylistPage: () => _onItemTappedPlaylistPage(false),
-      ),
-    ];
   }
 
   void _onItemTappedPlaylistPage(bool id) {
@@ -69,7 +56,7 @@ class _MainPageState extends State<MainPage> {
         onNavigateToNews: (id) => _onItemTappedNews(id),
       ),
       NewsListPage(initialSelectedInterestId: _initialSelectedInterestId),
-      BookmarkPage(),
+      const BookmarkPage(),
       PlaylistPage(isMine: _isMine),
       MyPage(
         onNavigateToNews: () => _onItemTapped(1),
@@ -83,9 +70,9 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: SizedBox.shrink(),
-        flexibleSpace: Header(),
-        bottom: PreferredSize(
+        leading: const SizedBox.shrink(),
+        flexibleSpace: const Header(),
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(
             color: Colors.grey,

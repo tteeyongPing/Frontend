@@ -12,11 +12,12 @@ class Footer extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
 
-  Footer({required this.selectedIndex, required this.onItemTapped});
+  const Footer(
+      {super.key, required this.selectedIndex, required this.onItemTapped});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 70, // BottomNavigationBar의 높이 설정
       child: BottomNavigationBar(
         items: List.generate(menus.length, (index) {
