@@ -209,7 +209,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
       if (response.statusCode == 200) {
         setState(() {
-          widget.playlist.newsList?.removeWhere((news) => news?.newsId == id);
+          widget.playlist.newsList?.removeWhere((news) => news.newsId == id);
           selectedNews.clear();
         });
       } else {
@@ -480,24 +480,20 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: newsList.map((news) {
-                            if (news is News) {
-                              return NewsCard(
-                                news: news,
-                                isEditing: _isEditing,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    news.selected = selected;
-                                    if (selected) {
-                                      selectedNews.add(news);
-                                    } else {
-                                      selectedNews.remove(news);
-                                    }
-                                  });
-                                },
-                              );
-                            } else {
-                              return const SizedBox();
-                            }
+                            return NewsCard(
+                              news: news,
+                              isEditing: _isEditing,
+                              onSelected: (selected) {
+                                setState(() {
+                                  news.selected = selected;
+                                  if (selected) {
+                                    selectedNews.add(news);
+                                  } else {
+                                    selectedNews.remove(news);
+                                  }
+                                });
+                              },
+                            );
                           }).toList(),
                         ),
                       ),
@@ -537,8 +533,4 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           ],
         ));
   }
-}
-
-extension on Object? {
-  get newsId => null;
 }
