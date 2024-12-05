@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 앱 시작 시 토큰 확인
-    //_checkAndNavigate(context);
+    _checkAndNavigate(context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -68,6 +68,8 @@ class LoginPage extends StatelessWidget {
                 width: buttonWidth,
               ),
             ),
+
+            // 임시 이동 버튼
           ],
         ),
       ),

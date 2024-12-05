@@ -156,9 +156,9 @@ class NewsListPageState extends State<NewsListPage> {
         setState(() {
           interests = List<Interest>.from(data['data'].map((item) {
             return Interest(
-              categoryId: item['categoryId'],
+              categoryId: item['id'],
               categoryName: item['categoryName'],
-              icon: icons[(item['categoryId'] % icons.length)],
+              icon: icons[(item['id'] % icons.length)],
             );
           }));
         });
@@ -316,7 +316,7 @@ class NewsListPageState extends State<NewsListPage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const SelectInterests(visibilityFlag: -1)),
+                                  SelectInterests(visibilityFlag: -1)),
                         );
 
                         if (result == true) {

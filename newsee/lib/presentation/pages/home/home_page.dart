@@ -340,7 +340,7 @@ class HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const SelectInterests(
+                                                SelectInterests(
                                                     visibilityFlag: -1)),
                                       );
 
