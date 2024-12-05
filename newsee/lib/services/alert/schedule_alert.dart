@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart'; // 시간을 포맷팅하기 위해 사용
 import 'package:timezone/timezone.dart' as tz;
 import 'package:newsee/services/alert/alert_database.dart';
+import 'package:newsee/presentation/pages/Main/Main.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 임포트
 import 'package:newsee/Api/RootUrlProvider.dart';
 import 'package:http/http.dart' as http;
@@ -80,7 +81,7 @@ Future<DateTime> _getAlarmDateTime(String day, DateTime scheduledTime) async {
       alarmDateTime.day, scheduledTime.hour, scheduledTime.minute);
 
   if (alarmDateTime.isBefore(currentDate)) {
-    alarmDateTime = alarmDateTime.add(const Duration(days: 7));
+    alarmDateTime = alarmDateTime.add(Duration(days: 7));
   }
 
   debugPrint('알림 예약: 예약 시간: $alarmDateTime');
