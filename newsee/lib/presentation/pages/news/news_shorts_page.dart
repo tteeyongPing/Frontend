@@ -220,7 +220,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
   }
 }
 
-late List<Playlist> playlists = []; // 플레이리스트 목록
+List<Playlist> playlists = []; // 플레이리스트 목록
 bool isBookmark = false;
 
 class NewsShortsPage extends StatefulWidget {
@@ -233,7 +233,7 @@ class NewsShortsPage extends StatefulWidget {
 }
 
 class _NewsShortsPageState extends State<NewsShortsPage> {
-  late Map<String, dynamic>? news = null; // news를 nullable로 설정
+  late Map<String, dynamic>? news; // news를 nullable로 설정
   bool _isLoading = false;
 
   // View count recording
@@ -281,8 +281,8 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
             data['data'].map((item) => Playlist.fromJson(item)),
           );
         });
-        print("My");
-        print(playlists.toString());
+        // print("My");
+        // print(playlists.toString());
       } else {
         showErrorDialog(context, '뉴스 검색 결과가 없습니다.');
       }
@@ -312,7 +312,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
       );
       if (response.statusCode == 200) {
         var data = json.decode(utf8.decode(response.bodyBytes));
-        print(data['data']);
+        // print(data['data']);
         setState(() {
           isBookmark = data['data'];
         });
@@ -459,8 +459,8 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
       debugPrint('Error loading news data: $e');
       showErrorDialog(context, '에러가 발생했습니다: $e');
     } finally {
-      print(title);
-      print(content);
+      // print(title);
+      // print(content);
       setState(() => _isLoading = false);
     }
   }
@@ -492,9 +492,9 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                   ],
                   buttonTitle: "뉴스 보러가기"));
           await ShareClient.instance.launchKakaoTalk(uri);
-          print('카카오톡 공유 완료');
+          // print('카카오톡 공유 완료');
         } catch (error) {
-          print('카카오톡 공유 실패 $error');
+          // print('카카오톡 공유 실패 $error');
         }
       } else {
         try {
@@ -505,7 +505,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                   buttonTitle: "뉴스 보러가기"));
           await launchBrowserTab(shareUrl, popupOpen: true);
         } catch (error) {
-          print('카카오톡 공유 실패 $error');
+          // print('카카오톡 공유 실패 $error');
         }
       }
     } catch (e) {
@@ -592,7 +592,7 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
           'memo': text,
         }),
       );
-      print(url);
+      // print(url);
       print(jsonEncode({
         'newsId': widget.newsId,
         'memo': text,

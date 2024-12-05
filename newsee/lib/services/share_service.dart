@@ -16,9 +16,9 @@ Future<void> shareViaKakaoTalk(String playlistName) async {
         ),
       );
       await ShareClient.instance.launchKakaoTalk(uri);
-      print('카카오톡 공유 완료');
+      // print('카카오톡 공유 완료');
     } catch (error) {
-      print('카카오톡 공유 실패: $error');
+      // print('카카오톡 공유 실패: $error');
     }
   } else {
     try {
@@ -31,7 +31,7 @@ Future<void> shareViaKakaoTalk(String playlistName) async {
       );
       await launchBrowserTab(shareUrl, popupOpen: true);
     } catch (error) {
-      print('카카오톡 공유 실패: $error');
+      // print('카카오톡 공유 실패: $error');
     }
   }
 }

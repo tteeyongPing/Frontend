@@ -7,7 +7,7 @@ import 'package:newsee/utils/dialog_utils.dart';
 
 class SelectInterests extends StatefulWidget {
   final int visibilityFlag; // Constructor를 통해 visibilityFlag 값을 받음
-  SelectInterests({required this.visibilityFlag});
+  const SelectInterests({super.key, required this.visibilityFlag});
   @override
   _SelectInterestsState createState() => _SelectInterestsState();
 }
@@ -48,7 +48,7 @@ class _SelectInterestsState extends State<SelectInterests> {
           if (data.isNotEmpty && widget.visibilityFlag != -1) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => MainPage()),
+              MaterialPageRoute(builder: (context) => const MainPage()),
             );
           }
 
@@ -73,7 +73,7 @@ class _SelectInterestsState extends State<SelectInterests> {
         if (widget.visibilityFlag != -1) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => MainPage()),
+            MaterialPageRoute(builder: (context) => const MainPage()),
           );
         } else {
           Navigator.pop(context, true);
@@ -108,29 +108,30 @@ class _SelectInterestsState extends State<SelectInterests> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: SizedBox.shrink(),
-        flexibleSpace: Header(visibilityFlag: -1),
-        bottom: PreferredSize(
+        leading: const SizedBox.shrink(),
+        flexibleSpace: const Header(visibilityFlag: -1),
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1.0),
           child: Divider(color: Colors.grey, thickness: 1.0, height: 1.0),
         ),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   '당신의 관심 분야를 선택해주세요.',
                   style: TextStyle(fontSize: screenWidth * 0.045),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
                     padding:
                         EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
                     itemCount: interests.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       childAspectRatio: 1,
                       mainAxisSpacing: 8,
@@ -154,11 +155,11 @@ class _SelectInterestsState extends State<SelectInterests> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Color(0xFFD0D9F6)
-                                : Color(0xFFE8E8E8),
+                                ? const Color(0xFFD0D9F6)
+                                : const Color(0xFFE8E8E8),
                             border: isSelected
                                 ? Border.all(
-                                    color: Color(0xFF0038FF), width: 2.0)
+                                    color: const Color(0xFF0038FF), width: 2.0)
                                 : null,
                             borderRadius: BorderRadius.circular(24),
                           ),
@@ -169,16 +170,16 @@ class _SelectInterestsState extends State<SelectInterests> {
                                 interests[index]['icon'],
                                 size: screenWidth * 0.11,
                                 color: isSelected
-                                    ? Color(0xFF0038FF)
+                                    ? const Color(0xFF0038FF)
                                     : Colors.black,
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 interests[index]['text'],
                                 style: TextStyle(
                                   fontSize: screenWidth * 0.035,
                                   color: isSelected
-                                      ? Color(0xFF0038FF)
+                                      ? const Color(0xFF0038FF)
                                       : Colors.black,
                                 ),
                               ),
@@ -189,8 +190,8 @@ class _SelectInterestsState extends State<SelectInterests> {
                     },
                   ),
                 ),
-                SizedBox(height: 16),
-                Container(
+                const SizedBox(height: 16),
+                SizedBox(
                   width: screenWidth * 0.84,
                   height: screenWidth * 0.14,
                   child: ElevatedButton(
@@ -199,17 +200,17 @@ class _SelectInterestsState extends State<SelectInterests> {
                         : () {
                             sendData(); // sendData()를 함수처럼 호출
                           },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0038FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                    ),
                     child: Text(
                       widget.visibilityFlag != -1 ? '해당 관심 분야로 시작하기' : '저장하기',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: screenWidth * 0.032,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0038FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
                       ),
                     ),
                   ),
