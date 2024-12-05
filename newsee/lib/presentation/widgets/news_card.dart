@@ -73,7 +73,7 @@ class NewsCard extends StatelessWidget {
                     )
                   else
                     Text(
-                      news.categoryId,
+                      news.categoryId ?? ' ',
                       style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
