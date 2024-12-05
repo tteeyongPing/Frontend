@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:newsee/models/News.dart';
+import 'package:newsee/models/news1.dart';
 
 class NewsApi {
   final String baseUrl;

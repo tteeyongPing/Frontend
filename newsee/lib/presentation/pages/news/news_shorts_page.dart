@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:newsee/models/News.dart';
 import 'news_origin_page.dart';
 import 'package:newsee/models/news_counter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -150,7 +149,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                           ),
                           child: ListTile(
                             title: Text(playlist.playlistName),
-                            subtitle: Text(playlist.description),
+                            subtitle: Text(playlist.description ?? ' '),
                             onTap: () {
                               setState(() {
                                 selectedIndex = playlist.playlistId;
