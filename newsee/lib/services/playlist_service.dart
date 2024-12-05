@@ -147,3 +147,30 @@ Future<http.Response> deleteNewsItem(
     }),
   );
 }
+
+// playlistId로 플레이리스트 가져오기
+Future<Map<String, dynamic>> fetchPlaylistDetails(
+    String token, int playlistId) async {
+  // Construct the endpoint URL
+  final url =
+      Uri.parse('${RootUrlProvider.baseURL}/playlist/detail/$playlistId');
+
+  // Make the GET request
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token', // Add the Bearer token
+      'accept': '*/*', // Accept any media type
+    },
+  );
+
+  // Check the response status
+  if (response.statusCode == 200) {
+    // Decode the JSON response
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    return responseData;
+  } else {
+    // Handle errors
+    throw Exception('Failed to fetch playlist details: ${response.statusCode}');
+  }
+}
