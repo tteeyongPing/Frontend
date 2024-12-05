@@ -6,6 +6,7 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임�
 import 'package:permission_handler/permission_handler.dart'; // 권한 요청을 위한 패키지 임포트
 import 'package:newsee/presentation/pages/login/login_page.dart';
 import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // NewsShortsPage 임포트
+import 'package:newsee/presentation/pages/playlist/playlist_detail/playlist_detail_page.dart';
 // AlertSettingPage 임포트
 import 'package:newsee/models/news_counter.dart';
 import 'package:app_links/app_links.dart';
@@ -183,13 +184,13 @@ void _handleLink(String link) {
     } else {
       // print("Invalid key2: $key2");
     }
-  } else if (key1 == 'play') {
+  } else if (key1 == 'playlist') {
     if (key2 != null) {
       Navigator.push(
         MyApp.navigatorKey.currentContext!,
         MaterialPageRoute(
-            builder: (context) => NewsShortsPage(
-                  newsId: int.parse(key2),
+            builder: (context) => PlaylistDetailPage(
+                  playlistId: int.parse(key2),
                 )),
       );
     } else {
