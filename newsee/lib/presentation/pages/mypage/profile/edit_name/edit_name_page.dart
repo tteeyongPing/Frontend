@@ -20,9 +20,11 @@ class EditNamePageState extends State<EditNamePage> {
       body: Padding(
         padding: EdgeInsets.all(_paddingValue),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
           children: [
-            _buildHeader(),
-            Expanded(child: _buildBody()),
+            buildHeader(),
+            const SizedBox(height: 20), // 헤더와 바디 사이의 간격
+            buildBody(),
           ],
         ),
       ),
@@ -49,15 +51,9 @@ class EditNamePageState extends State<EditNamePage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      children: const [
-        Divider(color: Colors.grey, thickness: 1, height: 1),
-        SizedBox(height: 24),
-        Text(
-          '닉네임 변경',
-          style: TextStyle(fontSize: 20),
-        ),
+  Widget buildHeader() {
+    return const Column(
+      children: [
         SizedBox(height: 8),
         Text(
           '변경할 이름을 입력해주세요.',
@@ -67,7 +63,7 @@ class EditNamePageState extends State<EditNamePage> {
     );
   }
 
-  Widget _buildBody() {
+  Widget buildBody() {
     return SingleChildScrollView(
       child: Column(
         children: [
