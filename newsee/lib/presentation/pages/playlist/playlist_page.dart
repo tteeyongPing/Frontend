@@ -63,7 +63,8 @@ class PlaylistPageState extends State<PlaylistPage> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => PlaylistDetailPage(playlist: playlist),
+        builder: (context) =>
+            PlaylistDetailPage(playlistId: playlist.playlistId),
       ),
     );
 

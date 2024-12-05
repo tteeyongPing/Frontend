@@ -6,11 +6,23 @@ import 'package:newsee/presentation/pages/news/news_shorts_page.dart';
 import 'package:newsee/presentation/widgets/news_card.dart';
 import 'package:newsee/services/playlist_service.dart';
 import 'package:newsee/services/share_service.dart';
+import 'package:newsee/Api/RootUrlProvider.dart';
+import 'package:http/http.dart' as http;
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
+import 'package:url_launcher/url_launcher.dart';
+
+Playlist playlist = Playlist(
+  playlistId: 0,
+  playlistName: ' ',
+  userId: 0,
+  userName: ' ',
+  subscribers: 0,
+);
 
 class PlaylistDetailPage extends StatefulWidget {
-  final Playlist playlist;
+  final int playlistId;
 
-  const PlaylistDetailPage({super.key, required this.playlist});
+  const PlaylistDetailPage({super.key, required this.playlistId});
 
   @override
   State<PlaylistDetailPage> createState() => _PlaylistDetailPageState();
@@ -24,11 +36,53 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   bool isFavorite = false;
   List<News> selectedNews = [];
 
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
     _initializeData();
     _checkSubscriptionStatus();
+    _loadPlaylistPage();
+  }
+
+  Future<void> _loadPlaylistPage() async {
+    setState(() {
+      isLoading = true; // 데이터 로딩 시작
+    });
+
+    try {
+      final credentials = await getTokenAndUserId();
+      String? token = credentials['token'];
+      final url =
+          Uri.parse('${RootUrlProvider.baseURL}/playlist/${widget.playlistId}');
+      final response = await http.get(
+        url,
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      print(url);
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes))['data'];
+        print(data);
+        setState(() {
+          playlist = Playlist.fromJson(data);
+          isLoading = false; // 데이터 로딩 완료
+        });
+      } else {
+        setState(() {
+          isLoading = false; // 실패 시에도 로딩 종료
+        });
+        debugPrint('Failed to load playlist data');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false; // 오류 발생 시에도 로딩 종료
+      });
+      debugPrint('Error loading news data: $e');
+    }
   }
 
   Future<void> _initializeData() async {
@@ -36,9 +90,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     int? userId = credentials['userId'];
 
     setState(() {
-      isMine = widget.playlist.userId == userId;
-      _description = widget.playlist.description!;
-      _playlistName = widget.playlist.playlistName;
+      isMine = playlist.userId == userId;
+      _description = playlist.description!;
+      _playlistName = playlist.playlistName;
     });
   }
 
@@ -48,7 +102,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       String? token = credentials['token'];
 
       final response = await editPlaylist(
-          token!, widget.playlist.playlistId, _playlistName, _description);
+          token!, playlist.playlistId, _playlistName, _description);
 
       if (response.statusCode == 200) {
         setState(() {
@@ -67,8 +121,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
 
-      final response =
-          await getSubscriptionStatus(token!, widget.playlist.playlistId);
+      final response = await getSubscriptionStatus(token!, playlist.playlistId);
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body)['data'];
@@ -86,8 +139,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
   void resetSelected() {
     setState(() {
-      if (widget.playlist.newsList != null) {
-        for (var news in widget.playlist.newsList!) {
+      if (playlist.newsList != null) {
+        for (var news in playlist.newsList!) {
           news.selected = false;
         }
       }
@@ -183,7 +236,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
 
       final response = await changeSubscription(
         token!,
-        widget.playlist.playlistId,
+        playlist.playlistId,
         subscribe,
       );
 
@@ -204,12 +257,11 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       final credentials = await getTokenAndUserId();
       String? token = credentials['token'];
 
-      final response =
-          await deleteNewsItem(token!, widget.playlist.playlistId, id);
+      final response = await deleteNewsItem(token!, playlist.playlistId, id);
 
       if (response.statusCode == 200) {
         setState(() {
-          widget.playlist.newsList?.removeWhere((news) => news.newsId == id);
+          playlist.newsList?.removeWhere((news) => news.newsId == id);
           selectedNews.clear();
         });
       } else {
@@ -220,17 +272,56 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     } finally {}
   }
 
-  void _shareViaKakao() async {
+  Future<void> share() async {
+    playlists.clear();
     try {
-      await shareViaKakaoTalk(_playlistName);
+      // 카카오톡 실행 가능 여부 확인
+      bool isKakaoTalkSharingAvailable =
+          await ShareClient.instance.isKakaoTalkSharingAvailable();
+
+      if (isKakaoTalkSharingAvailable) {
+        try {
+          Uri uri = await ShareClient.instance.shareDefault(
+              template: TextTemplate(
+                  text: 'Newsee\n친구가 플레이리스트를 공유했어요!\n${playlist.playlistName}',
+                  link: Link(),
+                  buttons: [
+                    Button(
+                      title: '플레이리스트 보러가기',
+                      link: Link(
+                        androidExecutionParams: {
+                          'key1': 'playlist',
+                          'key2': widget.playlistId.toString()
+                        },
+                      ),
+                    ),
+                  ],
+                  buttonTitle: "플레이리스트 보러가기"));
+          await ShareClient.instance.launchKakaoTalk(uri);
+          print('카카오톡 공유 완료');
+        } catch (error) {
+          print('카카오톡 공유 실패 $error');
+        }
+      } else {
+        try {
+          Uri shareUrl = await WebSharerClient.instance.makeDefaultUrl(
+              template: TextTemplate(
+                  text: 'Newsee\n친구가 플레이리스트를 공유했어요!\n$title',
+                  link: Link(),
+                  buttonTitle: "플레이리스트 보러가기"));
+          await launchBrowserTab(shareUrl, popupOpen: true);
+        } catch (error) {
+          print('카카오톡 공유 실패 $error');
+        }
+      }
     } catch (e) {
-      debugPrint('Error during KakaoTalk sharing: $e');
+      debugPrint('Error loading share: $e');
     } finally {}
   }
 
   @override
   Widget build(BuildContext context) {
-    final newsList = widget.playlist.newsList;
+    final newsList = playlist.newsList;
 
     return Scaffold(
         backgroundColor: const Color(0xFFF2F2F2),
@@ -364,13 +455,13 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                '팔로워: ${widget.playlist.subscribers}명',
+                                '팔로워: ${playlist.subscribers}명',
                                 style: const TextStyle(
                                     fontSize: 12, color: Colors.black),
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                '작성자: ${widget.playlist.userName}',
+                                '작성자: ${playlist.userName}',
                                 style: const TextStyle(
                                     fontSize: 12, color: Colors.black),
                               ),
@@ -388,7 +479,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                             children: [
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  _shareViaKakao;
+                                  share();
                                 },
                                 icon: const Icon(Icons.share,
                                     size: 18, color: Colors.white),

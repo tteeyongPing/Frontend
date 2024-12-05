@@ -55,7 +55,8 @@ class _SearchPageState extends State<SearchPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PlaylistDetailPage(playlist: playlist),
+        builder: (context) =>
+            PlaylistDetailPage(playlistId: playlist.playlistId),
       ),
     );
   }

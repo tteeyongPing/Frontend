@@ -9,14 +9,15 @@ class Playlist {
   final int subscribers;
   final List<News>? newsList;
 
+  // 기본 생성자 추가
   Playlist({
-    required this.playlistId,
-    required this.playlistName,
-    this.description,
-    required this.userId,
-    required this.userName,
+    this.playlistId = 0,
+    this.playlistName = '',
+    this.description = " ",
+    this.userId = 0,
+    this.userName = '',
     this.newsList,
-    required this.subscribers,
+    this.subscribers = 0,
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
