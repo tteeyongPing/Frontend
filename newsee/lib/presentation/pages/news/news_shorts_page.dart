@@ -10,7 +10,6 @@ import 'dart:convert';
 import 'package:newsee/models/Playlist.dart'; // Playlist 모델
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK
 import 'package:newsee/utils/dialog_utils.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 String title = "";
 String content = "";
@@ -248,14 +247,6 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
   // View count recording
   Future<void> _recordViewCount() async {
     await NewsCounter.recordNewsCount(widget.newsId);
-  }
-
-  Future<void> openLink(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   Future<Map<String, dynamic>> getTokenAndUserId() async {
@@ -547,7 +538,6 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
             'company': data['data']['company'],
             'shorts': data['data']['shorts'],
             'reporter': data['data']['reporter'],
-            'link': data['data']['link']
           };
           title = data['data']['title'];
           content = data['data']['content'];
@@ -860,7 +850,14 @@ class _NewsShortsPageState extends State<NewsShortsPage> {
                                 ),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    openLink(news!['link']);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => NewsOriginPage(
+                                            newsId: widget
+                                                .newsId), // 123은 예시로 전달한 뉴스 ID입니다.
+                                      ),
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
