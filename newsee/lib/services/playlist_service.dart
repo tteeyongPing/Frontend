@@ -19,11 +19,13 @@ Future<List<Playlist>> fetchPlaylists(bool isMine) async {
       'Authorization': 'Bearer $token',
     },
   );
-
+  print(url);
   if (response.statusCode == 200) {
-    var data = json.decode(utf8.decode(response.bodyBytes));
-    return List<Playlist>.from(
-        data['data'].map((item) => Playlist.fromJson(item)));
+    var data = json.decode(utf8.decode(response.bodyBytes))['data'];
+
+    return List<Playlist>.from(data.map((item) => Playlist.fromJson(item)));
+  } else if (response.statusCode == 404) {
+    return [];
   } else {
     throw Exception('Failed to load playlists');
   }
@@ -60,7 +62,7 @@ Future<void> deletePlaylist(int id, bool isMine) async {
       ? '/playlist/remove?playlistId=$id'
       : '/playlist/subscribe/cancel?playlistId=$id';
   final url = Uri.parse('${RootUrlProvider.baseURL}$endpoint');
-
+  print("Authorization : 'Bearer $token',");
   final response = await (isMine
       ? http.delete(url, headers: {
           'accept': '*/*',

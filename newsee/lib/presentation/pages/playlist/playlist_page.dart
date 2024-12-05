@@ -31,11 +31,9 @@ class PlaylistPageState extends State<PlaylistPage> {
     setState(() => _isLoading = true);
 
     try {
-      if (isMyPlaylistSelected) {
-        playlists = (await fetchPlaylists(true)).cast<Playlist>();
-      } else {
-        subscribePlaylists = (await fetchPlaylists(false)).cast<Playlist>();
-      }
+      playlists = (await fetchPlaylists(true)).cast<Playlist>();
+
+      subscribePlaylists = (await fetchPlaylists(false)).cast<Playlist>();
     } catch (e) {
       if (!mounted) return;
       showErrorDialog(context, '플레이리스트를 불러오는 중 문제가 발생했습니다: $e');
@@ -260,7 +258,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                                 }
                                               },
                                             );
-                                            if (!mounted) return;
+
                                             if (isDeleted) {
                                               await _loadPlaylists(); // 삭제 후 목록 갱신
                                             }
