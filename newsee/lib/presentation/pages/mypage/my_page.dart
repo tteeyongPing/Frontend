@@ -4,6 +4,7 @@ import 'package:newsee/presentation/pages/select_interests/select_interests_page
 import 'package:newsee/presentation/pages/mypage/alert_setting/alert_setting_page.dart';
 import 'package:newsee/presentation/pages/search/search_page.dart';
 import 'package:newsee/services/my_page/my_page_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPage extends StatefulWidget {
   final VoidCallback onNavigateToNews;
@@ -26,7 +27,7 @@ class MyPage extends StatefulWidget {
 
 class MyPageState extends State<MyPage> {
   bool isLoading = true; // Initially loading
-  String? nickName;
+  String nickName = "";
   final MyPageService myPageService = MyPageService();
 
   @override
@@ -35,11 +36,18 @@ class MyPageState extends State<MyPage> {
     loadNickName();
   }
 
+// 이름 저장
+  Future<void> saveUserName(String userName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', userName);
+  }
+
   Future<void> loadNickName() async {
     try {
       String? name = await myPageService.loadName();
       setState(() {
-        nickName = name;
+        nickName = name ?? " ";
+        saveUserName(nickName);
         isLoading = false;
       });
     } catch (e) {
