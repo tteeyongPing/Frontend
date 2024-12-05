@@ -21,7 +21,7 @@ String getTruncatedContent(String content, double maxWidth, TextStyle style) {
     return content; // 텍스트가 제한된 넓이에 맞다면 그대로 반환
   } else {
     // 텍스트가 제한된 넓이를 초과하면 잘라서 반환
-    return content.substring(0, content.length - 3) + '...';
+    return '${content.substring(0, content.length - 3)}...';
   }
 }
 
@@ -74,7 +74,7 @@ class NewsListPage extends StatefulWidget {
   final int? initialSelectedInterestId;
 
   // 생성자에서 initialSelectedInterest를 받아옵니다.
-  NewsListPage({this.initialSelectedInterestId});
+  const NewsListPage({super.key, this.initialSelectedInterestId});
 
   @override
   NewsListPageState createState() => NewsListPageState();
@@ -229,10 +229,8 @@ class NewsListPageState extends State<NewsListPage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF2F2F2),
       body: Column(
         children: [
           // Interest selection grid (All, Add buttons, and Interests)
@@ -252,7 +250,7 @@ class NewsListPageState extends State<NewsListPage> {
               height: 100,
               child: GridView.builder(
                 scrollDirection: Axis.horizontal,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 1,
                   childAspectRatio: 1.3,
                   mainAxisSpacing: 1.0,
@@ -282,7 +280,7 @@ class NewsListPageState extends State<NewsListPage> {
                               height: 70,
                               decoration: BoxDecoration(
                                 color: _selectedInterest == null
-                                    ? Color(0xFFD0D9F6)
+                                    ? const Color(0xFFD0D9F6)
                                     : const Color(0xFFF2F2F2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -290,17 +288,17 @@ class NewsListPageState extends State<NewsListPage> {
                                 Icons.view_list, // "All" button icon
                                 size: 40,
                                 color: _selectedInterest == null
-                                    ? Color(0xFF0038FF)
+                                    ? const Color(0xFF0038FF)
                                     : Colors.black,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               "전체",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: _selectedInterest == null
-                                    ? Color(0xFF0038FF)
+                                    ? const Color(0xFF0038FF)
                                     : Colors.black,
                               ),
                               textAlign: TextAlign.center,
@@ -342,14 +340,14 @@ class NewsListPageState extends State<NewsListPage> {
                                 color: const Color(0xFFF2F2F2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.add, // "Add" button icon
                                 size: 40,
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
+                            const SizedBox(height: 4),
+                            const Text(
                               "추가",
                               style: TextStyle(
                                 fontSize: 16,
@@ -380,7 +378,7 @@ class NewsListPageState extends State<NewsListPage> {
                             height: 70,
                             decoration: BoxDecoration(
                               color: _selectedInterest == interest
-                                  ? Color(0xFFD0D9F6)
+                                  ? const Color(0xFFD0D9F6)
                                   : const Color(0xFFF2F2F2),
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -388,17 +386,17 @@ class NewsListPageState extends State<NewsListPage> {
                               interest.icon,
                               size: 40,
                               color: _selectedInterest == interest
-                                  ? Color(0xFF0038FF)
+                                  ? const Color(0xFF0038FF)
                                   : Colors.black,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             interest.categoryName,
                             style: TextStyle(
                               fontSize: 16,
                               color: _selectedInterest == interest
-                                  ? Color(0xFF0038FF)
+                                  ? const Color(0xFF0038FF)
                                   : Colors.black,
                             ),
                             textAlign: TextAlign.center,
@@ -413,7 +411,7 @@ class NewsListPageState extends State<NewsListPage> {
           ),
           // News List
           isLoading
-              ? CircularProgressIndicator()
+              ? const CircularProgressIndicator()
               : Expanded(
                   child: ListView.builder(
                   controller: _scrollController,
