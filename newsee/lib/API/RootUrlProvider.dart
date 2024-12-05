@@ -1,7 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:http/http.dart' as http;
 
 class RootUrlProvider {
   static String get baseURL {

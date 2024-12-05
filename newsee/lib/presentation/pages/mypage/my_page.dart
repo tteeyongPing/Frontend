@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:newsee/presentation/pages/mypage/profile/profile_page.dart';
 import 'package:newsee/presentation/pages/select_interests/select_interests_page.dart';
-import 'package:newsee/presentation/pages/mypage/profile/edit_interests/edit_interests_page.dart';
 import 'package:newsee/presentation/pages/mypage/alert_setting/alert_setting_page.dart';
 import 'package:newsee/presentation/pages/search/search_page.dart';
-import 'package:newsee/Api/RootUrlProvider.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:newsee/services/my_page_service.dart';
 
 class MyPage extends StatefulWidget {
   final VoidCallback onNavigateToNews;
@@ -15,90 +11,41 @@ class MyPage extends StatefulWidget {
   final VoidCallback onNavigateMyPlaylistPage;
   final VoidCallback onNavigateToPlaylistPage;
 
+  // `key`를 추가하고, super 생성자에 전달
   const MyPage({
+    Key? key, // Key를 받아서
     required this.onNavigateToNews,
     required this.onNavigateToBookmark,
     required this.onNavigateMyPlaylistPage,
     required this.onNavigateToPlaylistPage,
-  });
+  }) : super(key: key); // 부모 클래스의 생성자에 전달
 
   @override
-  _MyPageState createState() => _MyPageState();
+  MyPageState createState() => MyPageState();
 }
 
-// 이름 저장
-Future<void> saveUserName(String userName) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString('userName', userName);
-}
-
-// 이름 불러오기
-Future<String?> getUserName() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('userName');
-}
-
-class _MyPageState extends State<MyPage> {
-  bool isLoading = false;
+class MyPageState extends State<MyPage> {
+  bool isLoading = true; // Initially loading
   String? nickName;
+  final MyPageService myPageService = MyPageService();
 
   @override
   void initState() {
     super.initState();
-    loadName();
+    loadNickName();
   }
 
-  Future<Map<String, dynamic>> getTokenAndUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int? userId = prefs.getInt('userId');
-    return {'token': token, 'userId': userId};
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('오류'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> loadName() async {
-    setState(() => isLoading = true);
+  Future<void> loadNickName() async {
     try {
-      final credentials = await getTokenAndUserId();
-      String? token = credentials['token'];
-
-      var url = Uri.parse('${RootUrlProvider.baseURL}/user/nickname/get');
-      var response = await http.patch(url, headers: {
-        'accept': '*/*',
-        'Authorization': 'Bearer $token',
+      String? name = await myPageService.loadName();
+      setState(() {
+        nickName = name;
+        isLoading = false;
       });
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-        setState(() {
-          nickName = data['data'];
-          saveUserName('$nickName');
-        });
-      } else {
-        _showErrorDialog('닉네임을 불러오는 데 실패했습니다.');
-      }
     } catch (e) {
-      print('오류 발생: $e');
-      _showErrorDialog('닉네임을 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -113,19 +60,14 @@ class _MyPageState extends State<MyPage> {
           vertical: screenWidth * 0.02,
         ),
         height: kToolbarHeight,
-        decoration: BoxDecoration(
-          color: Colors.white,
-        ),
+        decoration: const BoxDecoration(color: Colors.white),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 16),
-            ),
-            Icon(
+            Text(title, style: const TextStyle(fontSize: 16)),
+            const Icon(
               Icons.arrow_forward_ios,
-              size: screenWidth * 0.04,
+              size: 16,
               color: Color(0xFFB0B0B0),
             ),
           ],
@@ -139,27 +81,15 @@ class _MyPageState extends State<MyPage> {
 
     return Container(
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-      ),
-      padding: EdgeInsets.symmetric(
-        // horizontal: screenWidth * 0.05, // 여기서 좌우 패딩 설정
-        vertical: 10,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: EdgeInsets.only(
-                top: 12.0,
-                bottom: 12.0,
-                left: screenWidth * 0.05), // 섹션 제목의 아래쪽 여백 추가
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
+                top: 12.0, bottom: 12.0, left: screenWidth * 0.05),
+            child: Text(title, style: const TextStyle(fontSize: 16)),
           ),
           ...items,
         ],
@@ -167,49 +97,48 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  Widget buildProfileHeader() {
+    return Container(
+      decoration: const BoxDecoration(color: Colors.white),
+      height: kToolbarHeight,
+      padding: EdgeInsets.zero,
+      child: buildNavigationRow(
+        isLoading ? '로딩 중...' : (nickName ?? '닉네임 없음'),
+        onTap: () async {
+          final updatedNickName = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfilePage()),
+          );
+          if (updatedNickName != null) {
+            setState(() {
+              nickName = updatedNickName;
+            });
+          }
+        },
+      ),
+    );
+  }
+
+  Widget buildSizedBox() {
+    return const SizedBox(height: kToolbarHeight / 2.6); // 중복되는 SizedBox
+  }
+
+  Widget buildSectionWithItems(String title, List<Widget> items) {
+    return buildSection(title: title, items: items);
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      backgroundColor: Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF2F2F2),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-              ),
-              height: kToolbarHeight,
-              padding: EdgeInsets.symmetric(
-                horizontal: 0,
-                vertical: 0,
-              ),
-              child: buildNavigationRow(
-                nickName ?? '로딩 중...',
-                onTap: () async {
-                  final updatedNickName = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfilePage(),
-                    ),
-                  );
-
-                  if (updatedNickName != null) {
-                    setState(() {
-                      nickName = updatedNickName;
-                      saveUserName(nickName!);
-                    });
-                  }
-                },
-              ),
-            ),
-            SizedBox(
-              height: kToolbarHeight / 2.6,
-            ),
-            buildSection(
-              title: "뉴스 탐색",
-              items: [
+            buildProfileHeader(),
+            buildSizedBox(), // 중복된 SizedBox 사용
+            buildSectionWithItems(
+              "뉴스 탐색",
+              [
                 buildNavigationRow("뉴스 검색하기", onTap: () {
                   Navigator.push(
                     context,
@@ -222,12 +151,10 @@ class _MyPageState extends State<MyPage> {
                 ),
               ],
             ),
-            SizedBox(
-              height: kToolbarHeight / 2.6,
-            ),
-            buildSection(
-              title: "나의 뉴스 관리",
-              items: [
+            buildSizedBox(), // 중복된 SizedBox 사용
+            buildSectionWithItems(
+              "나의 뉴스 관리",
+              [
                 GestureDetector(
                   onTap: widget.onNavigateToBookmark,
                   child: buildNavigationRow("북마크"),
@@ -242,12 +169,10 @@ class _MyPageState extends State<MyPage> {
                 ),
               ],
             ),
-            SizedBox(
-              height: kToolbarHeight / 2.6,
-            ),
-            buildSection(
-              title: "설정",
-              items: [
+            buildSizedBox(), // 중복된 SizedBox 사용
+            buildSectionWithItems(
+              "설정",
+              [
                 buildNavigationRow("뉴스 알림 설정", onTap: () {
                   Navigator.push(
                     context,
@@ -265,9 +190,7 @@ class _MyPageState extends State<MyPage> {
                 }),
               ],
             ),
-            SizedBox(
-              height: kToolbarHeight / 2.6,
-            ),
+            buildSizedBox(), // 중복된 SizedBox 사용
           ],
         ),
       ),
