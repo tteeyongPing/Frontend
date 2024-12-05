@@ -5,11 +5,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart'; // 카카오 SDK 임포트
 import 'package:permission_handler/permission_handler.dart'; // 권한 요청을 위한 패키지 임포트
 import 'package:newsee/presentation/pages/login/login_page.dart';
-import 'package:newsee/presentation/pages/Main/Main.dart'; // MainPage
-import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // MainPage
-
+import 'package:newsee/presentation/pages/news/news_shorts_page.dart'; // MainPage 임포트
 import 'package:newsee/presentation/pages/mypage/alert_setting/alert_setting_page.dart'; // MainPage 임포트
 import 'package:newsee/models/news_counter.dart';
+import 'package:app_links/app_links.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -119,26 +118,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// 알림 클릭 이벤트 핸들러
 Future<void> onSelectNotification(NotificationResponse response) async {
   // 알림에서 전달된 payload 확인
   String? payload = response.payload;
 
-  if (payload != null && payload.isNotEmpty) {
-    // payload를 int로 변환하여 전달
-    final int? newsId = int.tryParse(payload);
+  if (payload != null) {
+    try {
+      // payload를 int로 변환
+      int newsId = int.parse(payload);
 
-    if (newsId != null) {
+      // MainPage로 이동
       MyApp.navigatorKey.currentState?.push(
-        MaterialPageRoute(
-          builder: (context) => NewsShortsPage(
-            newsId: newsId,
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => NewsShortsPage(newsId: newsId)),
       );
-    } else {
-      print("Invalid payload: $payload");
+    } catch (e) {
+      // payload가 유효한 숫자 형태가 아닌 경우 처리
+      print("잘못된 payload 형식: $e");
+      // 필요 시 사용자에게 오류를 알리거나 다른 처리 추가
     }
   } else {
-    print("No payload received from notification.");
+    print("payload가 null입니다.");
+    // 필요 시 사용자에게 오류를 알리거나 다른 처리 추가
   }
 }
