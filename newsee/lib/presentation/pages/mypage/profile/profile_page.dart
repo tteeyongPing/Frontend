@@ -3,6 +3,7 @@ import 'package:newsee/presentation/pages/mypage/profile/edit_name/edit_name_pag
 import 'package:newsee/presentation/pages/login/login_page.dart';
 import 'package:newsee/presentation/widgets/custom_dialog.dart';
 import 'package:newsee/services/my_page/profile_page_service.dart'; // 새로운 서비스 파일 임포트
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key); // Added key parameter
@@ -15,17 +16,20 @@ class ProfilePageState extends State<ProfilePage> {
   String userName = ' '; // 기본값을 ' '으로 설정
   bool isLoading = false;
 
-  Future<void> _loadUserName() async {
-    String? name = await UserService.getUserName();
-    setState(() {
-      userName = name ?? ' ';
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    initializeUserName();
+  }
+
+  Future<void> initializeUserName() async {
+    userName = await getUserName() ?? " ";
+  }
+
+// 이름 불러오기
+  Future<String?> getUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userName');
   }
 
   Future<void> _handleLogout() async {

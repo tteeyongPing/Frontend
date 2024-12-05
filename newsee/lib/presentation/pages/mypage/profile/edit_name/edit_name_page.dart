@@ -94,7 +94,17 @@ class EditNamePageState extends State<EditNamePage> {
       child: ElevatedButton(
         onPressed: _controller.text.isEmpty
             ? null
-            : () => patchNickname(_controller.text),
+            : () async {
+                String result = await patchNickname(_controller.text);
+                if (result == '닉네임 변경 성공') {
+                  Navigator.pop(context); // 화면 닫기
+                } else {
+                  // 실패 메시지 처리 (Snackbar 등)
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(result)),
+                  );
+                }
+              },
         child: Text(
           '저장하기',
           style: TextStyle(color: Colors.white, fontSize: _screenWidth * 0.04),
