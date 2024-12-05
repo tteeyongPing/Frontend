@@ -100,7 +100,7 @@ class HomePageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     DateTime today = DateTime.now();
 
-    // 전날까지의 더미 데이터 가져오기
+    // 지난 13일간의 데이터 로드
     List<String> last13Dates = List.generate(
       13,
       (index) => DateFormat('yyyy-MM-dd')
@@ -109,24 +109,17 @@ class HomePageState extends State<HomePage> {
 
     List<int> counts = [];
     for (String date in last13Dates) {
-      int? count = prefs.getInt('dummy_$date');
+      int? count = prefs.getInt('news_count_$date'); // 키 변경
       counts.add(count ?? 0); // 데이터가 없으면 0으로 추가
-      logger.e("Loaded data for $date: ${count ?? 0}");
+      logger.i("Loaded data for $date: ${count ?? 0}");
     }
 
-    // 오늘 날짜 데이터를 계산하여 추가
+    // 오늘 날짜 데이터 로드
     String todayDate = DateFormat('yyyy-MM-dd').format(today);
-    int todayTotal = 0;
-
-    // SharedPreferences에서 오늘 날짜 데이터 가져오기
-    for (String key in prefs.getKeys()) {
-      if (key.contains(todayDate)) {
-        todayTotal += prefs.getInt(key) ?? 0;
-      }
-    }
+    int todayTotal = prefs.getInt('news_count_$todayDate') ?? 0;
 
     counts.add(todayTotal); // 오늘 데이터를 추가
-    logger.e("Today's data: $todayTotal");
+    logger.i("Today's data: $todayTotal");
 
     setState(() {
       dates = [
@@ -139,8 +132,8 @@ class HomePageState extends State<HomePage> {
           : counts;
     });
 
-    logger.e("Final dates: $dates");
-    logger.e("Final dailyCounts: $dailyCounts");
+    logger.i("Final dates: $dates");
+    logger.i("Final dailyCounts: $dailyCounts");
   }
 
   void _showErrorDialog(String message) {
@@ -166,7 +159,6 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _initializeData() async {
-    await generateAndSaveDummyData(); // 더미 데이터 생성 완료 후
     loadChartData(); // 차트 데이터 로드
     loadBanner(); // 배너 데이터 로드
   }
@@ -348,7 +340,7 @@ class HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                SelectInterests(
+                                                const SelectInterests(
                                                     visibilityFlag: -1)),
                                       );
 
